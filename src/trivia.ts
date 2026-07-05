@@ -548,18 +548,25 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
   }
 
   function bankRow(item: BankItem): HTMLElement {
-    const row = document.createElement('div');
+    const row = document.createElement('details');
     row.className = 'wh-bank-item';
+
+    const summary = document.createElement('summary');
+    const caret = document.createElement('span');
+    caret.className = 'wh-icon wh-bank-caret';
+    caret.dataset.name = 'chevron-right';
+    caret.setAttribute('aria-hidden', 'true');
+    summary.appendChild(caret);
     const text = document.createElement('span');
     text.className = 'wh-bank-q';
     text.textContent = item.prompt;
-    row.appendChild(text);
+    summary.appendChild(text);
     if (item.timesAnswered > 0) {
       const stats = document.createElement('span');
       stats.className = 'wh-bank-stats';
       stats.textContent = `${item.timesCorrect}/${item.timesAnswered}`;
       stats.title = `Answered right ${item.timesCorrect} of ${item.timesAnswered} times`;
-      row.appendChild(stats);
+      summary.appendChild(stats);
     }
     const remove = document.createElement('button');
     remove.type = 'button';
@@ -572,7 +579,10 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     x.dataset.name = 'x';
     x.setAttribute('aria-hidden', 'true');
     remove.appendChild(x);
-    remove.addEventListener('click', () => {
+    remove.addEventListener('click', (event) => {
+      // A click inside <summary> would also toggle the row open.
+      event.preventDefault();
+      event.stopPropagation();
       remove.disabled = true;
       void (async () => {
         try {
@@ -588,7 +598,22 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
         }
       })();
     });
-    row.appendChild(remove);
+    summary.appendChild(remove);
+    row.appendChild(summary);
+
+    const reveal = document.createElement('div');
+    reveal.className = 'wh-bank-reveal';
+    const answer = document.createElement('p');
+    answer.className = 'wh-bank-a';
+    answer.textContent = item.choices[item.answerIndex] ?? '';
+    reveal.appendChild(answer);
+    if (item.explanation) {
+      const why = document.createElement('p');
+      why.className = 'wh-bank-why';
+      why.textContent = item.explanation;
+      reveal.appendChild(why);
+    }
+    row.appendChild(reveal);
     return row;
   }
 
