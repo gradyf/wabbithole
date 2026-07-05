@@ -7,12 +7,15 @@ import type { Clerk } from '@clerk/clerk-js';
 interface TriviaOpts {
   onToast(msg: string): void;
   announce(msg: string): void;
+  /** Fired whenever the signed-in state is (re)determined. */
+  onAuthState?(signedIn: boolean): void;
 }
 
 export interface TriviaUI {
   openExtract(node: { lang: string; title: string }): void;
   openBank(): void;
   signIn(): void;
+  signUp(): void;
   /** Decorate a card's extract button with cache/bank state (signed-in only). */
   decorateExtractButton(node: { lang: string; title: string }, btn: HTMLButtonElement): void;
 }
@@ -149,6 +152,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
         console.error('[trivia] user button failed to mount', err);
       }
     }
+    opts.onAuthState?.(signedIn);
     if (signedIn) runPending();
   }
 
@@ -805,6 +809,18 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     decorateExtractButton,
     signIn: () => {
       void requireAuth();
+    },
+    signUp: () => {
+      void (async () => {
+        const c = await loadClerk();
+        if (!c) {
+          opts.onToast('Accounts are unavailable right now. Wandering still works.');
+          return;
+        }
+        if (c.user) return;
+        void c.openSignUp({});
+        watchForSession();
+      })();
     },
   };
 }

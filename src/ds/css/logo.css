@@ -1,0 +1,19 @@
+/* Brand logo. Bitmap crops from the supplied brand sheet
+   (uploads/pasted-1783165183545-0.png), backgrounds flood-filled to
+   transparency. Never redraw the mark or retype the wordmark; scale by
+   setting height (aspect-ratio locks the width). */
+
+.wh-logo-lockup,
+.wh-logo-mark,
+.wh-logo-word,
+.wh-logo-dark {
+  display: inline-block;
+  flex: none;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+.wh-logo-lockup { background-image: url("../assets/logo/lockup.png"); aspect-ratio: 1305 / 323; height: 110px; }
+.wh-logo-mark { background-image: url("../assets/logo/mark.png"); aspect-ratio: 374 / 209; height: 34px; }
+.wh-logo-word { background-image: url("../assets/logo/wordmark.png"); aspect-ratio: 396 / 92; height: 17px; }
+.wh-logo-dark { background-image: url("../assets/logo/lockup-dark.png"); aspect-ratio: 425 / 272; height: 110px; }

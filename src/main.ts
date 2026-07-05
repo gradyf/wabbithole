@@ -29,17 +29,35 @@ function showToast(msg: string): void {
   toastTimer = window.setTimeout(() => (toast.hidden = true), 3500);
 }
 
+// ---- landing vs entry: signed-out first-timers get the landing page; a
+// session cookie, an in-progress trail, or "wander without an account" all
+// route to the search entry instead.
+const landing = $('landing');
+let knownSignedIn = /(?:^|;\s*)__client_uat=(?!0(?:;|$))\d/.test(document.cookie);
+const skipLanding = () => sessionStorage.getItem('wh-skip-landing') === '1';
+
+function updateHomeScreens(): void {
+  const inSession = stack.path.length > 0;
+  const showLanding = !inSession && !knownSignedIn && !skipLanding();
+  landing.hidden = !showLanding;
+  entry.hidden = inSession || showLanding;
+}
+
 const trivia = initTrivia({
   onToast: showToast,
   announce(msg) {
     announcer.textContent = msg;
+  },
+  onAuthState(signedIn) {
+    knownSignedIn = signedIn;
+    updateHomeScreens();
   },
 });
 
 const stack = new Stack(stage, {
   onPathChange(path: CardNode[]) {
     const n = path.length;
-    entry.hidden = n > 0;
+    updateHomeScreens();
     topbar.hidden = n === 0;
     mainRow.hidden = n === 0;
     depthText.textContent = n === 1 ? '1 card' : `${n} deep`;
@@ -278,6 +296,19 @@ $('btn-bank').addEventListener('click', () => trivia.openBank());
 $('btn-entry-bank').addEventListener('click', () => trivia.openBank());
 $('btn-signin').addEventListener('click', () => trivia.signIn());
 
+// ---- landing page --------------------------------------------------------
+
+$('btn-landing-login').addEventListener('click', () => trivia.signIn());
+$('btn-landing-login2').addEventListener('click', () => trivia.signIn());
+$('btn-landing-signup').addEventListener('click', () => trivia.signUp());
+$('btn-landing-create').addEventListener('click', () => trivia.signUp());
+$('btn-landing-create2').addEventListener('click', () => trivia.signUp());
+$('btn-landing-wander').addEventListener('click', () => {
+  sessionStorage.setItem('wh-skip-landing', '1');
+  updateHomeScreens();
+  searchInput.focus();
+});
+
 // ---- about panel ------------------------------------------------------------------
 
 $('btn-about').addEventListener('click', () => (aboutOverlay.hidden = false));
@@ -328,5 +359,6 @@ const initial = parseHash();
 if (initial) {
   void stack.applyTrail(initial.lang, initial.titles, false);
 } else {
-  searchInput.focus();
+  updateHomeScreens();
+  if (!entry.hidden) searchInput.focus();
 }

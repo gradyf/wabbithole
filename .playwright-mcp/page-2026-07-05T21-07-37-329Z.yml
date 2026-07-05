@@ -1,0 +1,111 @@
+- generic [ref=f12e1]:
+  - generic [ref=f12e16]:
+    - generic [ref=f12e17]:
+      - img "wabbit hole" [ref=f12e18]
+      - generic [ref=f12e21]:
+        - button "Log in" [ref=f12e22] [cursor=pointer]
+        - button "Sign up" [ref=f12e23] [cursor=pointer]
+    - main [ref=f12e24]:
+      - generic [ref=f12e25]:
+        - generic [ref=f12e26]:
+          - heading "Follow one link. Then another." [level=1] [ref=f12e27]
+          - paragraph [ref=f12e28]: Every article you open lands on the desk as an index card. The stack is the story of how you got here.
+          - generic [ref=f12e29]:
+            - button "Create an account" [ref=f12e30] [cursor=pointer]
+            - button "Log in" [ref=f12e31] [cursor=pointer]
+          - paragraph [ref=f12e32]: Your trivia bank, saved on every device.
+          - button "or wander without an account ↓" [ref=f12e33] [cursor=pointer]
+        - generic [ref=f12e34]:
+          - generic [ref=f12e36]:
+            - generic [ref=f12e37]: "1"
+            - generic [ref=f12e38]: Ada Lovelace
+            - generic [ref=f12e39]: English mathematician and writer
+          - generic [ref=f12e41]:
+            - generic [ref=f12e42]: "2"
+            - generic [ref=f12e43]: Analytical Engine
+            - generic [ref=f12e44]: Proposed mechanical general-purpose computer
+          - generic [ref=f12e45]:
+            - generic [ref=f12e46]:
+              - generic [ref=f12e47]: "3"
+              - generic [ref=f12e48]: Jacquard machine
+              - generic [ref=f12e49]: Loom attachment for weaving patterns
+            - generic [ref=f12e50]:
+              - paragraph [ref=f12e52]: The Jacquard machine is a device fitted to a loom that simplifies the manufacture of textiles with complex patterns. Invented by Joseph Marie Jacquard in 1804, it was controlled by a chain of punched cards, an idea later borrowed by Charles Babbage for the Analytical Engine.
+              - generic [ref=f12e53]:
+                - text: From
+                - link [ref=f12e54] [cursor=pointer]:
+                  - /url: https://en.wikipedia.org/wiki/Jacquard_machine
+                  - text: "Wikipedia: Jacquard machine"
+                - text: ", under"
+                - link [ref=f12e55] [cursor=pointer]:
+                  - /url: https://creativecommons.org/licenses/by-sa/4.0/
+                  - text: CC BY-SA 4.0
+                - text: . Reformatted, some elements omitted.
+      - generic [ref=f12e56]:
+        - generic [ref=f12e57]: How it works
+        - generic [ref=f12e58]:
+          - generic [ref=f12e59]:
+            - heading "Start anywhere" [level=3] [ref=f12e61]
+            - paragraph [ref=f12e62]: Search for any article, or fall in somewhere random.
+          - generic [ref=f12e63]:
+            - heading "Every link opens a card" [level=3] [ref=f12e65]
+            - paragraph [ref=f12e66]: Follow a link and a new card lands on the pile, right on top of the last.
+          - generic [ref=f12e67]:
+            - heading "The stack is your trail" [level=3] [ref=f12e69]
+            - paragraph [ref=f12e70]: Jump back to any card, share the whole path, or export it as Markdown.
+      - generic [ref=f12e71]:
+        - heading "Ready to fall in?" [level=2] [ref=f12e72]
+        - button "Create an account" [ref=f12e73] [cursor=pointer]
+    - generic [ref=f12e74]:
+      - text: Article text from
+      - link "Wikipedia" [ref=f12e75] [cursor=pointer]:
+        - /url: https://en.wikipedia.org
+      - text: ", reformatted, under"
+      - link "CC BY-SA 4.0" [ref=f12e76] [cursor=pointer]:
+        - /url: https://creativecommons.org/licenses/by-sa/4.0/
+      - text: . Not affiliated with the Wikimedia Foundation.
+  - text: ↗
+  - dialog [active] [ref=f12e80]:
+    - generic [ref=f12e82]:
+      - generic [ref=f12e83]:
+        - button "Close modal" [ref=f12e84] [cursor=pointer]:
+          - img [ref=f12e85]
+        - generic [ref=f12e88]:
+          - heading "Sign in to clerk-amethyst-ridge" [level=1] [ref=f12e89]
+          - paragraph [ref=f12e90]: Welcome back! Please sign in to continue
+        - generic [ref=f12e91]:
+          - button "Sign in with Google Continue with Google" [ref=f12e94] [cursor=pointer]:
+            - generic [ref=f12e95]:
+              - generic "Sign in with Google" [ref=f12e97]
+              - generic [ref=f12e98]: Continue with Google
+          - paragraph [ref=f12e101]: or
+          - generic [ref=f12e103]:
+            - generic [ref=f12e104]:
+              - generic [ref=f12e107]:
+                - generic [ref=f12e109]: Email address
+                - textbox "Email address" [ref=f12e110]:
+                  - /placeholder: Enter your email address
+              - generic:
+                - generic:
+                  - generic: Password
+                - generic:
+                  - textbox:
+                    - /placeholder: Enter your password
+                  - button:
+                    - img
+            - button "Continue" [ref=f12e113] [cursor=pointer]:
+              - generic [ref=f12e114]:
+                - text: Continue
+                - img [ref=f12e115]
+      - generic [ref=f12e117]:
+        - generic [ref=f12e118]:
+          - generic [ref=f12e119]: Don’t have an account?
+          - link "Sign up" [ref=f12e120] [cursor=pointer]:
+            - /url: http://localhost:3000/CLERK-ROUTER/VIRTUAL/sign-up
+        - generic [ref=f12e122]:
+          - generic [ref=f12e124]:
+            - paragraph [ref=f12e125]: Secured by
+            - link "Clerk logo" [ref=f12e126] [cursor=pointer]:
+              - /url: https://go.clerk.com/components
+              - img [ref=f12e127]
+          - paragraph [ref=f12e132]: Development mode
