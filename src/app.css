@@ -64,7 +64,21 @@ body {
   margin: 0 auto;
 }
 
-/* ---- landing (signed-out first visit; from Landing.dc.html) ---- */
+/* ---- brand logo placements ---- */
+
+.wh-logobtn {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.wh-logobtn .wh-logo-lockup { height: 30px; }
+.wh-entry-logo { display: block; }
+.wh-entry-logo .wh-logo-lockup { height: clamp(64px, 10vw, 104px); }
+
+/* ---- landing (front door on every fresh visit; from Landing.dc.html) ---- */
 
 .wh-landing {
   position: fixed;

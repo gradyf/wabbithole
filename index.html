@@ -5,13 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Wabbit Hole · a Wikipedia wander</title>
     <meta name="description" content="Follow one link. Then another. A stacked-card way to wander Wikipedia. Your trail stays visible the whole way down." />
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" />
     <meta property="og:title" content="Wabbit Hole" />
     <meta property="og:description" content="A stacked-card way to wander Wikipedia. The stack is the history." />
   </head>
   <body>
     <header class="wh-topbar" id="topbar" hidden>
-      <button class="wh-wordmark" id="btn-home" title="Start over">wabbit hole</button>
+      <button class="wh-logobtn" id="btn-home" title="Start over" aria-label="wabbit hole — start over">
+        <span class="wh-logo-lockup" aria-hidden="true"></span>
+      </button>
       <span class="wh-topbar-spacer"></span>
       <button class="wh-btn" data-variant="ghost" id="btn-back" hidden aria-label="Back">
         <span class="wh-icon" data-name="arrow-left" aria-hidden="true"></span><span class="wh-btn-label">Back</span>
@@ -80,9 +82,12 @@
           <span class="wh-logo-mark" aria-hidden="true"></span>
           <span class="wh-logo-word" aria-hidden="true"></span>
         </span>
-        <div class="wh-landing-bar-actions">
+        <div class="wh-landing-bar-actions" id="landing-actions-out">
           <button type="button" class="wh-btn" data-variant="ghost" id="btn-landing-login">Log in</button>
           <button type="button" class="wh-btn" data-variant="solid" id="btn-landing-signup">Sign up</button>
+        </div>
+        <div class="wh-landing-bar-actions" id="landing-actions-in" hidden>
+          <button type="button" class="wh-btn" data-variant="solid" id="btn-landing-open">Start wandering</button>
         </div>
       </header>
       <main class="wh-landing-main">
@@ -90,9 +95,13 @@
           <div class="wh-landing-copy">
             <h1 class="wh-landing-h1">Follow one link. Then another.</h1>
             <p class="wh-landing-sub">Every article you open lands on the desk as an index card. The stack is the story of how you got here.</p>
-            <div class="wh-landing-cta">
+            <div class="wh-landing-cta" id="landing-cta-out">
               <button type="button" class="wh-btn" data-variant="solid" id="btn-landing-create">Create an account</button>
               <button type="button" class="wh-btn" data-variant="ghost" id="btn-landing-login2">Log in</button>
+            </div>
+            <div class="wh-landing-cta" id="landing-cta-in" hidden>
+              <button type="button" class="wh-btn" data-variant="solid" id="btn-landing-start">Start wandering</button>
+              <button type="button" class="wh-btn" data-variant="ghost" id="btn-landing-quiz">Quiz me</button>
             </div>
             <p class="wh-landing-note">Your trivia bank, saved on every device.</p>
             <button type="button" class="wh-linklike" id="btn-landing-wander">or wander without an account ↓</button>
@@ -138,6 +147,7 @@
         <section class="wh-landing-close">
           <h2>Ready to fall in?</h2>
           <button type="button" class="wh-btn" data-variant="solid" id="btn-landing-create2">Create an account</button>
+          <button type="button" class="wh-btn" data-variant="solid" id="btn-landing-start2" hidden>Start wandering</button>
         </section>
       </main>
       <footer class="wh-landing-foot">
@@ -149,7 +159,9 @@
 
     <section class="wh-entry" id="entry">
       <main class="wh-entry-main">
-        <span class="wh-wordmark" data-size="hero">wabbit hole</span>
+        <span class="wh-entry-logo" role="img" aria-label="wabbit hole">
+          <span class="wh-logo-lockup" aria-hidden="true"></span>
+        </span>
         <p class="wh-entry-tagline">Follow one link. Then another. The stack is the story of how you got here.</p>
         <div class="wh-entry-search">
           <div class="wh-search" data-size="lg">

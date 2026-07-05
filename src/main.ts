@@ -29,18 +29,35 @@ function showToast(msg: string): void {
   toastTimer = window.setTimeout(() => (toast.hidden = true), 3500);
 }
 
-// ---- landing vs entry: signed-out first-timers get the landing page; a
-// session cookie, an in-progress trail, or "wander without an account" all
-// route to the search entry instead.
+// ---- landing vs entry: the landing greets every fresh page load at the
+// root; once you've entered the app this session (wander, sign in, or open
+// a card), root shows the search entry instead. Signed-in visitors see
+// "Start wandering" CTAs in place of the account ones.
 const landing = $('landing');
 let knownSignedIn = /(?:^|;\s*)__client_uat=(?!0(?:;|$))\d/.test(document.cookie);
 const skipLanding = () => sessionStorage.getItem('wh-skip-landing') === '1';
 
 function updateHomeScreens(): void {
   const inSession = stack.path.length > 0;
-  const showLanding = !inSession && !knownSignedIn && !skipLanding();
+  const showLanding = !inSession && !skipLanding();
   landing.hidden = !showLanding;
   entry.hidden = inSession || showLanding;
+}
+
+function updateLandingAuth(): void {
+  $('landing-actions-out').hidden = knownSignedIn;
+  $('landing-actions-in').hidden = !knownSignedIn;
+  $('landing-cta-out').hidden = knownSignedIn;
+  $('landing-cta-in').hidden = !knownSignedIn;
+  $('btn-landing-wander').hidden = knownSignedIn;
+  $('btn-landing-create2').hidden = knownSignedIn;
+  $('btn-landing-start2').hidden = !knownSignedIn;
+}
+
+function enterApp(): void {
+  sessionStorage.setItem('wh-skip-landing', '1');
+  updateHomeScreens();
+  if (!entry.hidden) searchInput.focus();
 }
 
 const trivia = initTrivia({
@@ -50,6 +67,7 @@ const trivia = initTrivia({
   },
   onAuthState(signedIn) {
     knownSignedIn = signedIn;
+    updateLandingAuth();
     updateHomeScreens();
   },
 });
@@ -57,6 +75,9 @@ const trivia = initTrivia({
 const stack = new Stack(stage, {
   onPathChange(path: CardNode[]) {
     const n = path.length;
+    // Opening a card counts as entering the app: back at root later, show
+    // the search entry rather than the landing again this session.
+    if (n > 0) sessionStorage.setItem('wh-skip-landing', '1');
     updateHomeScreens();
     topbar.hidden = n === 0;
     mainRow.hidden = n === 0;
@@ -303,11 +324,11 @@ $('btn-landing-login2').addEventListener('click', () => trivia.signIn());
 $('btn-landing-signup').addEventListener('click', () => trivia.signUp());
 $('btn-landing-create').addEventListener('click', () => trivia.signUp());
 $('btn-landing-create2').addEventListener('click', () => trivia.signUp());
-$('btn-landing-wander').addEventListener('click', () => {
-  sessionStorage.setItem('wh-skip-landing', '1');
-  updateHomeScreens();
-  searchInput.focus();
-});
+$('btn-landing-wander').addEventListener('click', enterApp);
+$('btn-landing-open').addEventListener('click', enterApp);
+$('btn-landing-start').addEventListener('click', enterApp);
+$('btn-landing-start2').addEventListener('click', enterApp);
+$('btn-landing-quiz').addEventListener('click', () => trivia.openBank());
 
 // ---- about panel ------------------------------------------------------------------
 
@@ -355,10 +376,13 @@ window.addEventListener('popstate', (e) => {
 // ---- boot ------------------------------------------------------------------------
 
 setSidebar(false);
+updateLandingAuth();
 const initial = parseHash();
 if (initial) {
   void stack.applyTrail(initial.lang, initial.titles, false);
 } else {
+  // Every fresh page load at the root starts on the landing.
+  sessionStorage.removeItem('wh-skip-landing');
   updateHomeScreens();
   if (!entry.hidden) searchInput.focus();
 }
