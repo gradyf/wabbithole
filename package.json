@@ -5,13 +5,24 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "build": "tsc --noEmit && tsc -p api --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit && tsc -p api --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
-    "dompurify": "^3.2.4"
+    "@anthropic-ai/sdk": "^0.110.0",
+    "@clerk/backend": "^3.10.0",
+    "@clerk/clerk-js": "^6.23.0",
+    "@neondatabase/serverless": "^1.1.0",
+    "dompurify": "^3.2.4",
+    "drizzle-orm": "^0.45.2",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@types/node": "^26.1.0",
+    "drizzle-kit": "^0.31.10",
     "typescript": "^5.6.3",
     "vite": "^6.0.7"
   }
