@@ -7,6 +7,7 @@ import { and, desc, eq, inArray } from 'drizzle-orm';
 import { requireUser } from './_lib/auth.js';
 import { db } from './_lib/db.js';
 import { HttpError, handle, json, readJson } from './_lib/http.js';
+import { WEEKLY_ADD_CAP, weeklyRemaining } from './_lib/limits.js';
 import { articleQuestions, articles, bankItems } from './_lib/schema.js';
 
 interface BankPost {
@@ -61,23 +62,35 @@ async function list(userId: string): Promise<Response> {
     .innerJoin(articles, eq(articleQuestions.articleId, articles.id))
     .where(eq(bankItems.clerkUserId, userId))
     .orderBy(desc(bankItems.addedAt));
-  return json({ items: rows });
+  return json({ items: rows, remaining: await weeklyRemaining(userId), cap: WEEKLY_ADD_CAP });
 }
 
 async function add(userId: string, questionIds: string[]): Promise<Response> {
+  const remaining = await weeklyRemaining(userId);
+  if (remaining === 0) {
+    throw new HttpError(
+      429,
+      'weekly_cap',
+      `Your bank takes ${WEEKLY_ADD_CAP} new questions a week. It has room again soon.`,
+    );
+  }
+
   // Only questions that actually exist; insert is idempotent per user+question.
   const existing = await db
     .select({ id: articleQuestions.id })
     .from(articleQuestions)
     .where(inArray(articleQuestions.id, questionIds));
-  if (existing.length === 0) return json({ added: 0 });
+  if (existing.length === 0) return json({ added: 0, remaining });
 
+  // The cap bounds how many can land this request; the client mirrors this.
   const inserted = await db
     .insert(bankItems)
-    .values(existing.map((q) => ({ clerkUserId: userId, questionId: q.id })))
+    .values(
+      existing.slice(0, remaining).map((q) => ({ clerkUserId: userId, questionId: q.id })),
+    )
     .onConflictDoNothing()
     .returning({ id: bankItems.id });
-  return json({ added: inserted.length });
+  return json({ added: inserted.length, remaining: await weeklyRemaining(userId) });
 }
 
 async function remove(userId: string, bankItemIds: string[]): Promise<Response> {

@@ -36,6 +36,8 @@ export interface StackEvents {
   onToast(msg: string): void;
   /** When set, cards offer an "Extract trivia" action (the trivia layer). */
   onExtract?(node: CardNode): void;
+  /** Called after the extract button renders, so the trivia layer can decorate it. */
+  onExtractButton?(node: CardNode, btn: HTMLButtonElement): void;
 }
 
 const LICENSE_URL = 'https://creativecommons.org/licenses/by-sa/4.0/';
@@ -483,6 +485,7 @@ export class Stack {
       btn.addEventListener('click', () => this.events.onExtract!(node));
       actions.appendChild(btn);
       inner.appendChild(actions);
+      this.events.onExtractButton?.(node, btn);
     }
     return inner;
   }

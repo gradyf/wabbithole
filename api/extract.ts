@@ -9,6 +9,7 @@ import { and, eq, gte, lt, ne, sql } from 'drizzle-orm';
 import { requireUser } from './_lib/auth.js';
 import { db } from './_lib/db.js';
 import { HttpError, handle, json, readJson, requireMethod } from './_lib/http.js';
+import { WEEKLY_ADD_CAP, weeklyRemaining } from './_lib/limits.js';
 import {
   EXTRACTION_MODEL,
   PROMPT_VERSION,
@@ -54,7 +55,7 @@ export default handle(async (request) => {
       .where(and(eq(articles.lang, lang), eq(articles.title, source.canonicalTitle))))[0];
 
   const cached = await loadQuestions(articleRow.id);
-  if (cached.length > 0) return respond(source, cached, true);
+  if (cached.length > 0) return respond(source, cached, true, userId);
 
   await enforceDailyCap(userId);
   const lockId = await acquireLock(articleRow.id, userId);
@@ -63,7 +64,7 @@ export default handle(async (request) => {
   const cachedAfterLock = await loadQuestions(articleRow.id);
   if (cachedAfterLock.length > 0) {
     await db.delete(extractions).where(eq(extractions.id, lockId));
-    return respond(source, cachedAfterLock, true);
+    return respond(source, cachedAfterLock, true, userId);
   }
 
   try {
@@ -83,7 +84,7 @@ export default handle(async (request) => {
       )
       .returning();
     await db.update(extractions).set({ status: 'done' }).where(eq(extractions.id, lockId));
-    return respond(source, rows, false);
+    return respond(source, rows, false, userId);
   } catch (err) {
     await db.update(extractions).set({ status: 'failed' }).where(eq(extractions.id, lockId));
     throw err;
@@ -180,11 +181,12 @@ async function generateQuestions(source: {
   return questions;
 }
 
-function respond(
+async function respond(
   source: { canonicalTitle: string; displayTitle: string; description?: string },
   rows: QuestionRow[],
   cachedHit: boolean,
-): Response {
+  userId: string,
+): Promise<Response> {
   return json({
     article: {
       title: source.canonicalTitle,
@@ -192,6 +194,8 @@ function respond(
       description: source.description,
     },
     cached: cachedHit,
+    weeklyRemaining: await weeklyRemaining(userId),
+    weeklyCap: WEEKLY_ADD_CAP,
     questions: rows.map((r) => ({
       id: r.id,
       prompt: r.prompt,

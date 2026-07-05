@@ -54,6 +54,9 @@ const stack = new Stack(stage, {
   onExtract(node) {
     trivia.openExtract(node);
   },
+  onExtractButton(node, btn) {
+    trivia.decorateExtractButton(node, btn);
+  },
 });
 
 // ---- entry: search + random ------------------------------------------------

@@ -200,8 +200,23 @@ body {
 /* per-card action row under the title */
 .wh-card-actions { margin: 10px 0 4px; }
 
-/* wider right sheet for the bank */
-.wh-panel[data-wide] { width: min(520px, calc(100vw - 24px)); }
+/* bank: docked right sidebar mirroring the Trail (DS ships the left dock;
+   the right variant flips the border and takes a wider column for prose) */
+.wh-sidebar[data-side="right"] {
+  width: 360px;
+  border-right: 0;
+  border-left: 1px solid var(--border-hairline);
+}
+.wh-sidebar[data-side="right"][data-collapsed] { width: 0; border-left: 0; }
+.wh-sidebar[data-side="right"] .wh-sidebar-inner {
+  width: 360px;
+  min-width: 360px;
+}
+.wh-sidebar[data-side="right"] .wh-sidebar-body { padding: 0 var(--space-4) var(--space-2); }
+
+/* greyed pick rows once the weekly allowance is fully selected */
+.wh-pick[data-disabled] { opacity: 0.45; cursor: default; }
+.wh-pick[data-disabled]:hover { background: var(--surface-app); }
 
 .wh-trivia-intro {
   font-family: var(--font-sans);
@@ -362,6 +377,7 @@ body {
     box-shadow: var(--shadow-float);
     background: var(--surface-card);
   }
+  .wh-sidebar[data-side="right"] { left: auto; right: 0; }
   #btn-back .wh-btn-label,
   #btn-bank .wh-btn-label,
   #btn-signin .wh-btn-label,

@@ -13,6 +13,8 @@ export interface TriviaUI {
   openExtract(node: { lang: string; title: string }): void;
   openBank(): void;
   signIn(): void;
+  /** Decorate a card's extract button with cache/bank state (signed-in only). */
+  decorateExtractButton(node: { lang: string; title: string }, btn: HTMLButtonElement): void;
 }
 
 interface ApiQuestion {
@@ -28,7 +30,14 @@ interface ApiQuestion {
 interface ExtractResponse {
   article: { title: string; displayTitle: string; description?: string };
   cached: boolean;
+  weeklyRemaining: number;
+  weeklyCap: number;
   questions: ApiQuestion[];
+}
+
+interface ArticleStatus {
+  hasQuestions: boolean;
+  inBank: number;
 }
 
 interface BankItem {
@@ -129,6 +138,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     console.debug('[trivia] auth change', { signedIn, status: clerk?.status, hasSession: !!clerk?.session });
     $('btn-signin').hidden = signedIn || !clerk;
     $('btn-bank').hidden = !signedIn;
+    if (!signedIn) setBankSidebar(false);
     const userBtn = $('user-button');
     userBtn.hidden = !signedIn;
     if (signedIn && clerk && !userButtonMounted) {
@@ -204,7 +214,6 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
   // ---- overlays (shared plumbing) -------------------------------------------
 
   const extractOverlay = $('extract-overlay');
-  const bankOverlay = $('bank-overlay');
   const quizOverlay = $('quiz-overlay');
 
   function openOverlay(el: HTMLElement): void {
@@ -215,13 +224,12 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     if (el === quizOverlay) flushQuizResults();
   }
 
-  for (const el of [extractOverlay, bankOverlay, quizOverlay]) {
+  for (const el of [extractOverlay, quizOverlay]) {
     el.addEventListener('click', (e) => {
       if (e.target === el) closeOverlay(el);
     });
   }
   $('btn-close-extract').addEventListener('click', () => closeOverlay(extractOverlay));
-  $('btn-close-bank').addEventListener('click', () => closeOverlay(bankOverlay));
   $('btn-close-quiz').addEventListener('click', () => closeOverlay(quizOverlay));
 
   // Close the topmost trivia overlay on Escape before main.ts's handler can
@@ -230,7 +238,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     'keydown',
     (e) => {
       if (e.key !== 'Escape') return;
-      const open = [quizOverlay, extractOverlay, bankOverlay].find((el) => !el.hidden);
+      const open = [quizOverlay, extractOverlay].find((el) => !el.hidden);
       if (open) {
         e.stopPropagation();
         closeOverlay(open);
@@ -244,11 +252,15 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
   const extractBody = $('extract-body');
   const extractFoot = $('extract-foot');
   const extractTitle = $('extract-title');
+  const extractRemaining = $('extract-remaining');
   const addBtn = $<HTMLButtonElement>('btn-add-bank');
+  let panelRemaining = 0;
+  let panelNode: { lang: string; title: string } | null = null;
 
   function openExtract(node: { lang: string; title: string }): void {
     void (async () => {
       if (!(await requireAuth({ type: 'extract', lang: node.lang, title: node.title }))) return;
+      panelNode = node;
       extractTitle.textContent = 'Extract trivia';
       extractFoot.hidden = true;
       extractBody.replaceChildren(skeleton());
@@ -267,6 +279,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
 
   function renderExtract(data: ExtractResponse): void {
     extractTitle.textContent = data.article.displayTitle;
+    panelRemaining = data.weeklyRemaining;
 
     const intro = document.createElement('p');
     intro.className = 'wh-trivia-intro';
@@ -277,12 +290,12 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
 
     const list = document.createElement('div');
     list.className = 'wh-picks';
-    for (const q of data.questions) {
+    data.questions.forEach((q, i) => {
       const label = document.createElement('label');
       label.className = 'wh-pick';
       const input = document.createElement('input');
       input.type = 'checkbox';
-      input.checked = true;
+      input.checked = i < data.weeklyRemaining;
       input.value = q.id;
       input.addEventListener('change', updateAddButton);
       const box = document.createElement('span');
@@ -303,8 +316,15 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
       text.append(prompt, answer);
       label.append(input, box, text);
       list.appendChild(label);
-    }
+    });
 
+    if (panelNode) {
+      const key = `${panelNode.lang}:${panelNode.title}`;
+      statusCache.set(key, {
+        hasQuestions: true,
+        inBank: statusCache.get(key)?.inBank ?? 0,
+      });
+    }
     extractBody.replaceChildren(intro, list);
     extractFoot.hidden = false;
     updateAddButton();
@@ -318,14 +338,32 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
   }
 
   function updateAddButton(): void {
-    const n = selectedIds().length;
-    addBtn.disabled = n === 0;
+    // The weekly allowance bounds the selection: once it's reached, the
+    // unchecked rows grey out rather than letting a doomed add through.
+    const inputs = Array.from(extractBody.querySelectorAll<HTMLInputElement>('.wh-pick input'));
+    const selected = inputs.filter((i) => i.checked).length;
+    const atLimit = selected >= panelRemaining;
+    for (const input of inputs) {
+      const off = atLimit && !input.checked;
+      input.disabled = off;
+      input.closest('.wh-pick')?.toggleAttribute('data-disabled', off);
+    }
+    extractRemaining.textContent =
+      panelRemaining === 0
+        ? 'No room this week'
+        : panelRemaining === 1
+          ? '1 left this week'
+          : `${panelRemaining} left this week`;
+    addBtn.disabled = selected === 0;
     addBtn.textContent = '';
     const icon = document.createElement('span');
     icon.className = 'wh-icon';
     icon.dataset.name = 'sparkles';
     icon.setAttribute('aria-hidden', 'true');
-    addBtn.append(icon, n === 0 ? 'Add to bank' : n === 1 ? 'Add 1 to bank' : `Add ${n} to bank`);
+    addBtn.append(
+      icon,
+      selected === 0 ? 'Add to bank' : selected === 1 ? 'Add 1 to bank' : `Add ${selected} to bank`,
+    );
   }
 
   addBtn.addEventListener('click', () => {
@@ -334,7 +372,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     addBtn.disabled = true;
     void (async () => {
       try {
-        const res = await apiFetch<{ added: number }>('/api/bank', {
+        const res = await apiFetch<{ added: number; remaining: number }>('/api/bank', {
           method: 'POST',
           body: JSON.stringify({ action: 'add', questionIds: ids }),
         });
@@ -347,7 +385,17 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
               : `Added ${kept} questions to your bank.`;
         opts.onToast(msg);
         opts.announce(msg);
+        if (panelNode && kept > 0) {
+          const key = `${panelNode.lang}:${panelNode.title}`;
+          const prev = statusCache.get(key);
+          statusCache.set(key, { hasQuestions: true, inBank: (prev?.inBank ?? 0) + kept });
+          const visibleBtn = document.querySelector<HTMLButtonElement>(
+            '.wh-cardpos:not([hidden]) .wh-card-actions .wh-btn',
+          );
+          if (visibleBtn) paintExtractButton(visibleBtn, statusCache.get(key)!);
+        }
         closeOverlay(extractOverlay);
+        if (bankOpen()) void refreshBank().catch(() => {});
       } catch (err) {
         opts.onToast(err instanceof TriviaError ? err.message : "That didn't save. Try again.");
         addBtn.disabled = false;
@@ -366,8 +414,8 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     const title = document.createElement('p');
     title.className = 'wh-note-title';
     title.textContent =
-      e.code === 'daily_cap'
-        ? "That's plenty for today"
+      e.code === 'daily_cap' || e.code === 'weekly_cap'
+        ? "That's plenty for now"
         : e.code === 'extraction_in_progress'
           ? 'Almost there'
           : "That didn't work";
@@ -388,24 +436,59 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     extractFoot.hidden = true;
   }
 
-  // ---- bank ---------------------------------------------------------------------
+  // ---- bank (docked right sidebar, mirroring the Trail) ----------------------
 
+  const bankSidebar = $('bank-sidebar');
   const bankBody = $('bank-body');
   const bankCount = $('bank-count');
   const quizBtn = $<HTMLButtonElement>('btn-quiz');
   let bank: BankItem[] = [];
+  let bankRemaining = 0;
 
+  function bankOpen(): boolean {
+    return !bankSidebar.hasAttribute('data-collapsed');
+  }
+
+  function setBankSidebar(open: boolean): void {
+    if (open) bankSidebar.removeAttribute('data-collapsed');
+    else bankSidebar.setAttribute('data-collapsed', '');
+    bankSidebar.setAttribute('aria-hidden', String(!open));
+    $('btn-bank').setAttribute('aria-expanded', String(open));
+  }
+
+  async function refreshBank(): Promise<void> {
+    const data = await apiFetch<{ items: BankItem[]; remaining: number }>('/api/bank');
+    bank = data.items;
+    bankRemaining = data.remaining;
+    renderBank();
+  }
+
+  /** Topbar/entry action. In a session this toggles the docked sidebar; on
+   * the entry screen there is no stage to dock to, so it quizzes directly. */
   function openBank(): void {
     void (async () => {
       if (!(await requireAuth({ type: 'bank' }))) return;
+      if ($('main-row').hidden) {
+        try {
+          await refreshBank();
+        } catch {
+          opts.onToast("The bank didn't load. Try again.");
+          return;
+        }
+        if (bank.length === 0) opts.onToast('Your bank is empty. Extract trivia from any card first.');
+        else startQuiz();
+        return;
+      }
+      if (bankOpen()) {
+        setBankSidebar(false);
+        return;
+      }
+      setBankSidebar(true);
       bankBody.replaceChildren(skeleton());
       quizBtn.disabled = true;
       bankCount.textContent = '';
-      openOverlay(bankOverlay);
       try {
-        const data = await apiFetch<{ items: BankItem[] }>('/api/bank');
-        bank = data.items;
-        renderBank();
+        await refreshBank();
       } catch (err) {
         const note = document.createElement('p');
         note.className = 'wh-trivia-intro';
@@ -414,6 +497,8 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
       }
     })();
   }
+
+  $('btn-close-bank').addEventListener('click', () => setBankSidebar(false));
 
   function renderBank(): void {
     if (bank.length === 0) {
@@ -454,7 +539,8 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     }
     bankBody.replaceChildren(frag);
     quizBtn.disabled = false;
-    bankCount.textContent = bank.length === 1 ? '1 question' : `${bank.length} questions`;
+    const n = bank.length === 1 ? '1 question' : `${bank.length} questions`;
+    bankCount.textContent = `${n} · ${bankRemaining} left this week`;
   }
 
   function bankRow(item: BankItem): HTMLElement {
@@ -514,7 +600,6 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
 
   quizBtn.addEventListener('click', () => {
     if (bank.length === 0) return;
-    closeOverlay(bankOverlay);
     startQuiz();
   });
 
@@ -640,6 +725,51 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     });
   }
 
+  // ---- card button decoration ------------------------------------------------
+
+  const statusCache = new Map<string, ArticleStatus>();
+
+  function paintExtractButton(btn: HTMLButtonElement, status: ArticleStatus): void {
+    const icon = document.createElement('span');
+    icon.className = 'wh-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    let label = 'Extract trivia';
+    icon.dataset.name = 'sparkles';
+    if (status.inBank > 0) {
+      icon.dataset.name = 'book-marked';
+      label = 'In your bank';
+    } else if (status.hasQuestions) {
+      label = 'Trivia ready';
+    }
+    btn.replaceChildren(icon, label);
+  }
+
+  function decorateExtractButton(
+    node: { lang: string; title: string },
+    btn: HTMLButtonElement,
+  ): void {
+    // Never trigger the auth bundle for anonymous wanderers: only decorate
+    // when Clerk is already loading (returning user) or loaded.
+    if (!clerkLoad) return;
+    void (async () => {
+      try {
+        const c = await clerkLoad;
+        if (!c?.user) return;
+        const key = `${node.lang}:${node.title}`;
+        let status = statusCache.get(key);
+        if (!status) {
+          status = await apiFetch<ArticleStatus>(
+            `/api/article-status?lang=${encodeURIComponent(node.lang)}&title=${encodeURIComponent(node.title)}`,
+          );
+          statusCache.set(key, status);
+        }
+        if (btn.isConnected) paintExtractButton(btn, status);
+      } catch {
+        // decoration is a nicety; the default label is always correct
+      }
+    })();
+  }
+
   // ---- shared bits -----------------------------------------------------------
 
   function skeleton(): HTMLElement {
@@ -672,6 +802,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
   return {
     openExtract,
     openBank,
+    decorateExtractButton,
     signIn: () => {
       void requireAuth();
     },

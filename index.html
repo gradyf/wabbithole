@@ -54,6 +54,24 @@
         </div>
       </aside>
       <main class="wh-stage" id="stage" aria-label="Card stack"></main>
+      <aside class="wh-sidebar" id="bank-sidebar" data-side="right" data-collapsed aria-label="Trivia bank">
+        <div class="wh-sidebar-inner">
+          <div class="wh-sidebar-head">
+            <h2 class="wh-panel-title">Trivia bank</h2>
+            <button class="wh-iconbtn" data-size="sm" id="btn-close-bank" aria-label="Collapse bank" title="Collapse bank">
+              <span class="wh-icon" data-name="chevron-right" aria-hidden="true"></span>
+            </button>
+          </div>
+          <div class="wh-sidebar-body" id="bank-body"></div>
+          <div class="wh-sidebar-foot">
+            <span class="wh-trail-count" id="bank-count"></span>
+            <span class="wh-topbar-spacer"></span>
+            <button class="wh-btn" data-size="sm" id="btn-quiz" disabled>
+              <span class="wh-icon" data-name="circle-check" aria-hidden="true"></span>Quiz me
+            </button>
+          </div>
+        </div>
+      </aside>
     </div>
 
     <section class="wh-entry" id="entry">
@@ -89,7 +107,7 @@
         <a href="https://en.wikipedia.org" target="_blank" rel="noopener noreferrer">Wikipedia</a>, reformatted, under
         <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>.
         Not affiliated with the Wikimedia Foundation. · <button class="wh-linklike" id="btn-about">About</button> ·
-        <button class="wh-linklike" id="btn-entry-bank">Trivia bank</button> ·
+        <button class="wh-linklike" id="btn-entry-bank">Quiz me</button> ·
         <a href="https://buymeacoffee.com/grayforrester" target="_blank" rel="noopener noreferrer">Buy me a coffee</a>
       </footer>
     </section>
@@ -123,28 +141,10 @@
         </div>
         <div class="wh-panel-body" data-pad id="extract-body"></div>
         <div class="wh-panel-foot" id="extract-foot" hidden>
+          <span class="wh-trail-count" id="extract-remaining"></span>
           <span class="wh-topbar-spacer"></span>
           <button class="wh-btn" id="btn-add-bank">
             <span class="wh-icon" data-name="sparkles" aria-hidden="true"></span>Add to bank
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="wh-overlay" id="bank-overlay" hidden>
-      <div class="wh-panel" data-wide role="dialog" aria-modal="true" aria-label="Trivia bank">
-        <div class="wh-panel-head">
-          <h2 class="wh-panel-title">Trivia bank</h2>
-          <button class="wh-iconbtn" data-size="sm" id="btn-close-bank" aria-label="Close">
-            <span class="wh-icon" data-name="x" aria-hidden="true"></span>
-          </button>
-        </div>
-        <div class="wh-panel-body" data-pad id="bank-body"></div>
-        <div class="wh-panel-foot">
-          <span class="wh-trail-count" id="bank-count"></span>
-          <span class="wh-topbar-spacer"></span>
-          <button class="wh-btn" id="btn-quiz" disabled>
-            <span class="wh-icon" data-name="circle-check" aria-hidden="true"></span>Quiz me
           </button>
         </div>
       </div>

@@ -1,0 +1,76 @@
+- generic [ref=e1]:
+  - banner [ref=e2]:
+    - button "wabbit hole" [ref=e3] [cursor=pointer]
+    - generic [ref=e6]: 1 card
+    - button "Trail" [ref=e7] [cursor=pointer]: Trail
+    - button "Trivia bank" [expanded] [active] [ref=e9] [cursor=pointer]:
+      - generic [ref=e11]: Bank
+    - button "Share" [ref=e12] [cursor=pointer]:
+      - generic [ref=e14]: Share
+    - button "Open user menu" [ref=e1312] [cursor=pointer]:
+      - img "'s logo" [ref=e1315]
+  - generic [ref=e15]:
+    - generic [ref=e16]:
+      - generic [ref=e17]:
+        - heading [level=2] [ref=e18]: Trail
+        - button [ref=e19] [cursor=pointer]
+      - list [ref=e21]:
+        - listitem [ref=e1370] [cursor=pointer]:
+          - generic [ref=e1371]: "1"
+          - generic [ref=e1373]: Lithuania
+      - generic [ref=e27]:
+        - button [ref=e28] [cursor=pointer]: Export Markdown
+        - generic [ref=e30]: 1 card
+    - main "Card stack" [ref=e31]:
+      - button "1 Lithuania" [disabled] [ref=e1376]:
+        - generic [ref=e1377]: "1"
+        - generic [ref=e1378]: Lithuania
+    - complementary "Trivia bank" [ref=e1319]:
+      - generic [ref=e1303]:
+        - generic [ref=e1304]:
+          - heading "Trivia bank" [level=2] [ref=e1305]
+          - button "Collapse bank" [ref=e1306] [cursor=pointer]
+        - generic [ref=e1308]:
+          - heading "Giraffe" [level=3] [ref=e1320]
+          - generic [ref=e1321]:
+            - generic [ref=e1322]: What are the two living members of the family Giraffidae?
+            - generic "Answered right 0 of 1 times" [ref=e1323]: 0/1
+            - button "Remove from bank" [ref=e1324] [cursor=pointer]
+          - generic [ref=e1326]:
+            - generic [ref=e1327]: According to recent genome studies, how many distinct giraffe species are currently recognized?
+            - generic "Answered right 0 of 1 times" [ref=e1328]: 0/1
+            - button "Remove from bank" [ref=e1329] [cursor=pointer]
+          - generic [ref=e1331]:
+            - generic [ref=e1332]: What is the primary food source for giraffes?
+            - generic "Answered right 0 of 1 times" [ref=e1333]: 0/1
+            - button "Remove from bank" [ref=e1334] [cursor=pointer]
+          - generic [ref=e1336]:
+            - generic [ref=e1337]: How do male giraffes establish social hierarchies?
+            - generic "Answered right 1 of 1 times" [ref=e1338]: 1/1
+            - button "Remove from bank" [ref=e1339] [cursor=pointer]
+          - heading "Okapi" [level=3] [ref=e1341]
+          - generic [ref=e1342]:
+            - generic [ref=e1343]: What is the only other living member of the family Giraffidae besides the okapi?
+            - generic "Answered right 0 of 1 times" [ref=e1344]: 0/1
+            - button "Remove from bank" [ref=e1345] [cursor=pointer]
+          - generic [ref=e1347]:
+            - generic [ref=e1348]: What is the primary reason the okapi was placed in its own subfamily Okapiinae rather than in the extinct giraffid subfamily Palaeotraginae?
+            - generic "Answered right 0 of 1 times" [ref=e1349]: 0/1
+            - button "Remove from bank" [ref=e1350] [cursor=pointer]
+          - generic [ref=e1352]:
+            - generic [ref=e1353]: In what year was the okapi species formally recognized as Okapia johnstoni?
+            - generic "Answered right 0 of 1 times" [ref=e1354]: 0/1
+            - button "Remove from bank" [ref=e1355] [cursor=pointer]
+          - generic [ref=e1357]:
+            - generic [ref=e1358]: What is the approximate length of an okapi's tongue, which it uses to browse for plants?
+            - generic "Answered right 0 of 1 times" [ref=e1359]: 0/1
+            - button "Remove from bank" [ref=e1360] [cursor=pointer]
+          - generic [ref=e1362]:
+            - generic [ref=e1363]: According to a 2016 genetic study, approximately how long ago did the common ancestor of the giraffe and okapi live?
+            - generic "Answered right 0 of 1 times" [ref=e1364]: 0/1
+            - button "Remove from bank" [ref=e1365] [cursor=pointer]
+        - generic [ref=e1309]:
+          - generic [ref=e1367]: 9 questions · 1 left this week
+          - button "Quiz me" [ref=e1368] [cursor=pointer]: Quiz me
+  - text: ↗
+  - generic [ref=e1310]: Opened Okapi — card 1 of 1.
