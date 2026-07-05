@@ -63,8 +63,38 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
 
   let clerk: Clerk | null = null;
   let clerkLoad: Promise<Clerk | null> | null = null;
-  let afterAuth: (() => void) | null = null;
   let userButtonMounted = false;
+
+  // The action interrupted by sign-in, persisted so it survives both the
+  // modal flow and any full-page navigation Clerk performs on completion.
+  type PendingAction = { type: 'bank' } | { type: 'extract'; lang: string; title: string };
+  const PENDING_KEY = 'wh-after-auth';
+
+  function queuePending(action: PendingAction): void {
+    try {
+      sessionStorage.setItem(PENDING_KEY, JSON.stringify(action));
+    } catch {
+      // storage unavailable: sign-in still works, continuation is lost
+    }
+  }
+
+  function runPending(): void {
+    let raw: string | null = null;
+    try {
+      raw = sessionStorage.getItem(PENDING_KEY);
+      if (raw) sessionStorage.removeItem(PENDING_KEY);
+    } catch {
+      return;
+    }
+    if (!raw) return;
+    try {
+      const action = JSON.parse(raw) as PendingAction;
+      if (action.type === 'bank') openBank();
+      else if (action.type === 'extract') openExtract({ lang: action.lang, title: action.title });
+    } catch {
+      // malformed leftover; drop it
+    }
+  }
 
   function loadClerk(): Promise<Clerk | null> {
     clerkLoad ??= (async () => {
@@ -74,9 +104,14 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
         return null;
       }
       try {
-        const mod = await import('@clerk/clerk-js');
+        // clerk-js v6 ships its prebuilt components (sign-in modal, user
+        // button) in the separate @clerk/ui bundle; load them together.
+        const [mod, uiMod] = await Promise.all([
+          import('@clerk/clerk-js'),
+          import('@clerk/ui/entry'),
+        ]);
         const c = new mod.Clerk(key);
-        await c.load();
+        await c.load({ ui: { ClerkUI: uiMod.ClerkUI } });
         clerk = c;
         c.addListener(() => onAuthChange());
         onAuthChange();
@@ -91,6 +126,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
 
   function onAuthChange(): void {
     const signedIn = !!clerk?.user;
+    console.debug('[trivia] auth change', { signedIn, status: clerk?.status, hasSession: !!clerk?.session });
     $('btn-signin').hidden = signedIn || !clerk;
     $('btn-bank').hidden = !signedIn;
     const userBtn = $('user-button');
@@ -103,24 +139,47 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
         console.error('[trivia] user button failed to mount', err);
       }
     }
-    if (signedIn && afterAuth) {
-      const run = afterAuth;
-      afterAuth = null;
-      run();
-    }
+    if (signedIn) runPending();
   }
 
   /** True if signed in; otherwise opens the sign-in modal and queues `after`. */
-  async function requireAuth(after: () => void): Promise<boolean> {
+  async function requireAuth(after?: PendingAction): Promise<boolean> {
     const c = await loadClerk();
     if (!c) {
       opts.onToast('Accounts are unavailable right now. Wandering still works.');
       return false;
     }
     if (c.user) return true;
-    afterAuth = after;
+    if (after) queuePending(after);
     void c.openSignIn({});
+    watchForSession();
     return false;
+  }
+
+  // clerk-js 6.23 + @clerk/ui 1.24: the modal completes sign-in and sets the
+  // session cookies but does not sync the host Clerk instance, so no listener
+  // emission carries the new user. Watch the __client_uat cookie; if it flips
+  // while the instance is still stale, reload — boot picks up the session and
+  // the persisted pending action resumes the interrupted flow.
+  let sessionWatch: number | undefined;
+  function uatValue(): string {
+    return document.cookie.match(/(?:^|;\s*)__client_uat=(\d+)/)?.[1] ?? '0';
+  }
+  function watchForSession(): void {
+    if (sessionWatch !== undefined) return;
+    const initial = uatValue();
+    const startedAt = Date.now();
+    sessionWatch = window.setInterval(() => {
+      const now = uatValue();
+      if (now !== '0' && now !== initial) {
+        window.clearInterval(sessionWatch);
+        sessionWatch = undefined;
+        if (!clerk?.user) location.reload();
+      } else if (Date.now() - startedAt > 5 * 60_000) {
+        window.clearInterval(sessionWatch);
+        sessionWatch = undefined;
+      }
+    }, 800);
   }
 
   async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
@@ -189,7 +248,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
 
   function openExtract(node: { lang: string; title: string }): void {
     void (async () => {
-      if (!(await requireAuth(() => openExtract(node)))) return;
+      if (!(await requireAuth({ type: 'extract', lang: node.lang, title: node.title }))) return;
       extractTitle.textContent = 'Extract trivia';
       extractFoot.hidden = true;
       extractBody.replaceChildren(skeleton());
@@ -338,7 +397,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
 
   function openBank(): void {
     void (async () => {
-      if (!(await requireAuth(() => openBank()))) return;
+      if (!(await requireAuth({ type: 'bank' }))) return;
       bankBody.replaceChildren(skeleton());
       quizBtn.disabled = true;
       bankCount.textContent = '';
@@ -614,7 +673,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     openExtract,
     openBank,
     signIn: () => {
-      void requireAuth(() => {});
+      void requireAuth();
     },
   };
 }

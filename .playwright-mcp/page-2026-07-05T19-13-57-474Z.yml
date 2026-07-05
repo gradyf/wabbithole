@@ -1,0 +1,2401 @@
+- generic [ref=f19e1]:
+  - banner [ref=f19e16]:
+    - button "wabbit hole" [ref=f19e17] [cursor=pointer]
+    - generic [ref=f19e20]: 1 card
+    - button "Trail" [ref=f19e21] [cursor=pointer]: Trail
+    - button "Share" [ref=f19e23] [cursor=pointer]:
+      - generic [ref=f19e25]: Share
+    - button "Sign in" [ref=f19e1330] [cursor=pointer]:
+      - generic [ref=f19e1332]: Sign in
+  - generic [ref=f19e26]:
+    - generic [ref=f19e27]:
+      - generic [ref=f19e28]:
+        - heading [level=2] [ref=f19e29]: Trail
+        - button [ref=f19e30] [cursor=pointer]
+      - list [ref=f19e32]:
+        - listitem [ref=f19e59] [cursor=pointer]:
+          - generic [ref=f19e60]: "1"
+          - generic [ref=f19e61]:
+            - generic [ref=f19e62]: Okapi
+            - generic [ref=f19e63]: Species of mammal
+      - generic [ref=f19e37]:
+        - button [ref=f19e38] [cursor=pointer]: Export Markdown
+        - generic [ref=f19e40]: 1 card
+    - main "Card stack" [ref=f19e41]:
+      - generic [ref=f19e43]:
+        - button "1 Okapi Species of mammal" [disabled] [ref=f19e64]:
+          - generic [ref=f19e45]: "1"
+          - generic [ref=f19e46]: Okapi
+          - generic [ref=f19e65]: Species of mammal
+        - generic [ref=f19e47]:
+          - generic [ref=f19e66]:
+            - heading "Okapi" [level=1] [ref=f19e67]
+            - paragraph [ref=f19e68]: Species of mammal
+            - button "Extract trivia" [ref=f19e70] [cursor=pointer]: Extract trivia
+            - group [ref=f19e72]:
+              - generic "Contents 9 sections" [ref=f19e73] [cursor=pointer]:
+                - generic [ref=f19e75]: Contents
+                - generic [ref=f19e76]: 9 sections
+            - generic [ref=f19e78]:
+              - generic [ref=f19e79]:
+                - table [ref=f19e80]:
+                  - rowgroup [ref=f19e81]:
+                    - row "Okapi" [ref=f19e82]:
+                      - columnheader "Okapi" [ref=f19e83]
+                    - row [ref=f19e84]:
+                      - cell [ref=f19e85]:
+                        - link [ref=f19e87] [cursor=pointer]:
+                          - /url: ./File:Saint-Aignan_(Loir-et-Cher)._Okapi.jpg
+                          - img [ref=f19e88]
+                    - row "Male okapi at Beauval Zoo" [ref=f19e89]:
+                      - cell "Male okapi at Beauval Zoo" [ref=f19e90]:
+                        - text: Male okapi at
+                        - link "Beauval Zoo" [ref=f19e91] [cursor=pointer]:
+                          - /url: ./ZooParc_de_Beauval
+                    - row [ref=f19e92]:
+                      - cell [ref=f19e93]:
+                        - link [ref=f19e95] [cursor=pointer]:
+                          - /url: ./File:Okapia_johnstoni_17zz.jpg
+                          - img [ref=f19e96]
+                    - row "Female okapi at Zoo Miami" [ref=f19e97]:
+                      - cell "Female okapi at Zoo Miami" [ref=f19e98]:
+                        - text: Female okapi at
+                        - link "Zoo Miami" [ref=f19e99] [cursor=pointer]:
+                          - /url: ./Zoo_Miami
+                    - row "Conservation status" [ref=f19e100]:
+                      - columnheader "Conservation status" [ref=f19e101]:
+                        - link "Conservation status" [ref=f19e103] [cursor=pointer]:
+                          - /url: ./Conservation_status
+                    - row "Endangered Endangered (IUCN 3.1)[1]" [ref=f19e104]:
+                      - cell "Endangered Endangered (IUCN 3.1)[1]" [ref=f19e105]:
+                        - generic [ref=f19e106]:
+                          - link "Endangered" [ref=f19e108] [cursor=pointer]:
+                            - /url: ./File:Status_iucn3.1_EN.svg
+                            - img "Endangered" [ref=f19e109]
+                          - link "Endangered" [ref=f19e110] [cursor=pointer]:
+                            - /url: ./Endangered_species_(IUCN_status)
+                          - generic [ref=f19e111]:
+                            - text: (
+                            - link "IUCN 3.1" [ref=f19e112] [cursor=pointer]:
+                              - /url: ./IUCN_Red_List
+                            - text: )
+                            - superscript [ref=f19e113]:
+                              - link "[1]" [ref=f19e114] [cursor=pointer]:
+                                - /url: ./Okapi#cite_note-iucn_status_19_November_2021-1
+                                - generic [ref=f19e115]: "[1]"
+                    - row "Scientific classification Edit this classification" [ref=f19e116]:
+                      - columnheader "Scientific classification Edit this classification" [ref=f19e117]:
+                        - link "Scientific classification" [ref=f19e118] [cursor=pointer]:
+                          - /url: ./Taxonomy_(biology)
+                        - link "Edit this classification" [ref=f19e121] [cursor=pointer]:
+                          - /url: ./Template:Taxonomy/Okapia
+                          - img "Edit this classification" [ref=f19e122]
+                    - 'row "Kingdom: Animalia" [ref=f19e123]':
+                      - cell "Kingdom:" [ref=f19e124]
+                      - cell "Animalia" [ref=f19e125]:
+                        - link "Animalia" [ref=f19e126] [cursor=pointer]:
+                          - /url: ./Animal
+                    - 'row "Phylum: Chordata" [ref=f19e127]':
+                      - cell "Phylum:" [ref=f19e128]
+                      - cell "Chordata" [ref=f19e129]:
+                        - link "Chordata" [ref=f19e130] [cursor=pointer]:
+                          - /url: ./Chordate
+                    - 'row "Class: Mammalia" [ref=f19e131]':
+                      - cell "Class:" [ref=f19e132]
+                      - cell "Mammalia" [ref=f19e133]:
+                        - link "Mammalia" [ref=f19e134] [cursor=pointer]:
+                          - /url: ./Mammal
+                    - 'row "Infraclass: Placentalia" [ref=f19e135]':
+                      - cell "Infraclass:" [ref=f19e136]
+                      - cell "Placentalia" [ref=f19e137]:
+                        - link "Placentalia" [ref=f19e138] [cursor=pointer]:
+                          - /url: ./Placentalia
+                    - 'row "Order: Artiodactyla" [ref=f19e139]':
+                      - cell "Order:" [ref=f19e140]
+                      - cell "Artiodactyla" [ref=f19e141]:
+                        - link "Artiodactyla" [ref=f19e142] [cursor=pointer]:
+                          - /url: ./Artiodactyla
+                    - 'row "Family: Giraffidae" [ref=f19e143]':
+                      - cell "Family:" [ref=f19e144]
+                      - cell "Giraffidae" [ref=f19e145]:
+                        - link "Giraffidae" [ref=f19e146] [cursor=pointer]:
+                          - /url: ./Giraffidae
+                    - 'row "Genus: Okapia Lankester, 1901" [ref=f19e147]':
+                      - cell "Genus:" [ref=f19e148]
+                      - cell "Okapia Lankester, 1901" [ref=f19e149]:
+                        - link "Okapia" [ref=f19e150] [cursor=pointer]:
+                          - /url: ./Okapi
+                        - generic [ref=f19e151]:
+                          - link "Lankester" [ref=f19e152] [cursor=pointer]:
+                            - /url: ./Ray_Lankester
+                          - text: ", 1901"
+                    - 'row "Species: O. johnstoni" [ref=f19e153]':
+                      - cell "Species:" [ref=f19e154]
+                      - cell "O. johnstoni" [ref=f19e155]:
+                        - generic [ref=f19e158]: O. johnstoni
+                    - row "Binomial name" [ref=f19e159]:
+                      - columnheader "Binomial name" [ref=f19e160]:
+                        - link "Binomial name" [ref=f19e161] [cursor=pointer]:
+                          - /url: ./Binomial_nomenclature
+                    - row "Okapia johnstoni (P.L. Sclater, 1901)" [ref=f19e162]:
+                      - cell "Okapia johnstoni (P.L. Sclater, 1901)" [ref=f19e163]:
+                        - generic [ref=f19e165]: Okapia johnstoni
+                        - generic [ref=f19e166]:
+                          - text: (
+                          - link "P.L. Sclater" [ref=f19e167] [cursor=pointer]:
+                            - /url: ./P.L._Sclater
+                          - text: ", 1901)"
+                    - row [ref=f19e168]:
+                      - cell [ref=f19e169]:
+                        - link [ref=f19e171] [cursor=pointer]:
+                          - /url: ./File:Okapia_johnstoni_range_map.png
+                          - img [ref=f19e172]
+                    - row "Range of the okapi" [ref=f19e173]:
+                      - cell "Range of the okapi" [ref=f19e174]
+                - paragraph [ref=f19e175]:
+                  - text: The okapi (
+                  - link /oʊˈkɑːpi/ [ref=f19e178] [cursor=pointer]:
+                    - /url: ./Help:IPA/English
+                    - text: /
+                    - generic [ref=f19e179]: oʊˈkɑːpi
+                    - text: /
+                  - text: ;
+                  - generic [ref=f19e180]: Okapia johnstoni
+                  - text: ), also known as the forest giraffe,
+                  - superscript [ref=f19e181]:
+                    - link "[2]" [ref=f19e182] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-2
+                      - generic [ref=f19e183]: "[2]"
+                  - text: and zebra giraffe, is an
+                  - link "artiodactyl" [ref=f19e184] [cursor=pointer]:
+                    - /url: ./Artiodactyl
+                  - link "mammal" [ref=f19e185] [cursor=pointer]:
+                    - /url: ./Mammal
+                  - text: that is
+                  - link "endemic" [ref=f19e186] [cursor=pointer]:
+                    - /url: ./Endemic
+                  - text: to the northeast
+                  - link "Democratic Republic of the Congo" [ref=f19e187] [cursor=pointer]:
+                    - /url: ./Democratic_Republic_of_the_Congo
+                  - text: in central Africa. However, non-invasive genetic identification has suggested that a population has occurred south-west of the Congo River as well.
+                  - superscript [ref=f19e188]:
+                    - link "[3]" [ref=f19e189] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-3
+                      - generic [ref=f19e190]: "[3]"
+                  - text: It is the
+                  - link "only species" [ref=f19e191] [cursor=pointer]:
+                    - /url: ./Monotypic_taxon
+                  - text: in the
+                  - link "genus" [ref=f19e192] [cursor=pointer]:
+                    - /url: ./Genus
+                  - generic [ref=f19e193]: Okapia
+                  - text: . Although the okapi has striped markings reminiscent of
+                  - link "zebras" [ref=f19e194] [cursor=pointer]:
+                    - /url: ./Zebra
+                  - text: ", it is most closely related to the"
+                  - link "giraffe" [ref=f19e195] [cursor=pointer]:
+                    - /url: ./Giraffe
+                  - text: . The okapi and the giraffe are the only living members of the family
+                  - link "Giraffidae" [ref=f19e196] [cursor=pointer]:
+                    - /url: ./Giraffidae
+                  - text: .
+                - paragraph [ref=f19e197]:
+                  - text: The okapi stands about 1.5 m (4 ft 11 in) tall at the shoulder and has a typical body length around 2.5 m (8 ft 2 in). Its weight ranges from 200 to 350 kg (440 to 770 lb). It has a long neck, and large, flexible ears. Its coat is a chocolate to reddish brown, much in contrast with the white horizontal stripes and rings on the legs, and white ankles. Male okapis have short, distinct horn-like protuberances on their heads called
+                  - link "ossicones" [ref=f19e198] [cursor=pointer]:
+                    - /url: ./Ossicone
+                  - text: ", less than 15 cm (5.9 in) in length. Females possess"
+                  - link "hair whorls" [ref=f19e199] [cursor=pointer]:
+                    - /url: ./Hair_whorl
+                  - text: ", and ossicones are absent."
+                - paragraph [ref=f19e200]:
+                  - text: Okapis are primarily
+                  - link "diurnal" [ref=f19e201] [cursor=pointer]:
+                    - /url: ./Diurnality
+                  - text: ", but may be active for a few hours in darkness. They are essentially solitary, coming together only to breed."
+                  - superscript [ref=f19e202]:
+                    - link "[4]" [ref=f19e203] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-4
+                      - generic [ref=f19e204]: "[4]"
+                  - text: Okapis are
+                  - link "herbivores" [ref=f19e205] [cursor=pointer]:
+                    - /url: ./Herbivore
+                  - text: ", feeding on tree leaves and buds, grasses, ferns, fruits, and"
+                  - link "fungi" [ref=f19e206] [cursor=pointer]:
+                    - /url: ./Fungus
+                  - text: . Rut in males and estrus in females does not depend on the season. In captivity, estrus cycles recur every 15 days. The
+                  - link "gestational period" [ref=f19e207] [cursor=pointer]:
+                    - /url: ./Gestational_period
+                  - text: is around 440 to 450 days long, following which usually a single calf is born. The juveniles are kept in hiding, and nursing takes place infrequently. Juveniles start taking solid food from three months, and weaning takes place at six months.
+                - paragraph [ref=f19e208]:
+                  - text: Okapis inhabit
+                  - link "canopy" [ref=f19e209] [cursor=pointer]:
+                    - /url: ./Canopy_(biology)
+                  - text: forests at altitudes of 500–1,500 m (1,600–4,900 ft). The
+                  - link "International Union for the Conservation of Nature and Natural Resources" [ref=f19e210] [cursor=pointer]:
+                    - /url: ./International_Union_for_the_Conservation_of_Nature_and_Natural_Resources
+                  - text: classifies the okapi as
+                  - link "endangered" [ref=f19e211] [cursor=pointer]:
+                    - /url: ./Endangered
+                  - text: . Major threats include habitat loss due to
+                  - link "logging" [ref=f19e212] [cursor=pointer]:
+                    - /url: ./Logging
+                  - text: and human settlement.
+                  - link "Illegal mining" [ref=f19e213] [cursor=pointer]:
+                    - /url: ./Illegal_mining
+                  - text: and extensive hunting for
+                  - link "bushmeat" [ref=f19e214] [cursor=pointer]:
+                    - /url: ./Bushmeat
+                  - text: and skin have also led to a decline in populations. The
+                  - link "Okapi Conservation Project" [ref=f19e215] [cursor=pointer]:
+                    - /url: ./Okapi_Conservation_Project
+                  - text: was established in 1987 to protect okapi populations.
+              - generic [ref=f19e216]:
+                - heading "Etymology and taxonomy" [level=2] [ref=f19e217]
+                - paragraph [ref=f19e218]:
+                  - text: Although the okapi was unknown to the Western world until the 20th century, it may have been depicted since the early fifth century BCE on the
+                  - link "façade" [ref=f19e219] [cursor=pointer]:
+                    - /url: ./Façade
+                  - text: of the
+                  - link "Apadana" [ref=f19e220] [cursor=pointer]:
+                    - /url: ./Apadana
+                  - text: at
+                  - link "Persepolis" [ref=f19e221] [cursor=pointer]:
+                    - /url: ./Persepolis
+                  - text: ", a gift from the Ethiopian procession to the"
+                  - link "Achaemenid" [ref=f19e222] [cursor=pointer]:
+                    - /url: ./Achaemenid
+                  - text: kingdom.
+                  - superscript [ref=f19e223]:
+                    - link "[5]" [ref=f19e224] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-5
+                      - generic [ref=f19e225]: "[5]"
+                  - superscript [ref=f19e226]:
+                    - link "[6]" [ref=f19e227] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-6
+                      - generic [ref=f19e228]: "[6]"
+                - paragraph [ref=f19e229]:
+                  - text: For years, Europeans in Africa had heard of an animal that they came to call the African
+                  - link "unicorn" [ref=f19e230] [cursor=pointer]:
+                    - /url: ./Unicorn
+                  - text: .
+                  - superscript [ref=f19e231]:
+                    - link "[7]" [ref=f19e232] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-7
+                      - generic [ref=f19e233]: "[7]"
+                  - superscript [ref=f19e234]:
+                    - link "[8]" [ref=f19e235] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-8
+                      - generic [ref=f19e236]: "[8]"
+                  - text: It was brought to prominent European attention by speculation on its existence found in press reports covering
+                  - link "Henry Morton Stanley" [ref=f19e237] [cursor=pointer]:
+                    - /url: ./Henry_Morton_Stanley
+                  - text: "'s journeys in 1887. In his travelogue of exploring the Congo, Stanley mentioned a kind of"
+                  - link "donkey" [ref=f19e238] [cursor=pointer]:
+                    - /url: ./Donkey
+                  - text: that the natives called the atti, which scholars later identified as the okapi.
+                  - superscript [ref=f19e239]:
+                    - link "[9]" [ref=f19e240] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-9
+                      - generic [ref=f19e241]: "[9]"
+                - paragraph [ref=f19e242]:
+                  - text: When the British special commissioner in Uganda,
+                  - link "Sir Harry Johnston" [ref=f19e243] [cursor=pointer]:
+                    - /url: ./Harry_Johnston
+                  - text: ", discovered some"
+                  - link "Pygmy" [ref=f19e244] [cursor=pointer]:
+                    - /url: ./African_Pygmies
+                  - text: inhabitants of the Congo being abducted by a showman for exhibition, he rescued them and promised to return them to their homes. The Pygmies fed Johnston's curiosity about the animal mentioned in Stanley's book. Johnston was puzzled by the okapi tracks the natives showed him; while he had expected to be on the trail of some sort of forest-dwelling horse, the tracks were of a cloven-hoofed beast.
+                  - superscript [ref=f19e245]:
+                    - link "[10]" [ref=f19e246] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-10
+                      - generic [ref=f19e247]: "[10]"
+                - figure "Illustration from an original painting by Sir Harry Johnston, based on preserved skins (1901)" [ref=f19e248]:
+                  - link [ref=f19e249] [cursor=pointer]:
+                    - /url: ./File:Okapi_1901.jpg
+                    - img [ref=f19e250]
+                  - generic [ref=f19e251]: Illustration from an original painting by Sir Harry Johnston, based on preserved skins (1901)
+                - paragraph [ref=f19e252]:
+                  - text: Though Johnston did not see an okapi himself, he did manage to obtain pieces of striped skin and eventually a skull. From this skull, the okapi was correctly classified as a relative of the giraffe; in 1901, the species was formally recognized as Okapia johnstoni.
+                  - superscript [ref=f19e253]:
+                    - link "[11]" [ref=f19e254] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-auto-11
+                      - generic [ref=f19e255]: "[11]"
+                - paragraph [ref=f19e256]:
+                  - text: Okapia johnstoni was first described as Equus johnstoni by English zoologist
+                  - link "Philip Lutley Sclater" [ref=f19e257] [cursor=pointer]:
+                    - /url: ./Philip_Sclater
+                  - text: in 1901.
+                  - superscript [ref=f19e258]:
+                    - link "[12]" [ref=f19e259] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-12
+                      - generic [ref=f19e260]: "[12]"
+                  - text: The
+                  - link "generic name" [ref=f19e261] [cursor=pointer]:
+                    - /url: ./Genus
+                  - text: Okapia derives either from the
+                  - link "Mbuba" [ref=f19e262] [cursor=pointer]:
+                    - /url: ./Mvuba_language
+                  - text: name
+                  - generic "Mvuba-language text" [ref=f19e263]: okapi
+                  - superscript [ref=f19e264]:
+                    - link "[13]" [ref=f19e265] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-OED-13
+                      - generic [ref=f19e266]: "[13]"
+                  - text: or the related
+                  - link "Lese" [ref=f19e267] [cursor=pointer]:
+                    - /url: ./Lese_language
+                  - link "Karo" [ref=f19e268] [cursor=pointer]:
+                    - /url: ./Bari_language
+                  - text: name
+                  - generic "Lese-language text" [ref=f19e269]: o'api
+                  - text: ", while the"
+                  - link "specific name" [ref=f19e270] [cursor=pointer]:
+                    - /url: ./Specific_name_(zoology)
+                  - text: (johnstoni) is in recognition of Johnston, who first acquired an okapi specimen for science from the
+                  - link "Ituri Forest" [ref=f19e271] [cursor=pointer]:
+                    - /url: ./Ituri_Forest
+                  - text: .
+                  - superscript [ref=f19e272]:
+                    - link "[11]" [ref=f19e273] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-auto-11
+                      - generic [ref=f19e274]: "[11]"
+                  - superscript [ref=f19e275]:
+                    - link "[14]" [ref=f19e276] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-14
+                      - generic [ref=f19e277]: "[14]"
+                - paragraph [ref=f19e278]:
+                  - text: In 1901, Sclater presented a painting of the okapi before the
+                  - link "Zoological Society of London" [ref=f19e279] [cursor=pointer]:
+                    - /url: ./Zoological_Society_of_London
+                  - text: that depicted its physical features with some clarity. Much confusion arose regarding the taxonomical status of this newly discovered animal. Sir Harry Johnston himself called it a
+                  - link "Helladotherium" [ref=f19e281] [cursor=pointer]:
+                    - /url: ./Helladotherium
+                  - text: ", or a relative of other extinct giraffids."
+                  - superscript [ref=f19e282]:
+                    - link "[15]" [ref=f19e283] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-15
+                      - generic [ref=f19e284]: "[15]"
+                  - text: Based on the description of the okapi by Pygmies, who referred to it as a "horse", Sclater named the species
+                  - generic [ref=f19e285]:
+                    - link "Equus" [ref=f19e286] [cursor=pointer]:
+                      - /url: ./Equus_(genus)
+                    - text: johnstoni
+                  - text: .
+                  - superscript [ref=f19e287]:
+                    - link "[16]" [ref=f19e288] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-kingdon1979-16
+                      - generic [ref=f19e289]: "[16]"
+                  - text: Subsequently, zoologist
+                  - link "Ray Lankester" [ref=f19e290] [cursor=pointer]:
+                    - /url: ./Ray_Lankester
+                  - text: declared that the okapi represented an unknown genus of the
+                  - link "Giraffidae" [ref=f19e291] [cursor=pointer]:
+                    - /url: ./Giraffidae
+                  - text: ", which he placed in its own genus, Okapia, and assigned the name Okapia johnstoni to the species."
+                  - superscript [ref=f19e292]:
+                    - link "[17]" [ref=f19e293] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-prothero-17
+                      - generic [ref=f19e294]: "[17]"
+                - paragraph [ref=f19e295]:
+                  - text: In 1902, Swiss zoologist
+                  - link "Charles Immanuel Forsyth Major" [ref=f19e296] [cursor=pointer]:
+                    - /url: ./Charles_Immanuel_Forsyth_Major
+                  - text: suggested the inclusion of O. johnstoni in the extinct giraffid subfamily
+                  - link "Palaeotraginae" [ref=f19e297] [cursor=pointer]:
+                    - /url: ./Palaeotragus
+                  - text: . However, the species was placed in its own subfamily Okapiinae, by Swedish
+                  - link "palaeontologist" [ref=f19e298] [cursor=pointer]:
+                    - /url: ./Palaeontologist
+                  - link "Birger Bohlin" [ref=f19e299] [cursor=pointer]:
+                    - /url: ./Birger_Bohlin
+                  - text: in 1926,
+                  - superscript [ref=f19e300]:
+                    - link "[18]" [ref=f19e301] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-18
+                      - generic [ref=f19e302]: "[18]"
+                  - text: mainly due to the lack of a
+                  - link "cingulum" [ref=f19e303] [cursor=pointer]:
+                    - /url: ./Cingulum_(tooth)
+                  - text: ", a major feature of the palaeotragids."
+                  - superscript [ref=f19e304]:
+                    - link "[19]" [ref=f19e305] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-colbert-19
+                      - generic [ref=f19e306]: "[19]"
+                  - text: In 1986, Okapia was finally established as a sister genus of
+                  - link "Giraffa" [ref=f19e308] [cursor=pointer]:
+                    - /url: ./Giraffa
+                  - text: on the basis of
+                  - link "cladistic" [ref=f19e309] [cursor=pointer]:
+                    - /url: ./Cladistics
+                  - text: analysis. The two genera together with
+                  - link "Palaeotragus" [ref=f19e311] [cursor=pointer]:
+                    - /url: ./Palaeotragus
+                  - text: constitute the tribe Giraffini.
+                  - superscript [ref=f19e312]:
+                    - link "[20]" [ref=f19e313] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-geraads-20
+                      - generic [ref=f19e314]: "[20]"
+                - generic [ref=f19e315]:
+                  - heading "Evolution" [level=3] [ref=f19e316]
+                  - figure "Despite the vast difference in neck length, the okapi (left) and the giraffe (right) both have seven cervical vertebrae (as do all mammals except for manatees and sloths)." [ref=f19e317]:
+                    - link [ref=f19e318] [cursor=pointer]:
+                      - /url: ./File:Okapi_Giraffe_Neck.png
+                      - img [ref=f19e319]
+                    - generic [ref=f19e320]:
+                      - text: Despite the vast difference in neck length, the okapi (left) and the giraffe (right) both have seven
+                      - link "cervical vertebrae" [ref=f19e321] [cursor=pointer]:
+                        - /url: ./Cervical_vertebrae
+                      - text: (as do all mammals except for manatees and sloths).
+                  - paragraph [ref=f19e322]:
+                    - text: The earliest members of the Giraffidae first appeared in the early
+                    - link "Miocene" [ref=f19e323] [cursor=pointer]:
+                      - /url: ./Miocene
+                    - text: in Africa, having diverged from the superficially deer-like
+                    - link "climacoceratids" [ref=f19e324] [cursor=pointer]:
+                      - /url: ./Climacoceratidae
+                    - text: . Giraffids spread into Europe and Asia by the middle Miocene in a first
+                    - link "radiation" [ref=f19e325] [cursor=pointer]:
+                      - /url: ./Radiation_(biology)
+                    - text: . Another radiation began in the
+                    - link "Pliocene" [ref=f19e326] [cursor=pointer]:
+                      - /url: ./Pliocene
+                    - text: ", but was terminated by a decline in diversity in the"
+                    - link "Pleistocene" [ref=f19e327] [cursor=pointer]:
+                      - /url: ./Pleistocene
+                    - text: .
+                    - superscript [ref=f19e328]:
+                      - link "[21]" [ref=f19e329] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-finlayson-21
+                        - generic [ref=f19e330]: "[21]"
+                    - text: Several important primitive giraffids existed more or less contemporaneously in the Miocene (23–10 million years ago), including
+                    - link "Canthumeryx" [ref=f19e332] [cursor=pointer]:
+                      - /url: ./Canthumeryx
+                    - text: ","
+                    - link "Giraffokeryx" [ref=f19e334] [cursor=pointer]:
+                      - /url: ./Giraffokeryx
+                    - text: ","
+                    - link "Palaeotragus" [ref=f19e336] [cursor=pointer]:
+                      - /url: ./Palaeotragus
+                    - text: ", and"
+                    - link "Samotherium" [ref=f19e338] [cursor=pointer]:
+                      - /url: ./Samotherium
+                    - text: . According to palaeontologist and author Kathleen Hunt, Samotherium split into Okapia (18 million years ago) and Giraffa (12 million years ago).
+                    - superscript [ref=f19e339]:
+                      - link "[22]" [ref=f19e340] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-22
+                        - generic [ref=f19e341]: "[22]"
+                    - text: However, J. D. Skinner argued that Canthumeryx gave rise to the okapi and giraffe through the latter three genera and that the okapi is the extant form of Palaeotragus.
+                    - superscript [ref=f19e342]:
+                      - link "[23]" [ref=f19e343] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-23
+                        - generic [ref=f19e344]: "[23]"
+                    - text: The okapi is sometimes referred to as a
+                    - link "living fossil" [ref=f19e345] [cursor=pointer]:
+                      - /url: ./Living_fossil
+                    - text: ", as it has existed as a species over a long geological time period, and morphologically resembles more primitive forms (e.g. Samotherium)."
+                    - superscript [ref=f19e346]:
+                      - link "[17]" [ref=f19e347] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-prothero-17
+                        - generic [ref=f19e348]: "[17]"
+                    - superscript [ref=f19e349]:
+                      - link "[24]" [ref=f19e350] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-auto1-24
+                        - generic [ref=f19e351]: "[24]"
+                  - paragraph [ref=f19e352]:
+                    - text: In 2016, a genetic study found that the common ancestor of giraffe and okapi lived about 11.5 million years ago.
+                    - superscript [ref=f19e353]:
+                      - link "[25]" [ref=f19e354] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-25
+                        - generic [ref=f19e355]: "[25]"
+              - generic [ref=f19e356]:
+                - heading "Description" [level=2] [ref=f19e357]
+                - figure "Male okapi displaying his striking horizontal stripes" [ref=f19e358]:
+                  - link [ref=f19e359] [cursor=pointer]:
+                    - /url: ./File:Okapi_(Okapia_johnstoni)_2009-04-04_04.jpg
+                    - img [ref=f19e360]
+                  - generic [ref=f19e361]: Male okapi displaying his striking horizontal stripes
+                - paragraph [ref=f19e362]:
+                  - text: The okapi is a medium-sized giraffid, standing 1.5 m (4 ft 11 in) tall at the shoulder. Its average body length is about 2.5 m (8 ft 2 in) and its weight ranges from 200 to 350 kg (440 to 770 lb).
+                  - superscript [ref=f19e363]:
+                    - link "[26]" [ref=f19e364] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-Burnie-26
+                      - generic [ref=f19e365]: "[26]"
+                  - text: It has a long neck, and large and flexible ears. In sharp contrast to the white horizontal stripes on the legs and white ankles, the okapi's coat is a chocolate to reddish brown. The distinctive stripes resemble those of a zebra.
+                  - superscript [ref=f19e366]:
+                    - link "[27]" [ref=f19e367] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-adw-27
+                      - generic [ref=f19e368]: "[27]"
+                  - text: These features serve as an effective camouflage amidst dense vegetation. The face, throat, and chest are greyish white.
+                  - link "Interdigital glands" [ref=f19e369] [cursor=pointer]:
+                    - /url: ./Interdigital_gland
+                  - text: are present on all four feet, and are slightly larger on the front feet.
+                  - superscript [ref=f19e370]:
+                    - link "[28]" [ref=f19e371] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-bodmer-28
+                      - generic [ref=f19e372]: "[28]"
+                  - text: Male okapis have short, hair-covered horn-like structures called
+                  - link "ossicones" [ref=f19e373] [cursor=pointer]:
+                    - /url: ./Ossicone
+                  - text: ", less than 15 cm (5.9 in) in length, which are similar in form and function to the ossicones of a"
+                  - link "giraffe" [ref=f19e374] [cursor=pointer]:
+                    - /url: ./Giraffe
+                  - text: .
+                  - superscript [ref=f19e375]:
+                    - link "[29]" [ref=f19e376] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-29
+                      - generic [ref=f19e377]: "[29]"
+                  - text: The okapi exhibits
+                  - link "sexual dimorphism" [ref=f19e378] [cursor=pointer]:
+                    - /url: ./Sexual_dimorphism
+                  - text: ", with females 4.2 cm (1.7 in) taller on average, slightly redder, and lacking prominent ossicones, instead possessing"
+                  - link "hair whorls" [ref=f19e379] [cursor=pointer]:
+                    - /url: ./Hair_whorl
+                  - text: .
+                  - superscript [ref=f19e380]:
+                    - link "[30]" [ref=f19e381] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-grzimek-30
+                      - generic [ref=f19e382]: "[30]"
+                  - superscript [ref=f19e383]:
+                    - link "[31]" [ref=f19e384] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-jstor-31
+                      - generic [ref=f19e385]: "[31]"
+                - paragraph [ref=f19e386]:
+                  - text: The okapi shows several adaptations to its tropical habitat. The large number of
+                  - link "rod cells" [ref=f19e387] [cursor=pointer]:
+                    - /url: ./Rod_cell
+                  - text: in the retina facilitate
+                  - link "night vision" [ref=f19e388] [cursor=pointer]:
+                    - /url: ./Night_vision
+                  - text: ", and an efficient"
+                  - link "olfactory system" [ref=f19e389] [cursor=pointer]:
+                    - /url: ./Olfactory_system
+                  - text: is present. The large
+                  - link "auditory bullae" [ref=f19e390] [cursor=pointer]:
+                    - /url: ./Auditory_bullae
+                  - text: of the temporal bone allow a strong sense of hearing. The
+                  - link "dental formula" [ref=f19e391] [cursor=pointer]:
+                    - /url: ./Dental_formula
+                  - text: of the okapi is
+                  - generic [ref=f19e393]:
+                    - 'generic "upper dentition: Incisors.Canines.Premolars.Molars" [ref=f19e394]': 0.0.3.3
+                    - 'generic "lower dentition: Incisors.Canines.Premolars.Molars" [ref=f19e395]': 3.1.3.3
+                  - text: .
+                  - superscript [ref=f19e396]:
+                    - link "[28]" [ref=f19e397] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-bodmer-28
+                      - generic [ref=f19e398]: "[28]"
+                  - text: Teeth are low-
+                  - link "crowned" [ref=f19e399] [cursor=pointer]:
+                    - /url: ./Crown_(dentistry)
+                  - text: and finely
+                  - link "cusped" [ref=f19e400] [cursor=pointer]:
+                    - /url: ./Cusp_(anatomy)
+                  - text: ", and efficiently cut tender foliage. The large"
+                  - link "cecum and colon" [ref=f19e401] [cursor=pointer]:
+                    - /url: ./Large_intestine
+                  - text: help in microbial digestion, and a quick rate of food passage allows for lower cell wall digestion than in other
+                  - link "ruminants" [ref=f19e402] [cursor=pointer]:
+                    - /url: ./Ruminant
+                  - text: .
+                  - superscript [ref=f19e403]:
+                    - link "[32]" [ref=f19e404] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-kingdon-32
+                      - generic [ref=f19e405]: "[32]"
+                - figure "Head of a male okapi with damaged ossicones" [ref=f19e406]:
+                  - link [ref=f19e407] [cursor=pointer]:
+                    - /url: ./File:Ybokp_7b_(16224361745).jpg
+                    - img [ref=f19e408]
+                  - generic [ref=f19e409]:
+                    - text: Head of a male okapi with damaged
+                    - link "ossicones" [ref=f19e410] [cursor=pointer]:
+                      - /url: ./Ossicone
+                - paragraph [ref=f19e411]:
+                  - text: The okapi is easily distinguished from its nearest extant relative, the giraffe. It is much smaller than the giraffe and shares more external similarities with
+                  - link "bovids" [ref=f19e412] [cursor=pointer]:
+                    - /url: ./Bovidae
+                  - text: and
+                  - link "cervids" [ref=f19e413] [cursor=pointer]:
+                    - /url: ./Cervidae
+                  - text: . Ossicones are present only in the male okapi, while both sexes of giraffe possess this feature. The okapi has large palatine sinuses (hollow cavities in the
+                  - link "palate" [ref=f19e414] [cursor=pointer]:
+                    - /url: ./Palate
+                  - text: ), unique among the giraffids.
+                  - link "Morphological" [ref=f19e415] [cursor=pointer]:
+                    - /url: ./Morphology_(biology)
+                  - text: features shared between the giraffe and the okapi include a similar gait – both use a
+                  - link "pacing" [ref=f19e416] [cursor=pointer]:
+                    - /url: ./Horse_gait#Pace
+                  - text: gait, stepping simultaneously with the front and the hind leg on the same side of the body, unlike other
+                  - link "ungulates" [ref=f19e417] [cursor=pointer]:
+                    - /url: ./Ungulate
+                  - text: that walk by moving alternate legs on either side of the body
+                  - superscript [ref=f19e418]:
+                    - link "[33]" [ref=f19e419] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-dagg-33
+                      - generic [ref=f19e420]: "[33]"
+                  - text: – and a long, black tongue (longer in the okapi) useful for plucking buds and leaves, as well as for grooming.
+                  - superscript [ref=f19e421]:
+                    - link "[32]" [ref=f19e422] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-kingdon-32
+                      - generic [ref=f19e423]: "[32]"
+              - generic [ref=f19e424]:
+                - heading "Ecology and behaviour" [level=2] [ref=f19e425]
+                - paragraph [ref=f19e426]:
+                  - text: Okapis are primarily
+                  - link "diurnal" [ref=f19e427] [cursor=pointer]:
+                    - /url: ./Diurnal_animal
+                  - text: ", but may be active for a few hours in darkness."
+                  - superscript [ref=f19e428]:
+                    - link "[34]" [ref=f19e429] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-34
+                      - generic [ref=f19e430]: "[34]"
+                  - text: They are essentially solitary, coming together only to breed. They have overlapping home ranges and typically occur at densities around 0.6 animals per square kilometre.
+                  - superscript [ref=f19e431]:
+                    - link "[27]" [ref=f19e432] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-adw-27
+                      - generic [ref=f19e433]: "[27]"
+                  - text: Male home ranges average 13 km
+                  - superscript [ref=f19e434]: "2"
+                  - text: (5.0 sq mi), while female home ranges average 3–5 km
+                  - superscript [ref=f19e435]: "2"
+                  - text: (1.2–1.9 sq mi). Males migrate continuously, while females are sedentary.
+                  - superscript [ref=f19e436]:
+                    - link "[35]" [ref=f19e437] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-hart-35
+                      - generic [ref=f19e438]: "[35]"
+                  - text: Males often mark territories and bushes with their urine, while females use common defecation sites. Grooming is a common practice, focused at the earlobes and the neck. Okapis often rub their necks against trees, leaving a brown
+                  - link "exudate" [ref=f19e439] [cursor=pointer]:
+                    - /url: ./Exudate
+                  - text: .
+                  - superscript [ref=f19e440]:
+                    - link "[28]" [ref=f19e441] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-bodmer-28
+                      - generic [ref=f19e442]: "[28]"
+                - paragraph [ref=f19e443]:
+                  - text: The male is protective of his territory, but allows females to pass through the domain to forage. Males visit female home ranges at breeding time.
+                  - superscript [ref=f19e444]:
+                    - link "[32]" [ref=f19e445] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-kingdon-32
+                      - generic [ref=f19e446]: "[32]"
+                  - text: Although generally tranquil, the okapi can kick and butt with its head to show aggression. As the
+                  - link "vocal cords" [ref=f19e447] [cursor=pointer]:
+                    - /url: ./Vocal_cord
+                  - text: are poorly developed, vocal communication is mainly restricted to three sounds — "chuff" (contact calls used by both sexes), "moan" (by females during courtship) and "bleat" (by infants under stress). Individuals may engage in
+                  - link "Flehmen response" [ref=f19e448] [cursor=pointer]:
+                    - /url: ./Flehmen_response
+                  - text: ", a visual expression in which the animal curls back its upper lips, displays the teeth, and inhales through the mouth for a few seconds. The"
+                  - link "leopard" [ref=f19e449] [cursor=pointer]:
+                    - /url: ./Leopard
+                  - text: is the main natural predator of the okapi.
+                  - superscript [ref=f19e450]:
+                    - link "[28]" [ref=f19e451] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-bodmer-28
+                      - generic [ref=f19e452]: "[28]"
+                - generic [ref=f19e453]:
+                  - heading "Diet" [level=3] [ref=f19e454]
+                  - figure "The long tongue of the okapi" [ref=f19e455]:
+                    - link [ref=f19e456] [cursor=pointer]:
+                      - /url: ./File:Okapi_tongue.jpg
+                      - img [ref=f19e457]
+                    - generic [ref=f19e458]: The long tongue of the okapi
+                  - paragraph [ref=f19e459]:
+                    - text: Okapis are
+                    - link "herbivores" [ref=f19e460] [cursor=pointer]:
+                      - /url: ./Herbivore
+                    - text: ", feeding on tree leaves and buds,"
+                    - link "branches" [ref=f19e461] [cursor=pointer]:
+                      - /url: ./Branch
+                    - text: ","
+                    - link "grasses" [ref=f19e462] [cursor=pointer]:
+                      - /url: ./Poaceae
+                    - text: ","
+                    - link "ferns" [ref=f19e463] [cursor=pointer]:
+                      - /url: ./Fern
+                    - text: ", fruits, and"
+                    - link "fungi" [ref=f19e464] [cursor=pointer]:
+                      - /url: ./Fungus
+                    - text: .
+                    - superscript [ref=f19e465]:
+                      - link "[36]" [ref=f19e466] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-36
+                        - generic [ref=f19e467]: "[36]"
+                    - text: They are unique in the Ituri Forest as they are the only known mammal that feeds solely on understory vegetation, where they use their 18-inch-long (46 cm) tongues to selectively browse for suitable plants. The tongue is also used to groom their ears and eyes.
+                    - superscript [ref=f19e468]:
+                      - link "[37]" [ref=f19e469] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-37
+                        - generic [ref=f19e470]: "[37]"
+                    - text: They prefer to feed in
+                    - link "treefall gaps" [ref=f19e471] [cursor=pointer]:
+                      - /url: ./Treefall_gap
+                    - text: . The okapi has been known to feed on over 100 species of plants, some of which are known to be poisonous to humans and other animals. Fecal analysis shows that none of those 100 species dominates the diet of the okapi. Staple foods comprise
+                    - link "shrubs" [ref=f19e472] [cursor=pointer]:
+                      - /url: ./Shrub
+                    - text: and
+                    - link "lianas" [ref=f19e473] [cursor=pointer]:
+                      - /url: ./Liana
+                    - text: . The main constituents of the diet are woody,
+                    - link "dicotyledonous" [ref=f19e474] [cursor=pointer]:
+                      - /url: ./Dicot
+                    - text: species;
+                    - link "monocotyledonous" [ref=f19e475] [cursor=pointer]:
+                      - /url: ./Monocot
+                    - text: plants are not eaten regularly. In the Ituri forest, the okapi feeds mainly upon the plant families
+                    - link "Acanthaceae" [ref=f19e476] [cursor=pointer]:
+                      - /url: ./Acanthaceae
+                    - text: ","
+                    - link "Ebenaceae" [ref=f19e477] [cursor=pointer]:
+                      - /url: ./Ebenaceae
+                    - text: ","
+                    - link "Euphorbiaceae" [ref=f19e478] [cursor=pointer]:
+                      - /url: ./Euphorbiaceae
+                    - text: ","
+                    - link "Flacourtiaceae" [ref=f19e479] [cursor=pointer]:
+                      - /url: ./Flacourtiaceae
+                    - text: ","
+                    - link "Loganiaceae" [ref=f19e480] [cursor=pointer]:
+                      - /url: ./Loganiaceae
+                    - text: ","
+                    - link "Rubiaceae" [ref=f19e481] [cursor=pointer]:
+                      - /url: ./Rubiaceae
+                    - text: ", and"
+                    - link "Violaceae" [ref=f19e482] [cursor=pointer]:
+                      - /url: ./Violaceae
+                    - text: .
+                    - superscript [ref=f19e483]:
+                      - link "[28]" [ref=f19e484] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-bodmer-28
+                        - generic [ref=f19e485]: "[28]"
+                    - superscript [ref=f19e486]:
+                      - link "[35]" [ref=f19e487] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-hart-35
+                        - generic [ref=f19e488]: "[35]"
+                - generic [ref=f19e489]:
+                  - heading "Reproduction" [level=3] [ref=f19e490]
+                  - figure "A female okapi with her calf at White Oak Conservation" [ref=f19e491]:
+                    - link [ref=f19e492] [cursor=pointer]:
+                      - /url: ./File:Okapi_and_calf_at_White_Oak.jpg
+                      - img [ref=f19e493]
+                    - generic [ref=f19e494]: A female okapi with her calf at White Oak Conservation
+                  - paragraph [ref=f19e495]:
+                    - text: Female okapis become
+                    - link "sexually mature" [ref=f19e496] [cursor=pointer]:
+                      - /url: ./Sexual_maturity
+                    - text: at about one-and-a-half years old, while males reach maturity after two years.
+                    - link "Rut" [ref=f19e497] [cursor=pointer]:
+                      - /url: ./Rut_(mammalian_reproduction)
+                    - text: in males and
+                    - link "estrus" [ref=f19e498] [cursor=pointer]:
+                      - /url: ./Estrus
+                    - text: in females does not depend on the season. In captivity, estrous cycles recur every 15 days.
+                    - superscript [ref=f19e499]:
+                      - link "[32]" [ref=f19e500] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-kingdon-32
+                        - generic [ref=f19e501]: "[32]"
+                    - superscript [ref=f19e502]:
+                      - link "[38]" [ref=f19e503] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-reproduction-38
+                        - generic [ref=f19e504]: "[38]"
+                    - text: The male and the female begin
+                    - link "courtship" [ref=f19e505] [cursor=pointer]:
+                      - /url: ./Courtship_display
+                    - text: by circling, smelling, and licking each other. The male shows his interest by extending his neck, tossing his head, and protruding one leg forward. This is followed by mounting and
+                    - link "copulation" [ref=f19e506] [cursor=pointer]:
+                      - /url: ./Copulation_(zoology)
+                    - text: .
+                    - superscript [ref=f19e507]:
+                      - link "[30]" [ref=f19e508] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-grzimek-30
+                        - generic [ref=f19e509]: "[30]"
+                  - paragraph [ref=f19e510]:
+                    - text: The
+                    - link "gestational period" [ref=f19e511] [cursor=pointer]:
+                      - /url: ./Gestational_period
+                    - text: is around 440 to 450 days long, following which usually a single calf is born, weighing 14–30 kg (31–66 lb). The
+                    - link "udder" [ref=f19e512] [cursor=pointer]:
+                      - /url: ./Udder
+                    - text: of the pregnant female starts swelling 2 months before
+                    - link "parturition" [ref=f19e513] [cursor=pointer]:
+                      - /url: ./Parturition
+                    - text: ", and"
+                    - link "vulval" [ref=f19e514] [cursor=pointer]:
+                      - /url: ./Vulva
+                    - text: discharges may occur. Parturition takes 3–4 hours, and the female stands throughout this period, though she may rest during brief intervals. The mother consumes the afterbirth and extensively grooms the infant. Her milk is very rich in proteins and low in fat.
+                    - superscript [ref=f19e515]:
+                      - link "[32]" [ref=f19e516] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-kingdon-32
+                        - generic [ref=f19e517]: "[32]"
+                  - paragraph [ref=f19e518]:
+                    - text: As in other ruminants, the infant can stand within 30 minutes of birth. Although generally similar to adults, newborn calves have long hairs around the eye (resembling false eyelashes), a long dorsal
+                    - link "mane" [ref=f19e519] [cursor=pointer]:
+                      - /url: ./Mane_(horse)
+                    - text: ", and long white hairs in the stripes."
+                    - superscript [ref=f19e520]:
+                      - link "[39]" [ref=f19e521] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-39
+                        - generic [ref=f19e522]: "[39]"
+                    - text: These features gradually disappear and give way to the general appearance within a year. The juveniles are kept in hiding, and nursing takes place infrequently. Calves are known not to defecate for the first month or two of life, which is hypothesized to help avoid predator detection in their most vulnerable phase of life.
+                    - superscript [ref=f19e523]:
+                      - link "[40]" [ref=f19e524] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-40
+                        - generic [ref=f19e525]: "[40]"
+                    - text: The growth rate of calves is appreciably high in the first few months of life, after which it gradually declines. Juveniles start taking solid food from 3 months, and weaning takes place at 6 months. Ossicone development in males takes 1 year after birth. The okapi's typical lifespan is 20–30 years.
+                    - superscript [ref=f19e526]:
+                      - link "[28]" [ref=f19e527] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-bodmer-28
+                        - generic [ref=f19e528]: "[28]"
+              - generic [ref=f19e529]:
+                - heading "Distribution and habitat" [level=2] [ref=f19e530]
+                - paragraph [ref=f19e531]:
+                  - text: The okapi is
+                  - link "endemic" [ref=f19e532] [cursor=pointer]:
+                    - /url: ./Endemic
+                  - text: to the Democratic Republic of the Congo, where it occurs north and east of the
+                  - link "Congo River" [ref=f19e533] [cursor=pointer]:
+                    - /url: ./Congo_River
+                  - text: . It ranges from the
+                  - link "Maiko National Park" [ref=f19e534] [cursor=pointer]:
+                    - /url: ./Maiko_National_Park
+                  - text: northward to the
+                  - link "Ituri rainforest" [ref=f19e535] [cursor=pointer]:
+                    - /url: ./Ituri_rainforest
+                  - text: ", then through the river basins of the Rubi,"
+                  - link "Lake Tele" [ref=f19e536] [cursor=pointer]:
+                    - /url: ./Lake_Tele
+                  - text: ", and"
+                  - link "Ebola" [ref=f19e537] [cursor=pointer]:
+                    - /url: ./Ebola_River
+                  - text: to the west and the
+                  - link "Ubangi River" [ref=f19e538] [cursor=pointer]:
+                    - /url: ./Ubangi_River
+                  - text: further north. Smaller populations exist west and south of the Congo River. It is also common in the
+                  - link "Wamba" [ref=f19e539] [cursor=pointer]:
+                    - /url: ./Wamba,_Luo_Reserve
+                  - text: and Epulu areas. It is extinct in
+                  - link "Uganda" [ref=f19e540] [cursor=pointer]:
+                    - /url: ./Uganda
+                  - text: .
+                  - superscript [ref=f19e541]:
+                    - link "[1]" [ref=f19e542] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-iucn_status_19_November_2021-1
+                      - generic [ref=f19e543]: "[1]"
+                - paragraph [ref=f19e544]:
+                  - text: The okapi inhabits
+                  - link "canopy" [ref=f19e545] [cursor=pointer]:
+                    - /url: ./Canopy_(biology)
+                  - text: forests at elevations of 500–1,500 m (1,600–4,900 ft). It occasionally uses seasonally inundated areas, but does not occur in
+                  - link "gallery forests" [ref=f19e546] [cursor=pointer]:
+                    - /url: ./Gallery_forest
+                  - text: ","
+                  - link "swamp forests" [ref=f19e547] [cursor=pointer]:
+                    - /url: ./Swamp_forest
+                  - text: ", and habitats disturbed by"
+                  - link "human settlements" [ref=f19e548] [cursor=pointer]:
+                    - /url: ./Human_settlement
+                  - text: . In the wet season, it visits rocky
+                  - link "inselbergs" [ref=f19e549] [cursor=pointer]:
+                    - /url: ./Inselbergs
+                  - text: that offer forage uncommon elsewhere. Results of research conducted in the late 1980s in a mixed
+                  - link "Cynometra" [ref=f19e551] [cursor=pointer]:
+                    - /url: ./Cynometra
+                  - text: forest indicated that the okapi population density averaged 0.53 animals per square kilometre.
+                  - superscript [ref=f19e552]:
+                    - link "[35]" [ref=f19e553] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-hart-35
+                      - generic [ref=f19e554]: "[35]"
+                  - text: In 2008, it was recorded in
+                  - link "Virunga National Park" [ref=f19e555] [cursor=pointer]:
+                    - /url: ./Virunga_National_Park
+                  - text: .
+                  - superscript [ref=f19e556]:
+                    - link "[41]" [ref=f19e557] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-41
+                      - generic [ref=f19e558]: "[41]"
+                  - text: There is also evidence that okapis were also observed in the
+                  - link "Semuliki Valley" [ref=f19e559] [cursor=pointer]:
+                    - /url: ./Semuliki_National_Park
+                  - text: in
+                  - link "Uganda" [ref=f19e560] [cursor=pointer]:
+                    - /url: ./Uganda
+                  - text: by Europeans, but later became extinct in the late 1970s.
+                  - superscript [ref=f19e561]:
+                    - link "[42]" [ref=f19e562] [cursor=pointer]:
+                      - /url: ./Okapi#cite_note-42
+                      - generic [ref=f19e563]: "[42]"
+                  - text: The Semuliki Valley provides a similar habitat to the
+                  - link "Congo Basin" [ref=f19e564] [cursor=pointer]:
+                    - /url: ./Congo_Basin
+                  - text: .
+              - generic [ref=f19e565]:
+                - heading "Status" [level=2] [ref=f19e566]
+                - generic [ref=f19e567]:
+                  - heading "Threats and conservation" [level=3] [ref=f19e568]
+                  - figure "Okapi at Disney's Animal Kingdom" [ref=f19e569]:
+                    - link [ref=f19e570] [cursor=pointer]:
+                      - /url: ./File:Okapi2.jpg
+                      - img [ref=f19e571]
+                    - generic [ref=f19e572]:
+                      - text: Okapi at
+                      - link "Disney's Animal Kingdom" [ref=f19e573] [cursor=pointer]:
+                        - /url: ./Disney's_Animal_Kingdom
+                  - paragraph [ref=f19e574]:
+                    - text: The IUCN classifies the okapi as endangered.
+                    - superscript [ref=f19e575]:
+                      - link "[43]" [ref=f19e576] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-OCP-43
+                        - generic [ref=f19e577]: "[43]"
+                    - text: It is fully protected under Congolese law. The
+                    - link "Okapi Wildlife Reserve" [ref=f19e578] [cursor=pointer]:
+                      - /url: ./Okapi_Wildlife_Reserve
+                    - text: and
+                    - link "Maiko National Park" [ref=f19e579] [cursor=pointer]:
+                      - /url: ./Maiko_National_Park
+                    - text: support significant populations of the okapi, though a steady decline in numbers has occurred due to several threats. Other areas of occurrence are the
+                    - link "Rubi Tele Hunting Reserve" [ref=f19e580] [cursor=pointer]:
+                      - /url: ./Rubi_Tele_Hunting_Reserve
+                    - text: ", the Abumombanzi Reserve, the"
+                    - link "Sankuru Nature Reserve" [ref=f19e581] [cursor=pointer]:
+                      - /url: ./Sankuru_Nature_Reserve
+                    - text: ", the"
+                    - link "Lomami National Park" [ref=f19e582] [cursor=pointer]:
+                      - /url: ./Lomami_National_Park
+                    - text: . Major threats include habitat loss due to
+                    - link "logging" [ref=f19e583] [cursor=pointer]:
+                      - /url: ./Logging
+                    - text: and human settlement. Extensive hunting for
+                    - link "bushmeat" [ref=f19e584] [cursor=pointer]:
+                      - /url: ./Bushmeat
+                    - text: and skin and illegal mining have also led to population declines. A threat that has emerged quite recently is the presence of illegal armed groups around protected areas, inhibiting conservation and monitoring actions. A small population occurs north of the
+                    - link "Virunga National Park" [ref=f19e585] [cursor=pointer]:
+                      - /url: ./Virunga_National_Park
+                    - text: ", but lacks protection due to the presence of armed groups in the vicinity."
+                    - superscript [ref=f19e586]:
+                      - link "[1]" [ref=f19e587] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-iucn_status_19_November_2021-1
+                        - generic [ref=f19e588]: "[1]"
+                    - text: In June 2012, a gang of poachers attacked the headquarters of the
+                    - link "Okapi Wildlife Reserve" [ref=f19e589] [cursor=pointer]:
+                      - /url: ./Okapi_Wildlife_Reserve
+                    - text: ", killing six guards and other staff"
+                    - superscript [ref=f19e590]:
+                      - link "[44]" [ref=f19e591] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-44
+                        - generic [ref=f19e592]: "[44]"
+                    - text: as well as all 14 okapis at their breeding center.
+                    - superscript [ref=f19e593]:
+                      - link "[45]" [ref=f19e594] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-45
+                        - generic [ref=f19e595]: "[45]"
+                  - paragraph [ref=f19e596]:
+                    - text: The
+                    - link "Okapi Conservation Project" [ref=f19e597] [cursor=pointer]:
+                      - /url: ./Okapi_Conservation_Project
+                    - text: ", established in 1987, works towards the conservation of the okapi, as well as the growth of the indigenous"
+                    - link "Mbuti people" [ref=f19e598] [cursor=pointer]:
+                      - /url: ./Mbuti_people
+                    - text: .
+                    - superscript [ref=f19e599]:
+                      - link "[1]" [ref=f19e600] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-iucn_status_19_November_2021-1
+                        - generic [ref=f19e601]: "[1]"
+                    - text: In November 2011, the
+                    - link "White Oak Conservation" [ref=f19e602] [cursor=pointer]:
+                      - /url: ./White_Oak_Conservation
+                    - text: center and
+                    - link "Jacksonville Zoo and Gardens" [ref=f19e603] [cursor=pointer]:
+                      - /url: ./Jacksonville_Zoo_and_Gardens
+                    - text: hosted an international meeting of the Okapi
+                    - link "Species Survival Plan" [ref=f19e604] [cursor=pointer]:
+                      - /url: ./Species_Survival_Plan
+                    - text: and the Okapi
+                    - link "European Endangered Species Programme" [ref=f19e605] [cursor=pointer]:
+                      - /url: ./European_Endangered_Species_Programme
+                    - text: at
+                    - link "Jacksonville" [ref=f19e606] [cursor=pointer]:
+                      - /url: ./Jacksonville
+                    - text: ", which was attended by representatives from zoos from the US, Europe, and Japan. The aim was to discuss the management of captive okapis and arrange support for okapi conservation. Many zoos in North America and Europe currently have okapis in captivity."
+                    - superscript [ref=f19e607]:
+                      - link "[46]" [ref=f19e608] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-meet-46
+                        - generic [ref=f19e609]: "[46]"
+                - generic [ref=f19e610]:
+                  - heading "Okapis in zoos" [level=3] [ref=f19e611]
+                  - figure "1960 Dutch newsreel about okapis in Diergaarde Blijdorp" [ref=f19e612]:
+                    - generic [ref=f19e613]:
+                      - text: 1960 Dutch newsreel about okapis in
+                      - link "Diergaarde Blijdorp" [ref=f19e614] [cursor=pointer]:
+                        - /url: ./Diergaarde_Blijdorp
+                  - paragraph [ref=f19e615]:
+                    - text: Around 100 okapis are in accredited
+                    - link "Association of Zoos and Aquariums" [ref=f19e616] [cursor=pointer]:
+                      - /url: ./Association_of_Zoos_and_Aquariums
+                    - text: (AZA) zoos. The okapi population is managed in America by the AZA's Species Survival Plan, a breeding program that works to ensure genetic diversity in the captive population of endangered animals, while the
+                    - link "EEP" [ref=f19e617] [cursor=pointer]:
+                      - /url: ./European_Endangered_Species_Programme
+                    - text: (European studbook) and ISB (Global studbook) are managed by
+                    - link "Antwerp Zoo" [ref=f19e618] [cursor=pointer]:
+                      - /url: ./Antwerp_Zoo
+                    - text: in Belgium, which was the first zoo to have an Okapi on display (in 1919), as well as one of the most successful in breeding them.
+                    - superscript [ref=f19e619]:
+                      - link "[47]" [ref=f19e620] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-47
+                        - generic [ref=f19e621]: "[47]"
+                    - superscript [ref=f19e622]:
+                      - link "[48]" [ref=f19e623] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-48
+                        - generic [ref=f19e624]: "[48]"
+                  - paragraph [ref=f19e625]:
+                    - text: In 1937, the
+                    - link "Bronx Zoo" [ref=f19e626] [cursor=pointer]:
+                      - /url: ./Bronx_Zoo
+                    - text: became the first in North America to acquire an okapi.
+                    - superscript [ref=f19e627]:
+                      - link "[49]" [ref=f19e628] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-49
+                        - generic [ref=f19e629]: "[49]"
+                    - text: With one of the most successful breeding programs, 13 calves have been born there between 1991 and 2011.
+                    - superscript [ref=f19e630]:
+                      - link "[50]" [ref=f19e631] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-50
+                        - generic [ref=f19e632]: "[50]"
+                    - text: The
+                    - link "San Diego Zoo" [ref=f19e633] [cursor=pointer]:
+                      - /url: ./San_Diego_Zoo
+                    - text: has exhibited okapis since 1956, and their first okapi calf was born in 1962.
+                    - superscript [ref=f19e634]:
+                      - link "[51]" [ref=f19e635] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-SDZ-51
+                        - generic [ref=f19e636]: "[51]"
+                    - text: Since then, there have been more than 60 okapis born at the zoo and the nearby
+                    - link "San Diego Zoo Safari Park" [ref=f19e637] [cursor=pointer]:
+                      - /url: ./San_Diego_Zoo_Safari_Park
+                    - text: ", the most recent being Mosi, a male calf born on 21 July 2017 at the zoo."
+                    - superscript [ref=f19e638]:
+                      - link "[52]" [ref=f19e639] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-52
+                        - generic [ref=f19e640]: "[52]"
+                    - text: The
+                    - link "Brookfield Zoo" [ref=f19e641] [cursor=pointer]:
+                      - /url: ./Brookfield_Zoo
+                    - text: in
+                    - link "Chicago" [ref=f19e642] [cursor=pointer]:
+                      - /url: ./Chicago
+                    - text: has also greatly contributed to the captive population of okapis in accredited zoos. The zoo has had 28 okapi births since 1959.
+                    - superscript [ref=f19e643]:
+                      - link "[53]" [ref=f19e644] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-53
+                        - generic [ref=f19e645]: "[53]"
+                  - paragraph [ref=f19e646]:
+                    - text: "Other North American zoos that exhibit and breed okapis include:"
+                    - link "Denver Zoo" [ref=f19e647] [cursor=pointer]:
+                      - /url: ./Denver_Zoo
+                    - text: and
+                    - link "Cheyenne Mountain Zoo" [ref=f19e648] [cursor=pointer]:
+                      - /url: ./Cheyenne_Mountain_Zoo
+                    - text: (Colorado);
+                    - link "Houston Zoo" [ref=f19e649] [cursor=pointer]:
+                      - /url: ./Houston_Zoo
+                    - text: ","
+                    - link "Dallas Zoo" [ref=f19e650] [cursor=pointer]:
+                      - /url: ./Dallas_Zoo
+                    - text: ", and"
+                    - link "San Antonio Zoo" [ref=f19e651] [cursor=pointer]:
+                      - /url: ./San_Antonio_Zoo
+                    - text: (Texas);
+                    - link "Disney's Animal Kingdom" [ref=f19e652] [cursor=pointer]:
+                      - /url: ./Disney's_Animal_Kingdom
+                    - text: ","
+                    - link "White Oak Conservation" [ref=f19e653] [cursor=pointer]:
+                      - /url: ./White_Oak_Conservation
+                    - text: ","
+                    - link "Zoo Miami" [ref=f19e654] [cursor=pointer]:
+                      - /url: ./Zoo_Miami
+                    - text: ", and"
+                    - link "ZooTampa at Lowry Park" [ref=f19e655] [cursor=pointer]:
+                      - /url: ./ZooTampa_at_Lowry_Park
+                    - text: (Florida);
+                    - link "Los Angeles Zoo" [ref=f19e656] [cursor=pointer]:
+                      - /url: ./Los_Angeles_Zoo
+                    - text: ","
+                    - link "Sacramento Zoo" [ref=f19e657] [cursor=pointer]:
+                      - /url: ./Sacramento_Zoo
+                    - text: ", and"
+                    - link "San Diego Zoo" [ref=f19e658] [cursor=pointer]:
+                      - /url: ./San_Diego_Zoo
+                    - text: (California);
+                    - link "Saint Louis Zoo" [ref=f19e659] [cursor=pointer]:
+                      - /url: ./Saint_Louis_Zoo
+                    - text: (Missouri);
+                    - link "Cincinnati Zoo and Botanical Garden" [ref=f19e660] [cursor=pointer]:
+                      - /url: ./Cincinnati_Zoo_and_Botanical_Garden
+                    - text: and
+                    - link "Columbus Zoo and Aquarium" [ref=f19e661] [cursor=pointer]:
+                      - /url: ./Columbus_Zoo_and_Aquarium
+                    - text: (Ohio);
+                    - link "Memphis Zoo" [ref=f19e662] [cursor=pointer]:
+                      - /url: ./Memphis_Zoo
+                    - text: and
+                    - link "Nashville Zoo" [ref=f19e663] [cursor=pointer]:
+                      - /url: ./Nashville_Zoo_at_Grassmere
+                    - text: (Tennessee);
+                    - link "The Maryland Zoo in Baltimore" [ref=f19e664] [cursor=pointer]:
+                      - /url: ./The_Maryland_Zoo_in_Baltimore
+                    - text: (Maryland);
+                    - link "Sedgwick County Zoo" [ref=f19e665] [cursor=pointer]:
+                      - /url: ./Sedgwick_County_Zoo
+                    - text: and
+                    - link "Tanganyika Wildlife Park" [ref=f19e666] [cursor=pointer]:
+                      - /url: ./Tanganyika_Wildlife_Park
+                    - text: (Kansas);
+                    - link "Roosevelt Park Zoo" [ref=f19e667] [cursor=pointer]:
+                      - /url: ./Roosevelt_Park_Zoo
+                    - superscript [ref=f19e668]:
+                      - link "[54]" [ref=f19e669] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-54
+                        - generic [ref=f19e670]: "[54]"
+                    - text: (North Dakota);
+                    - link "Henry Doorly Zoo and Aquarium" [ref=f19e671] [cursor=pointer]:
+                      - /url: ./Henry_Doorly_Zoo_and_Aquarium
+                    - text: (Nebraska);
+                    - link "Philadelphia Zoo" [ref=f19e672] [cursor=pointer]:
+                      - /url: ./Philadelphia_Zoo
+                    - text: (Pennsylvania);
+                    - link "Potawatomi Zoo" [ref=f19e673] [cursor=pointer]:
+                      - /url: ./Potawatomi_Zoo
+                    - superscript [ref=f19e674]:
+                      - link "[55]" [ref=f19e675] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-55
+                        - generic [ref=f19e676]: "[55]"
+                    - text: (Indiana);
+                    - link "Oklahoma City Zoo and Botanical Garden" [ref=f19e677] [cursor=pointer]:
+                      - /url: ./Oklahoma_City_Zoo_and_Botanical_Garden
+                    - text: (Oklahoma);
+                    - link "Blank Park Zoo" [ref=f19e678] [cursor=pointer]:
+                      - /url: ./Blank_Park_Zoo
+                    - text: (Iowa);
+                    - superscript [ref=f19e679]:
+                      - link "[56]" [ref=f19e680] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-56
+                        - generic [ref=f19e681]: "[56]"
+                    - text: and
+                    - link "Potter Park Zoo" [ref=f19e682] [cursor=pointer]:
+                      - /url: ./Potter_Park_Zoo
+                    - text: (Michigan).
+                    - superscript [ref=f19e683]:
+                      - link "[57]" [ref=f19e684] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-57
+                        - generic [ref=f19e685]: "[57]"
+                  - paragraph [ref=f19e686]:
+                    - text: "In Europe, zoos that exhibit and breed okapis include:"
+                    - link "Chester Zoo" [ref=f19e687] [cursor=pointer]:
+                      - /url: ./Chester_Zoo
+                    - text: ","
+                    - link "London Zoo" [ref=f19e688] [cursor=pointer]:
+                      - /url: ./London_Zoo
+                    - text: ","
+                    - link "Marwell Zoo" [ref=f19e689] [cursor=pointer]:
+                      - /url: ./Marwell_Zoo
+                    - text: ","
+                    - link "The Wild Place" [ref=f19e690] [cursor=pointer]:
+                      - /url: ./Wild_Place_Project
+                    - text: ","
+                    - superscript [ref=f19e691]:
+                      - link "[58]" [ref=f19e692] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-58
+                        - generic [ref=f19e693]: "[58]"
+                    - text: and
+                    - link "Yorkshire Wildlife Park" [ref=f19e694] [cursor=pointer]:
+                      - /url: ./Yorkshire_Wildlife_Park
+                    - superscript [ref=f19e695]:
+                      - link "[59]" [ref=f19e696] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-59
+                        - generic [ref=f19e697]: "[59]"
+                    - text: (United Kingdom);
+                    - link "Dublin Zoo" [ref=f19e698] [cursor=pointer]:
+                      - /url: ./Dublin_Zoo
+                    - text: (Ireland);
+                    - link "Berlin Zoo" [ref=f19e699] [cursor=pointer]:
+                      - /url: ./Berlin_Zoo
+                    - text: ","
+                    - link "Frankfurt Zoo" [ref=f19e700] [cursor=pointer]:
+                      - /url: ./Frankfurt_Zoological_Garden
+                    - text: ","
+                    - link "Wilhelma Zoo" [ref=f19e701] [cursor=pointer]:
+                      - /url: ./Wilhelma
+                    - text: ","
+                    - link "Wuppertal Zoo" [ref=f19e702] [cursor=pointer]:
+                      - /url: ./Wuppertal_Zoo
+                    - text: ","
+                    - link "Cologne Zoo" [ref=f19e703] [cursor=pointer]:
+                      - /url: ./Cologne_Zoological_Garden
+                    - text: ", and"
+                    - link "Leipzig Zoo" [ref=f19e704] [cursor=pointer]:
+                      - /url: ./Leipzig_Zoological_Garden
+                    - text: (Germany);
+                    - link "Zoo Basel" [ref=f19e705] [cursor=pointer]:
+                      - /url: ./Basel_Zoo
+                    - text: (Switzerland);
+                    - link "Copenhagen Zoo" [ref=f19e706] [cursor=pointer]:
+                      - /url: ./Copenhagen_Zoo
+                    - text: (Denmark);
+                    - link "Rotterdam Zoo" [ref=f19e707] [cursor=pointer]:
+                      - /url: ./Diergaarde_Blijdorp
+                    - text: and
+                    - link "Safaripark Beekse Bergen" [ref=f19e708] [cursor=pointer]:
+                      - /url: ./Safaripark_Beekse_Bergen
+                    - text: (Netherlands);
+                    - link "Antwerp Zoo" [ref=f19e709] [cursor=pointer]:
+                      - /url: ./Antwerp_Zoo
+                    - text: (Belgium);
+                    - link "Dvůr Králové Zoo" [ref=f19e710] [cursor=pointer]:
+                      - /url: ./Dvůr_Králové_Zoo
+                    - text: (Czech Republic);
+                    - link "Wrocław Zoo" [ref=f19e711] [cursor=pointer]:
+                      - /url: ./Wrocław_Zoo
+                    - text: (Poland);
+                    - link "Bioparc Zoo de Doué" [ref=f19e712] [cursor=pointer]:
+                      - /url: ./Zoo_de_Doué
+                    - text: and
+                    - link "ZooParc de Beauval" [ref=f19e713] [cursor=pointer]:
+                      - /url: ./ZooParc_de_Beauval
+                    - text: (France);
+                    - link "Le Cornelle" [ref=f19e714] [cursor=pointer]:
+                      - /url: ./Le_Cornelle
+                    - superscript [ref=f19e715]:
+                      - link "[60]" [ref=f19e716] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-60
+                        - generic [ref=f19e717]: "[60]"
+                    - text: and
+                    - link "Parco Zoo Falconara" [ref=f19e718]:
+                      - /url: ./Parco_Zoo_Falconara?action=edit&redlink=1
+                    - generic [ref=f19e719]:
+                      - text: "["
+                      - link "it ↗" [ref=f19e720] [cursor=pointer]:
+                        - /url: https://it.wikipedia.org/wiki/Parco%20Zoo%20Falconara
+                      - text: "]"
+                    - superscript [ref=f19e721]:
+                      - link "[61]" [ref=f19e722] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-61
+                        - generic [ref=f19e723]: "[61]"
+                    - text: (Italy) and
+                    - link "Lisbon Zoo" [ref=f19e724] [cursor=pointer]:
+                      - /url: ./Lisbon_Zoo
+                    - text: (Portugal).
+                    - superscript [ref=f19e725]:
+                      - link "[62]" [ref=f19e726] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-62
+                        - generic [ref=f19e727]: "[62]"
+                  - paragraph [ref=f19e728]:
+                    - text: "In Asia, three Japanese zoos exhibit okapis:"
+                    - link "Ueno Zoo" [ref=f19e729] [cursor=pointer]:
+                      - /url: ./Ueno_Zoo
+                    - text: in Tokyo;
+                    - link "Kanazawa Zoo" [ref=f19e730]:
+                      - /url: ./Kanazawa_Zoo?action=edit&redlink=1
+                    - text: and
+                    - link "Zoorasia" [ref=f19e731]:
+                      - /url: ./Zoorasia?action=edit&redlink=1
+                    - text: in Yokohama.
+                    - superscript [ref=f19e732]:
+                      - link "[63]" [ref=f19e733] [cursor=pointer]:
+                        - /url: ./Okapi#cite_note-63
+                        - generic [ref=f19e734]: "[63]"
+              - generic [ref=f19e735]:
+                - heading "See also" [level=2] [ref=f19e736]
+                - list [ref=f19e737]:
+                  - listitem [ref=f19e738]:
+                    - link "map" [ref=f19e741] [cursor=pointer]:
+                      - /url: ./File:Africa_(orthographic_projection).svg
+                      - img "map" [ref=f19e742]
+                    - link "Africa portal" [ref=f19e743] [cursor=pointer]:
+                      - /url: ./Portal:Africa
+                  - listitem [ref=f19e744]:
+                    - link "icon" [ref=f19e747] [cursor=pointer]:
+                      - /url: ./File:Okapi2.jpg
+                      - img "icon" [ref=f19e748]
+                    - link "Mammals portal" [ref=f19e749] [cursor=pointer]:
+                      - /url: ./Portal:Mammals
+              - generic [ref=f19e750]:
+                - heading "References" [level=2] [ref=f19e751]
+                - list [ref=f19e754]:
+                  - listitem [ref=f19e755]:
+                    - generic [ref=f19e756]:
+                      - link "1" [ref=f19e757] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-iucn_status_19_November_2021_1-0
+                      - link "2" [ref=f19e758] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-iucn_status_19_November_2021_1-1
+                      - link "3" [ref=f19e759] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-iucn_status_19_November_2021_1-2
+                      - link "4" [ref=f19e760] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-iucn_status_19_November_2021_1-3
+                    - generic [ref=f19e761]:
+                      - generic [ref=f19e762]:
+                        - text: Mallon, D.; Kümpel, N.; Quinn, A.; Shurter, S.; Lukas, J.; Hart, J.A.; Mapilanga, J.; Beyers, R.; Maisels, F. (2015).
+                        - link "\"Okapia johnstoni\" ↗" [ref=f19e763] [cursor=pointer]:
+                          - /url: https://www.iucnredlist.org/species/15188/51140517
+                        - text: .
+                        - link "IUCN Red List of Threatened Species" [ref=f19e765] [cursor=pointer]:
+                          - /url: ./IUCN_Red_List
+                        - text: . 2015 e.T15188A51140517.
+                        - link "doi" [ref=f19e766] [cursor=pointer]:
+                          - /url: ./Doi_(identifier)
+                        - text: ":"
+                        - generic "Freely accessible" [ref=f19e767]:
+                          - link "10.2305/IUCN.UK.2015-4.RLTS.T15188A51140517.en ↗" [ref=f19e768] [cursor=pointer]:
+                            - /url: https://doi.org/10.2305%2FIUCN.UK.2015-4.RLTS.T15188A51140517.en
+                        - generic [ref=f19e769]: . Retrieved 19 November 2021
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=IUCN+Red+List+of+Threatened+Species&rft.atitle=Okapia+johnstoni&rft.volume=2015&rft.artnum=e.T15188A51140517&rft.date=2015&rft_id=info%3Adoi%2F10.2305%2FIUCN.UK.2015-4.RLTS.T15188A51140517.en&rft.au=Mallon%2C+D.&rft.au=K%C3%BCmpel%2C+N.&rft.au=Quinn%2C+A.&rft.au=Shurter%2C+S.&rft.au=Lukas%2C+J.&rft.au=Hart%2C+J.A.&rft.au=Mapilanga%2C+J.&rft.au=Beyers%2C+R.&rft.au=Maisels%2C+F.&rft_id=https%3A%2F%2Fwww.iucnredlist.org%2Fspecies%2F15188%2F51140517&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e770]:
+                    - link "↑" [ref=f19e772] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-2
+                    - generic [ref=f19e773]:
+                      - generic [ref=f19e774]:
+                        - link "\"Okapi\" ↗" [ref=f19e775] [cursor=pointer]:
+                          - /url: https://www.nationalgeographic.com/animals/mammals/facts/okapi
+                        - text: .
+                        - link "National Geographic" [ref=f19e777] [cursor=pointer]:
+                          - /url: ./National_Geographic
+                        - text: . 2 March 2020
+                        - generic [ref=f19e778]: . Retrieved 21 October 2025
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=National+Geographic&rft.atitle=Okapi&rft.date=2020-03-02&rft_id=https%3A%2F%2Fwww.nationalgeographic.com%2Fanimals%2Fmammals%2Ffacts%2Fokapi&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e779]:
+                    - link "↑" [ref=f19e781] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-3
+                    - generic [ref=f19e782]:
+                      - generic [ref=f19e783]:
+                        - text: Stanton, D.; Hart, J.; Vosper, A.; Kümpel, N.; Wang, J.; Ewen, J.; Bruford, M. (2016).
+                        - link "\"Non-invasive genetic identification confirms the presence of the Endangered okapi Okapia johnstoni south-west of the Congo River\" ↗" [ref=f19e784] [cursor=pointer]:
+                          - /url: https://doi.org/10.1017%2FS0030605314000593
+                        - text: ". Oryx. 50 (1): 134–137."
+                        - link "doi" [ref=f19e785] [cursor=pointer]:
+                          - /url: ./Doi_(identifier)
+                        - text: ":"
+                        - generic "Freely accessible" [ref=f19e786]:
+                          - link "10.1017/S0030605314000593 ↗" [ref=f19e787] [cursor=pointer]:
+                            - /url: https://doi.org/10.1017%2FS0030605314000593
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=Oryx&rft.atitle=Non-invasive+genetic+identification+confirms+the+presence+of+the+Endangered+okapi+Okapia+johnstoni+south-west+of+the+Congo+River&rft.volume=50&rft.issue=1&rft.pages=134-137&rft.date=2016&rft_id=info%3Adoi%2F10.1017%2FS0030605314000593&rft.aulast=Stanton&rft.aufirst=D.&rft.au=Hart%2C+J.&rft.au=Vosper%2C+A.&rft.au=K%C3%BCmpel%2C+N.&rft.au=Wang%2C+J.&rft.au=Ewen%2C+J.&rft.au=Bruford%2C+M.&rft_id=https%3A%2F%2Fdoi.org%2F10.1017%252FS0030605314000593&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e788]:
+                    - link "↑" [ref=f19e790] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-4
+                    - generic [ref=f19e791]:
+                      - generic [ref=f19e792]:
+                        - link "\"Okapi\" ↗" [ref=f19e793] [cursor=pointer]:
+                          - /url: https://www.marylandzoo.org/animal/okapi/
+                        - text: . The Maryland Zoo
+                        - generic [ref=f19e794]: . Retrieved 1 January 2025
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=The+Maryland+Zoo&rft.atitle=Okapi&rft_id=https%3A%2F%2Fwww.marylandzoo.org%2Fanimal%2Fokapi%2F&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e795]:
+                    - link "↑" [ref=f19e797] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-5
+                    - generic [ref=f19e798]:
+                      - link "The Oriental Institute of the University of Chicago, Photographic Archives ↗" [ref=f19e799] [cursor=pointer]:
+                        - /url: http://oi.uchicago.edu/museum/collections/pa/persepolis/apadana.html
+                      - link "Archived ↗" [ref=f19e800] [cursor=pointer]:
+                        - /url: https://web.archive.org/web/20080708195251/http://oi.uchicago.edu/museum/collections/pa/persepolis/apadana.html
+                      - text: 8 July 2008 at the
+                      - link "Wayback Machine" [ref=f19e801] [cursor=pointer]:
+                        - /url: ./Wayback_Machine
+                      - text: ;
+                      - link "photo detail ↗" [ref=f19e802] [cursor=pointer]:
+                        - /url: http://oi.uchicago.edu/gallery/pa_iran_paai_per_apa/index.php/2C9_72dpi.png?action=big&size=resize&fromthumbnail=true
+                      - link "Archived ↗" [ref=f19e803] [cursor=pointer]:
+                        - /url: https://web.archive.org/web/20140221130911/http://oi.uchicago.edu/gallery/pa_iran_paai_per_apa/index.php/2C9_72dpi.png?action=big&size=resize&fromthumbnail=true
+                      - text: 21 February 2014 at the
+                      - link "Wayback Machine" [ref=f19e804] [cursor=pointer]:
+                        - /url: ./Wayback_Machine
+                      - text: . The Oriental Institute identifies the subject as an Okapi with a question mark.
+                  - listitem [ref=f19e805]:
+                    - link "↑" [ref=f19e807] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-6
+                    - generic [ref=f19e808]:
+                      - generic [ref=f19e809]:
+                        - link "\"Ethiopian Delegation, Apadana Staircase, Persepolis by Richard Stone\" ↗" [ref=f19e810] [cursor=pointer]:
+                          - /url: https://pbase.com/rjstone/image/153898896
+                        - text: . PBase
+                        - generic [ref=f19e811]: . Retrieved 4 March 2023
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=PBase&rft.atitle=Ethiopian+Delegation%2C+Apadana+Staircase%2C+Persepolis+by+Richard+Stone&rft_id=https%3A%2F%2Fpbase.com%2Frjstone%2Fimage%2F153898896&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e812]:
+                    - link "↑" [ref=f19e814] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-7
+                    - generic [ref=f19e815]:
+                      - generic [ref=f19e816]:
+                        - link "\"First pictures of the okapi or the African 'unicorn'\" ↗" [ref=f19e817] [cursor=pointer]:
+                          - /url: https://www.zmescience.com/science/biology/first-pictures-of-the-okapi-or-the-african-unicorn/
+                          - text: "\"First pictures of the okapi or the African 'unicorn'"
+                          - text: "\" ↗"
+                        - text: . ZME Science. 12 September 2008
+                        - generic [ref=f19e818]: . Retrieved 20 February 2020
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=ZME+Science&rft.atitle=First+pictures+of+the+okapi+or+the+African+%27unicorn%27&rft.date=2008-09-12&rft_id=https%3A%2F%2Fwww.zmescience.com%2Fscience%2Fbiology%2Ffirst-pictures-of-the-okapi-or-the-african-unicorn%2F&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e819]:
+                    - link "↑" [ref=f19e821] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-8
+                    - generic [ref=f19e822]:
+                      - generic [ref=f19e823]:
+                        - link "\"A New Deal for the Okapi, Africa's \"Unicorn\"\" ↗" [ref=f19e824] [cursor=pointer]:
+                          - /url: https://www.nrdc.org/onearth/new-deal-okapi-africas-unicorn
+                          - text: "\"A New Deal for the Okapi, Africa's \"Unicorn\""
+                          - text: "\" ↗"
+                        - text: . NRDC. 13 December 2019
+                        - generic [ref=f19e825]: . Retrieved 20 February 2020
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=NRDC&rft.atitle=A+New+Deal+for+the+Okapi%2C+Africa%27s+%22Unicorn%22&rft.date=2019-12-13&rft_id=https%3A%2F%2Fwww.nrdc.org%2Fonearth%2Fnew-deal-okapi-africas-unicorn&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e826]:
+                    - link "↑" [ref=f19e828] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-9
+                    - generic [ref=f19e829]:
+                      - generic [ref=f19e830]:
+                        - link "\"Okapia johnstoni (P.L.Sclater, 1901)\" ↗" [ref=f19e831] [cursor=pointer]:
+                          - /url: https://www.gbif.org/species/113392070
+                        - text: . Global Biodiversity Information Facility
+                        - generic [ref=f19e832]: . Retrieved 1 January 2025
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=Global+Biodiversity+Information+Facility&rft.atitle=Okapia+johnstoni+%28P.L.Sclater%2C+1901%29&rft_id=https%3A%2F%2Fwww.gbif.org%2Fspecies%2F113392070&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e833]:
+                    - link "↑" [ref=f19e835] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-10
+                    - generic [ref=f19e836]:
+                      - generic [ref=f19e837]:
+                        - link "\"New hope for the elusive okapi, Congo's mini giraffe\" ↗" [ref=f19e838] [cursor=pointer]:
+                          - /url: https://www.earthtouchnews.com/conservation/endangered/new-hope-for-the-elusive-okapi-congos-mini-giraffe/
+                        - text: . Earth Touch News Network
+                        - generic [ref=f19e839]: . Retrieved 9 November 2017
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=Earth+Touch+News+Network&rft.atitle=New+hope+for+the+elusive+okapi%2C+Congo%27s+mini+giraffe&rft_id=https%3A%2F%2Fwww.earthtouchnews.com%2Fconservation%2Fendangered%2Fnew-hope-for-the-elusive-okapi-congos-mini-giraffe%2F&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e840]:
+                    - generic [ref=f19e841]:
+                      - link "1" [ref=f19e842] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-auto_11-0
+                      - link "2" [ref=f19e843] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-auto_11-1
+                    - generic [ref=f19e844]: Nowak, Ronald M. (1999) Walker's Mammals of the World. 6th ed. p. 1085.
+                  - listitem [ref=f19e845]:
+                    - link "↑" [ref=f19e847] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-12
+                    - generic [ref=f19e848]:
+                      - generic [ref=f19e849]:
+                        - text: Sclater, Philip Lutley (1901).
+                        - link "\"On an Apparently New Species of Zebra from the Semliki Forest\" ↗" [ref=f19e850] [cursor=pointer]:
+                          - /url: https://www.biodiversitylibrary.org/page/31590976
+                        - text: ". Proceedings of the Zoological Society of London. 1: 50–52 – via Biodiversity Heritage Library."
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=Proceedings+of+the+Zoological+Society+of+London&rft.atitle=On+an+Apparently+New+Species+of+Zebra+from+the+Semliki+Forest.&rft.volume=1&rft.pages=50-52&rft.date=1901&rft.aulast=Sclater&rft.aufirst=Philip+Lutley&rft_id=https%3A%2F%2Fwww.biodiversitylibrary.org%2Fpage%2F31590976&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e851]:
+                    - link "↑" [ref=f19e853] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-OED_13-0
+                    - generic [ref=f19e854]:
+                      - generic [ref=f19e855]:
+                        - link "\"okapi, n.\" ↗" [ref=f19e856] [cursor=pointer]:
+                          - /url: https://www.oed.com/view/Entry/130927
+                        - text: Oxford English Dictionary
+                        - generic [ref=f19e857]: . Retrieved 3 April 2020
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=Oxford+English+Dictionary&rft.atitle=okapi%2C+n.&rft_id=https%3A%2F%2Fwww.oed.com%2Fview%2FEntry%2F130927&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e858]:
+                    - link "↑" [ref=f19e860] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-14
+                    - generic [ref=f19e861]:
+                      - generic [ref=f19e862]:
+                        - text: "Lindsey, Susan Lyndaker; Green, Mary Neel; Bennett, Cynthia L. (1999), The Okapi: Mysterious Animal of Congo-Zaire, University of Texas Press, pp. 4–8,"
+                        - link "ISBN" [ref=f19e863] [cursor=pointer]:
+                          - /url: ./ISBN_(identifier)
+                        - link "0-292-74707-1" [ref=f19e864] [cursor=pointer]:
+                          - /url: ./Special:BookSources/0-292-74707-1
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&rft.genre=book&rft.btitle=The+Okapi%3A+Mysterious+Animal+of+Congo-Zaire&rft.pages=4-8&rft.pub=University+of+Texas+Press&rft.date=1999&rft.isbn=0-292-74707-1&rft.aulast=Lindsey&rft.aufirst=Susan+Lyndaker&rft.au=Green%2C+Mary+Neel&rft.au=Bennett%2C+Cynthia+L.&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e865]:
+                    - link "↑" [ref=f19e867] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-15
+                    - generic [ref=f19e868]:
+                      - generic [ref=f19e869]:
+                        - link "\"Proceedings of the general meetings for scientific business of the Zoological Society of London\" ↗" [ref=f19e870] [cursor=pointer]:
+                          - /url: https://archive.org/stream/proceedingsofzoo19012zool#page/n47/mode/2up
+                        - text: .
+                        - link "Proceedings of the Zoological Society of London" [ref=f19e872] [cursor=pointer]:
+                          - /url: ./Proceedings_of_the_Zoological_Society_of_London
+                        - text: ". 2 (1): 1–5. 1901."
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=Proceedings+of+the+Zoological+Society+of+London&rft.atitle=Proceedings+of+the+general+meetings+for+scientific+business+of+the+Zoological+Society+of+London&rft.volume=2&rft.issue=1&rft.pages=1-5&rft.date=1901&rft_id=https%3A%2F%2Farchive.org%2Fstream%2Fproceedingsofzoo19012zool%23page%2Fn47%2Fmode%2F2up&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                      - text: (May to December)
+                  - listitem [ref=f19e873]:
+                    - link "↑" [ref=f19e875] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-kingdon1979_16-0
+                    - generic [ref=f19e876]:
+                      - generic [ref=f19e877]:
+                        - text: "Kingdon, Jonathan (1979). East African Mammals: An Atlas of Evolution in Africa, Volume 3, Part B. Chicago: University of Chicago Press. p. 339."
+                        - link "ISBN" [ref=f19e878] [cursor=pointer]:
+                          - /url: ./ISBN_(identifier)
+                        - link "978-0-226-43722-4" [ref=f19e879] [cursor=pointer]:
+                          - /url: ./Special:BookSources/978-0-226-43722-4
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&rft.genre=book&rft.btitle=East+African+Mammals%3A+An+Atlas+of+Evolution+in+Africa%2C+Volume+3%2C+Part+B&rft.place=Chicago&rft.pages=339&rft.pub=University+of+Chicago+Press&rft.date=1979&rft.isbn=978-0-226-43722-4&rft.aulast=Kingdon&rft.aufirst=Jonathan&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e880]:
+                    - generic [ref=f19e881]:
+                      - link "1" [ref=f19e882] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-prothero_17-0
+                      - link "2" [ref=f19e883] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-prothero_17-1
+                    - generic [ref=f19e884]:
+                      - generic [ref=f19e885]:
+                        - text: "Prothero, Donald R.; Schoch, Robert M. (2002). Horns, tusks, and flippers: the evolution of hoofed mammals. Baltimore, Md.: Johns Hopkins University Press. pp. 66–67."
+                        - link "ISBN" [ref=f19e886] [cursor=pointer]:
+                          - /url: ./ISBN_(identifier)
+                        - link "978-0-8018-7135-1" [ref=f19e887] [cursor=pointer]:
+                          - /url: ./Special:BookSources/978-0-8018-7135-1
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&rft.genre=book&rft.btitle=Horns%2C+tusks%2C+and+flippers%3A+the+evolution+of+hoofed+mammals&rft.place=Baltimore%2C+Md.&rft.pages=66-67&rft.pub=Johns+Hopkins+University+Press&rft.date=2002&rft.isbn=978-0-8018-7135-1&rft.aulast=Prothero&rft.aufirst=Donald+R.&rft.au=Schoch%2C+Robert+M.&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e888]:
+                    - link "↑" [ref=f19e890] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-18
+                    - generic [ref=f19e891]:
+                      - generic [ref=f19e892]: "Bohlin, B. (1926). \"Die Familie Giraffidae: mit besonderer Berücksichtigung der fossilen Formen aus China\". Palaeontologica Sinica, Series C. 4: 1–179."
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=Palaeontologica+Sinica%2C+Series+C&rft.atitle=Die+Familie+Giraffidae%3A+mit+besonderer+Ber%C3%BCcksichtigung+der+fossilen+Formen+aus+China&rft.volume=4&rft.pages=1-179&rft.date=1926&rft.aulast=Bohlin&rft.aufirst=B.&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e893]:
+                    - link "↑" [ref=f19e895] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-colbert_19-0
+                    - generic [ref=f19e896]:
+                      - generic [ref=f19e897]:
+                        - text: "Colbert, E. H. (February 1938). \"The relationships of the okapi\". Journal of Mammalogy. 19 (1): 47–64."
+                        - link "doi" [ref=f19e898] [cursor=pointer]:
+                          - /url: ./Doi_(identifier)
+                        - text: ":"
+                        - link "10.2307/1374281 ↗" [ref=f19e899] [cursor=pointer]:
+                          - /url: https://doi.org/10.2307%2F1374281
+                        - text: .
+                        - link "JSTOR" [ref=f19e900] [cursor=pointer]:
+                          - /url: ./JSTOR_(identifier)
+                        - link "1374281 ↗" [ref=f19e901] [cursor=pointer]:
+                          - /url: https://www.jstor.org/stable/1374281
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=Journal+of+Mammalogy&rft.atitle=The+relationships+of+the+okapi&rft.volume=19&rft.issue=1&rft.pages=47-64&rft.date=1938-02&rft_id=info%3Adoi%2F10.2307%2F1374281&rft_id=https%3A%2F%2Fwww.jstor.org%2Fstable%2F1374281%23id-name%3DJSTOR&rft.aulast=Colbert&rft.aufirst=E.+H.&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e902]:
+                    - link "↑" [ref=f19e904] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-geraads_20-0
+                    - generic [ref=f19e905]:
+                      - generic [ref=f19e906]:
+                        - text: "Geraads, Denis (January 1986). \"Remarques sur la systématique et la phylogénie des Giraffidae (Artiodactyla, Mammalia)\". Geobios. 19 (4): 465–477."
+                        - link "Bibcode" [ref=f19e907] [cursor=pointer]:
+                          - /url: ./Bibcode_(identifier)
+                        - text: ":"
+                        - link "1986Geobi..19..465G ↗" [ref=f19e908] [cursor=pointer]:
+                          - /url: https://ui.adsabs.harvard.edu/abs/1986Geobi..19..465G
+                        - text: .
+                        - link "doi" [ref=f19e909] [cursor=pointer]:
+                          - /url: ./Doi_(identifier)
+                        - text: ":"
+                        - link "10.1016/S0016-6995(86)80004-3 ↗" [ref=f19e910] [cursor=pointer]:
+                          - /url: https://doi.org/10.1016%2FS0016-6995%2886%2980004-3
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=Geobios&rft.atitle=Remarques+sur+la+syst%C3%A9matique+et+la+phylog%C3%A9nie+des+Giraffidae+%28Artiodactyla%2C+Mammalia%29&rft.volume=19&rft.issue=4&rft.pages=465-477&rft.date=1986-01&rft_id=info%3Adoi%2F10.1016%2FS0016-6995%2886%2980004-3&rft_id=info%3Abibcode%2F1986Geobi..19..465G&rft.aulast=Geraads&rft.aufirst=Denis&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e911]:
+                    - link "↑" [ref=f19e913] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-finlayson_21-0
+                    - generic [ref=f19e914]:
+                      - generic [ref=f19e915]:
+                        - text: "Finlayson, Clive (2009). Neanderthals and Modern Humans: An Ecological and Evolutionary Perspective (Digitally printed ed.). Cambridge: Cambridge University Press. p. 25."
+                        - link "ISBN" [ref=f19e916] [cursor=pointer]:
+                          - /url: ./ISBN_(identifier)
+                        - link "978-0-521-12100-2" [ref=f19e917] [cursor=pointer]:
+                          - /url: ./Special:BookSources/978-0-521-12100-2
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&rft.genre=book&rft.btitle=Neanderthals+and+Modern+Humans%3A+An+Ecological+and+Evolutionary+Perspective&rft.place=Cambridge&rft.pages=25&rft.edition=Digitally+printed&rft.pub=Cambridge+University+Press&rft.date=2009&rft.isbn=978-0-521-12100-2&rft.aulast=Finlayson&rft.aufirst=Clive&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e918]:
+                    - link "↑" [ref=f19e920] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-22
+                    - generic [ref=f19e921]:
+                      - generic [ref=f19e922]:
+                        - text: Hunt, Kathleen.
+                        - link "\"Transitional Vertebrate Fossils FAQ Part 2C\" ↗" [ref=f19e923] [cursor=pointer]:
+                          - /url: http://www.talkorigins.org/faqs/faq-transitional/part2c.html#arti
+                        - text: . TalkOrigins
+                        - generic [ref=f19e924]: . Retrieved 28 April 2015
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&rft.genre=unknown&rft.btitle=Transitional+Vertebrate+Fossils+FAQ+Part+2C&rft.pub=TalkOrigins&rft.au=Hunt%2C+Kathleen&rft_id=http%3A%2F%2Fwww.talkorigins.org%2Ffaqs%2Ffaq-transitional%2Fpart2c.html%23arti&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e925]:
+                    - link "↑" [ref=f19e927] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-23
+                    - generic [ref=f19e928]:
+                      - generic [ref=f19e929]:
+                        - text: "Mitchell, G.; Skinner, J. D. (2003). \"On the origin, evolution and phylogeny of giraffes Giraffa camelopardalis\". Transactions of the Royal Society of South Africa. 58 (1): 51–73."
+                        - link "Bibcode" [ref=f19e930] [cursor=pointer]:
+                          - /url: ./Bibcode_(identifier)
+                        - text: ":"
+                        - link "2003TRSSA..58...51M ↗" [ref=f19e931] [cursor=pointer]:
+                          - /url: https://ui.adsabs.harvard.edu/abs/2003TRSSA..58...51M
+                        - text: .
+                        - link "doi" [ref=f19e932] [cursor=pointer]:
+                          - /url: ./Doi_(identifier)
+                        - text: ":"
+                        - link "10.1080/00359190309519935 ↗" [ref=f19e933] [cursor=pointer]:
+                          - /url: https://doi.org/10.1080%2F00359190309519935
+                        - text: .
+                        - link "S2CID" [ref=f19e934] [cursor=pointer]:
+                          - /url: ./S2CID_(identifier)
+                        - link "6522531 ↗" [ref=f19e935] [cursor=pointer]:
+                          - /url: https://api.semanticscholar.org/CorpusID:6522531
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=Transactions+of+the+Royal+Society+of+South+Africa&rft.atitle=On+the+origin%2C+evolution+and+phylogeny+of+giraffes+Giraffa+camelopardalis&rft.volume=58&rft.issue=1&rft.pages=51-73&rft.date=2003&rft_id=https%3A%2F%2Fapi.semanticscholar.org%2FCorpusID%3A6522531%23id-name%3DS2CID&rft_id=info%3Adoi%2F10.1080%2F00359190309519935&rft_id=info%3Abibcode%2F2003TRSSA..58...51M&rft.aulast=Mitchell&rft.aufirst=G.&rft.au=Skinner%2C+J.+D.&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e936]:
+                    - link "↑" [ref=f19e938] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-auto1_24-0
+                    - generic [ref=f19e939]:
+                      - generic [ref=f19e940]:
+                        - link "\"Why Is the Okapi Called a Living Fossil\" ↗" [ref=f19e941] [cursor=pointer]:
+                          - /url: https://news.google.com/newspapers?nid=1499&dat=19570624&id=wAMkAAAAIBAJ&pg=6731,2170969
+                        - text: . The Milwaukee Journal. 24 June 1954.
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=The+Milwaukee+Journal&rft.atitle=Why+Is+the+Okapi+Called+a+Living+Fossil&rft.date=1954-06-24&rft_id=https%3A%2F%2Fnews.google.com%2Fnewspapers%3Fnid%3D1499%26dat%3D19570624%26id%3DwAMkAAAAIBAJ%26pg%3D6731%2C2170969&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                      - superscript [ref=f19e942]:
+                        - generic [ref=f19e943]:
+                          - text: "["
+                          - link "permanent dead link" [ref=f19e945] [cursor=pointer]:
+                            - /url: ./Wikipedia:Link_rot
+                          - text: "]"
+                  - listitem [ref=f19e946]:
+                    - link "↑" [ref=f19e948] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-25
+                    - generic [ref=f19e949]:
+                      - generic [ref=f19e950]:
+                        - text: Agaba, M.; Ishengoma, E.; Miller, W. C.; McGrath, B. C.; Hudson, C. N.; Bedoya Reina, O. C.; Ratan, A.; Burhans, R.; Chikhi, R.; Medvedev, P.; Praul, C. A.; Wu-Cavener, L.; Wood, B.; Robertson, H.; Penfold, L.; Cavener, D. R. (May 2016).
+                        - link "\"Giraffe genome sequence reveals clues to its unique morphology and physiology\" ↗" [ref=f19e951] [cursor=pointer]:
+                          - /url: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4873664
+                        - text: .
+                        - link "Nature" [ref=f19e953] [cursor=pointer]:
+                          - /url: ./Nature_(journal)
+                        - text: . 7 11519.
+                        - link "Bibcode" [ref=f19e954] [cursor=pointer]:
+                          - /url: ./Bibcode_(identifier)
+                        - text: ":"
+                        - link "2016NatCo...711519A ↗" [ref=f19e955] [cursor=pointer]:
+                          - /url: https://ui.adsabs.harvard.edu/abs/2016NatCo...711519A
+                        - text: .
+                        - link "doi" [ref=f19e956] [cursor=pointer]:
+                          - /url: ./Doi_(identifier)
+                        - text: ":"
+                        - generic "Freely accessible" [ref=f19e957]:
+                          - link "10.1038/ncomms11519 ↗" [ref=f19e958] [cursor=pointer]:
+                            - /url: https://doi.org/10.1038%2Fncomms11519
+                        - text: .
+                        - link "PMC" [ref=f19e959] [cursor=pointer]:
+                          - /url: ./PMC_(identifier)
+                        - generic "Freely accessible" [ref=f19e960]:
+                          - link "4873664 ↗" [ref=f19e961] [cursor=pointer]:
+                            - /url: https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4873664
+                        - text: .
+                        - link "PMID" [ref=f19e962] [cursor=pointer]:
+                          - /url: ./PMID_(identifier)
+                        - link "27187213 ↗" [ref=f19e963] [cursor=pointer]:
+                          - /url: https://pubmed.ncbi.nlm.nih.gov/27187213
+                        - text: .
+                      - generic
+                  - listitem [ref=f19e964]:
+                    - link "↑" [ref=f19e966] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-Burnie_26-0
+                    - generic [ref=f19e967]:
+                      - generic [ref=f19e968]:
+                        - text: "Burnie & Don E. Wilson (2001). Animal (1st American ed.). New York: DK."
+                        - link "ISBN" [ref=f19e969] [cursor=pointer]:
+                          - /url: ./ISBN_(identifier)
+                        - link "0-7894-7764-5" [ref=f19e970] [cursor=pointer]:
+                          - /url: ./Special:BookSources/0-7894-7764-5
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&rft.genre=book&rft.btitle=Animal&rft.place=New+York&rft.edition=1st+American&rft.pub=DK&rft.date=2001&rft.isbn=0-7894-7764-5&rft.au=Burnie&rft.au=Don+E.+Wilson&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e971]:
+                    - generic [ref=f19e972]:
+                      - link "1" [ref=f19e973] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-adw_27-0
+                      - link "2" [ref=f19e974] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-adw_27-1
+                    - generic [ref=f19e975]:
+                      - generic [ref=f19e976]:
+                        - text: Palkovacs, E.
+                        - link "\"Okapi Okapia johnstoni\" ↗" [ref=f19e977] [cursor=pointer]:
+                          - /url: http://animaldiversity.org/site/accounts/information/Okapia_johnstoni.html
+                        - text: . Animal Diversity Web. University of Michigan Museum of Zoology
+                        - generic [ref=f19e978]: . Retrieved 17 April 2015
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=Animal+Diversity+Web&rft.atitle=Okapi+Okapia+johnstoni&rft.aulast=Palkovacs&rft.aufirst=E.&rft_id=http%3A%2F%2Fanimaldiversity.org%2Fsite%2Faccounts%2Finformation%2FOkapia_johnstoni.html&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e979]:
+                    - generic [ref=f19e980]:
+                      - link "1" [ref=f19e981] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-bodmer_28-0
+                      - link "2" [ref=f19e982] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-bodmer_28-1
+                      - link "3" [ref=f19e983] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-bodmer_28-2
+                      - link "4" [ref=f19e984] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-bodmer_28-3
+                      - link "5" [ref=f19e985] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-bodmer_28-4
+                      - link "6" [ref=f19e986] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-bodmer_28-5
+                    - generic [ref=f19e987]:
+                      - generic [ref=f19e988]:
+                        - text: Bodmer, R. E.; Rabb, G. B. (10 December 1992).
+                        - link "\"Okapia johnstoni\" ↗" [ref=f19e989] [cursor=pointer]:
+                          - /url: https://web.archive.org/web/20150924122153/http://www.science.smith.edu/msi/pdf/i0076-3519-422-01-0001.pdf
+                        - text: "(PDF). Mammalian Species (422): 1–8."
+                        - link "doi" [ref=f19e990] [cursor=pointer]:
+                          - /url: ./Doi_(identifier)
+                        - text: ":"
+                        - link "10.2307/3504153 ↗" [ref=f19e991] [cursor=pointer]:
+                          - /url: https://doi.org/10.2307%2F3504153
+                        - text: .
+                        - link "JSTOR" [ref=f19e992] [cursor=pointer]:
+                          - /url: ./JSTOR_(identifier)
+                        - link "3504153 ↗" [ref=f19e993] [cursor=pointer]:
+                          - /url: https://www.jstor.org/stable/3504153
+                        - text: .
+                        - link "S2CID" [ref=f19e994] [cursor=pointer]:
+                          - /url: ./S2CID_(identifier)
+                        - link "253915266 ↗" [ref=f19e995] [cursor=pointer]:
+                          - /url: https://api.semanticscholar.org/CorpusID:253915266
+                        - text: . Archived from
+                        - link "the original ↗" [ref=f19e996] [cursor=pointer]:
+                          - /url: http://www.science.smith.edu/msi/pdf/i0076-3519-422-01-0001.pdf
+                        - text: (PDF) on 24 September 2015
+                        - generic [ref=f19e997]: . Retrieved 17 April 2015
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=Mammalian+Species&rft.atitle=Okapia+johnstoni&rft.issue=422&rft.pages=1-8&rft.date=1992-12-10&rft_id=https%3A%2F%2Fapi.semanticscholar.org%2FCorpusID%3A253915266%23id-name%3DS2CID&rft_id=https%3A%2F%2Fwww.jstor.org%2Fstable%2F3504153%23id-name%3DJSTOR&rft_id=info%3Adoi%2F10.2307%2F3504153&rft.aulast=Bodmer&rft.aufirst=R.+E.&rft.au=Rabb%2C+G.+B.&rft_id=http%3A%2F%2Fwww.science.smith.edu%2Fmsi%2Fpdf%2Fi0076-3519-422-01-0001.pdf&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e998]:
+                    - link "↑" [ref=f19e1000] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-29
+                    - generic [ref=f19e1001]:
+                      - generic [ref=f19e1002]:
+                        - text: Nasoori, Alireza (2020).
+                        - link "\"Formation, structure, and function of extra-skeletal bones in mammals\" ↗" [ref=f19e1003] [cursor=pointer]:
+                          - /url: https://archive.org/details/formation-structure-and-function-of-extra-skeletal-bones-in-mammals
+                        - text: ". Biological Reviews. 95 (4): 986–1019."
+                        - link "doi" [ref=f19e1004] [cursor=pointer]:
+                          - /url: ./Doi_(identifier)
+                        - text: ":"
+                        - link "10.1111/brv.12597 ↗" [ref=f19e1005] [cursor=pointer]:
+                          - /url: https://doi.org/10.1111%2Fbrv.12597
+                        - text: .
+                        - link "PMID" [ref=f19e1006] [cursor=pointer]:
+                          - /url: ./PMID_(identifier)
+                        - link "32338826 ↗" [ref=f19e1007] [cursor=pointer]:
+                          - /url: https://pubmed.ncbi.nlm.nih.gov/32338826
+                        - text: .
+                        - link "S2CID" [ref=f19e1008] [cursor=pointer]:
+                          - /url: ./S2CID_(identifier)
+                        - link "216556342 ↗" [ref=f19e1009] [cursor=pointer]:
+                          - /url: https://api.semanticscholar.org/CorpusID:216556342
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=Biological+Reviews&rft.atitle=Formation%2C+structure%2C+and+function+of+extra-skeletal+bones+in+mammals&rft.volume=95&rft.issue=4&rft.pages=986-1019&rft.date=2020&rft_id=https%3A%2F%2Fapi.semanticscholar.org%2FCorpusID%3A216556342%23id-name%3DS2CID&rft_id=info%3Apmid%2F32338826&rft_id=info%3Adoi%2F10.1111%2Fbrv.12597&rft.aulast=Nasoori&rft.aufirst=Alireza&rft_id=https%3A%2F%2Farchive.org%2Fdetails%2Fformation-structure-and-function-of-extra-skeletal-bones-in-mammals&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1010]:
+                    - generic [ref=f19e1011]:
+                      - link "1" [ref=f19e1012] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-grzimek_30-0
+                      - link "2" [ref=f19e1013] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-grzimek_30-1
+                    - generic [ref=f19e1014]:
+                      - generic [ref=f19e1015]: "Grzimek, B. (1990). Grzimek's Encyclopedia of Mammals (Volume 5). New York: McGraw-Hill Publishing Company."
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&rft.genre=book&rft.btitle=Grzimek%27s+Encyclopedia+of+Mammals+%28Volume+5%29&rft.place=New+York&rft.pub=McGraw-Hill+Publishing+Company&rft.date=1990&rft.aulast=Grzimek&rft.aufirst=B.&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1016]:
+                    - link "↑" [ref=f19e1018] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-jstor_31-0
+                    - generic [ref=f19e1019]:
+                      - generic [ref=f19e1020]:
+                        - text: "Solounias, N. (November 1988). \"Prevalence of ossicones in Giraffidae (Artiodactyla, Mammalia)\". Journal of Mammalogy. 69 (4): 845–8."
+                        - link "doi" [ref=f19e1021] [cursor=pointer]:
+                          - /url: ./Doi_(identifier)
+                        - text: ":"
+                        - link "10.2307/1381645 ↗" [ref=f19e1022] [cursor=pointer]:
+                          - /url: https://doi.org/10.2307%2F1381645
+                        - text: .
+                        - link "JSTOR" [ref=f19e1023] [cursor=pointer]:
+                          - /url: ./JSTOR_(identifier)
+                        - link "1381645 ↗" [ref=f19e1024] [cursor=pointer]:
+                          - /url: https://www.jstor.org/stable/1381645
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=Journal+of+Mammalogy&rft.atitle=Prevalence+of+ossicones+in+Giraffidae+%28Artiodactyla%2C+Mammalia%29&rft.volume=69&rft.issue=4&rft.pages=845-8&rft.date=1988-11&rft_id=info%3Adoi%2F10.2307%2F1381645&rft_id=https%3A%2F%2Fwww.jstor.org%2Fstable%2F1381645%23id-name%3DJSTOR&rft.aulast=Solounias&rft.aufirst=N.&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1025]:
+                    - generic [ref=f19e1026]:
+                      - link "1" [ref=f19e1027] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-kingdon_32-0
+                      - link "2" [ref=f19e1028] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-kingdon_32-1
+                      - link "3" [ref=f19e1029] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-kingdon_32-2
+                      - link "4" [ref=f19e1030] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-kingdon_32-3
+                      - link "5" [ref=f19e1031] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-kingdon_32-4
+                    - generic [ref=f19e1032]:
+                      - generic [ref=f19e1033]:
+                        - text: "Kingdon, Jonathan (2013). Mammals of Africa (1st ed.). London: A. & C. Black. pp. 95–115."
+                        - link "ISBN" [ref=f19e1034] [cursor=pointer]:
+                          - /url: ./ISBN_(identifier)
+                        - link "978-1-4081-2251-8" [ref=f19e1035] [cursor=pointer]:
+                          - /url: ./Special:BookSources/978-1-4081-2251-8
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&rft.genre=book&rft.btitle=Mammals+of+Africa.&rft.place=London&rft.pages=95-115&rft.edition=1st&rft.pub=A.+%26+C.+Black&rft.date=2013&rft.isbn=978-1-4081-2251-8&rft.aulast=Kingdon&rft.aufirst=Jonathan&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1036]:
+                    - link "↑" [ref=f19e1038] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-dagg_33-0
+                    - generic [ref=f19e1039]:
+                      - generic [ref=f19e1040]:
+                        - link "Dagg, A. I." [ref=f19e1041] [cursor=pointer]:
+                          - /url: ./Anne_Innis_Dagg
+                        - text: "(May 1960). \"Gaits of the Giraffe and Okapi\". Journal of Mammalogy. 41 (2): 282."
+                        - link "doi" [ref=f19e1042] [cursor=pointer]:
+                          - /url: ./Doi_(identifier)
+                        - text: ":"
+                        - link "10.2307/1376381 ↗" [ref=f19e1043] [cursor=pointer]:
+                          - /url: https://doi.org/10.2307%2F1376381
+                        - text: .
+                        - link "JSTOR" [ref=f19e1044] [cursor=pointer]:
+                          - /url: ./JSTOR_(identifier)
+                        - link "1376381 ↗" [ref=f19e1045] [cursor=pointer]:
+                          - /url: https://www.jstor.org/stable/1376381
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=Journal+of+Mammalogy&rft.atitle=Gaits+of+the+Giraffe+and+Okapi&rft.volume=41&rft.issue=2&rft.pages=282&rft.date=1960-05&rft_id=info%3Adoi%2F10.2307%2F1376381&rft_id=https%3A%2F%2Fwww.jstor.org%2Fstable%2F1376381%23id-name%3DJSTOR&rft.aulast=Dagg&rft.aufirst=A.+I.&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1046]:
+                    - link "↑" [ref=f19e1048] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-34
+                    - generic [ref=f19e1049]:
+                      - generic [ref=f19e1050]: Lusenge, T.; Nixon, S. (2008). "Conservation status of okapi in Virunga National Park". ZSL Conservation Report. Zoological Society of London.
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&rft.genre=bookitem&rft.atitle=Conservation+status+of+okapi+in+Virunga+National+Park&rft.btitle=ZSL+Conservation+Report&rft.pub=Zoological+Society+of+London&rft.date=2008&rft.aulast=Lusenge&rft.aufirst=T.&rft.au=Nixon%2C+S.&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1051]:
+                    - generic [ref=f19e1052]:
+                      - link "1" [ref=f19e1053] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-hart_35-0
+                      - link "2" [ref=f19e1054] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-hart_35-1
+                      - link "3" [ref=f19e1055] [cursor=pointer]:
+                        - /url: ./Okapi#cite_ref-hart_35-2
+                    - generic [ref=f19e1056]:
+                      - generic [ref=f19e1057]: "Hart, J. A.; Hart, T. B. (1989). \"Ranging and feeding behaviour of okapi (Okapia johnstoni) in the Ituri Forest of Zaire: food limitation in a rain-forest herbivore\". Symposium of the Zoological Society of London. 61: 31–50."
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=Symposium+of+the+Zoological+Society+of+London&rft.atitle=Ranging+and+feeding+behaviour+of+okapi+%28Okapia+johnstoni%29+in+the+Ituri+Forest+of+Zaire%3A+food+limitation+in+a+rain-forest+herbivore&rft.volume=61&rft.pages=31-50&rft.date=1989&rft.aulast=Hart&rft.aufirst=J.+A.&rft.au=Hart%2C+T.+B.&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1058]:
+                    - link "↑" [ref=f19e1060] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-36
+                    - generic [ref=f19e1061]:
+                      - generic [ref=f19e1062]:
+                        - link "\"Okapia johnstoni (Okapi)\" ↗" [ref=f19e1063] [cursor=pointer]:
+                          - /url: https://animaldiversity.org/accounts/Okapia_johnstoni/
+                        - text: .
+                        - link "Animal Diversity Web" [ref=f19e1065] [cursor=pointer]:
+                          - /url: ./Animal_Diversity_Web
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=Animal+Diversity+Web&rft.atitle=Okapia+johnstoni+%28Okapi%29&rft_id=https%3A%2F%2Fanimaldiversity.org%2Faccounts%2FOkapia_johnstoni%2F&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1066]:
+                    - link "↑" [ref=f19e1068] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-37
+                    - generic [ref=f19e1069]:
+                      - generic [ref=f19e1070]:
+                        - link "\"Okapi Conservation Strategy and Status Review\" ↗" [ref=f19e1071] [cursor=pointer]:
+                          - /url: https://web.archive.org/web/20180221222436/http://www.giraffidsg.org/files/2016/02/Okapi-conservation-strategy-2015-2025-final-EN1.pdf
+                        - text: (PDF). Giraffidsg.org. 21 February 2018. Archived from
+                        - link "the original ↗" [ref=f19e1072] [cursor=pointer]:
+                          - /url: http://www.giraffidsg.org/files/2016/02/Okapi-conservation-strategy-2015-2025-final-EN1.pdf
+                        - text: (PDF) on 21 February 2018
+                        - generic [ref=f19e1073]: . Retrieved 21 February 2018
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=Giraffidsg.org&rft.atitle=Okapi+Conservation+Strategy+and+Status+Review&rft.date=2018-02-21&rft_id=http%3A%2F%2Fwww.giraffidsg.org%2Ffiles%2F2016%2F02%2FOkapi-conservation-strategy-2015-2025-final-EN1.pdf&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1074]:
+                    - link "↑" [ref=f19e1076] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-reproduction_38-0
+                    - generic [ref=f19e1077]:
+                      - generic [ref=f19e1078]:
+                        - text: "Schwarzenberger, F.; Rietschel, W.; Matern, B.; Schaftenaar, W.; Bircher, P.; van Puijenbroeck, B.; Leus, K. (December 1999). \"Noninvasive reproductive monitoring in the okapi (Okapia johnstoni)\". Journal of Zoo and Wildlife Medicine. 30 (4). The American Association of Zoo Veterinarians: 497–503."
+                        - link "PMID" [ref=f19e1079] [cursor=pointer]:
+                          - /url: ./PMID_(identifier)
+                        - link "10749434 ↗" [ref=f19e1080] [cursor=pointer]:
+                          - /url: https://pubmed.ncbi.nlm.nih.gov/10749434
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=Journal+of+Zoo+and+Wildlife+Medicine&rft.atitle=Noninvasive+reproductive+monitoring+in+the+okapi+%28Okapia+johnstoni%29&rft.volume=30&rft.issue=4&rft.pages=497-503&rft.date=1999-12&rft_id=info%3Apmid%2F10749434&rft.aulast=Schwarzenberger&rft.aufirst=F.&rft.au=Rietschel%2C+W.&rft.au=Matern%2C+B.&rft.au=Schaftenaar%2C+W.&rft.au=Bircher%2C+P.&rft.au=van+Puijenbroeck%2C+B.&rft.au=Leus%2C+K.&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1081]:
+                    - link "↑" [ref=f19e1083] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-39
+                    - generic [ref=f19e1084]:
+                      - generic [ref=f19e1085]:
+                        - text: Jirik, Kate.
+                        - link "\"Okapia johnstoni Fact Sheet\" ↗" [ref=f19e1086] [cursor=pointer]:
+                          - /url: https://ielc.libguides.com/sdzg/factsheets/okapi/characteristics
+                        - text: . ielc.libguides.com.
+                        - link "San Diego Zoo Wildlife Alliance" [ref=f19e1087] [cursor=pointer]:
+                          - /url: ./San_Diego_Zoo_Wildlife_Alliance
+                        - generic [ref=f19e1088]: . Retrieved 28 August 2021
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=ielc.libguides.com&rft.atitle=Okapia+johnstoni+Fact+Sheet&rft.aulast=Jirik&rft.aufirst=Kate&rft_id=https%3A%2F%2Fielc.libguides.com%2Fsdzg%2Ffactsheets%2Fokapi%2Fcharacteristics&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1089]:
+                    - link "↑" [ref=f19e1091] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-40
+                    - generic [ref=f19e1092]:
+                      - generic [ref=f19e1093]:
+                        - link "\"Rare okapi born in Rotterdam Zoo\" ↗" [ref=f19e1094] [cursor=pointer]:
+                          - /url: https://web.archive.org/web/20200220145536/https://www.diergaardeblijdorp.nl/en/2019/09/02/rare-okapi-born/
+                        - text: . Rotterdam Zoo. 2 September 2019. Archived from
+                        - link "the original ↗" [ref=f19e1095] [cursor=pointer]:
+                          - /url: https://www.diergaardeblijdorp.nl/en/2019/09/02/rare-okapi-born/
+                        - text: on 20 February 2020
+                        - generic [ref=f19e1096]: . Retrieved 20 February 2020
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=Rotterdam+Zoo&rft.atitle=Rare+okapi+born+in+Rotterdam+Zoo&rft.date=2019-09-02&rft_id=https%3A%2F%2Fwww.diergaardeblijdorp.nl%2Fen%2F2019%2F09%2F02%2Frare-okapi-born%2F&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1097]:
+                    - link "↑" [ref=f19e1099] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-41
+                    - generic [ref=f19e1100]:
+                      - generic [ref=f19e1101]:
+                        - text: Nixon, S. C.; Lusenge, T. (2008).
+                        - link "Conservation status of okapi in Virunga National Park, Democratic Republic of Congo. ZSL Conservation Report No. 9 ↗" [ref=f19e1102] [cursor=pointer]:
+                          - /url: https://web.archive.org/web/20210825193426/https://www.zsl.org/sites/default/files/Nixon%20and%20Lusenge%202008%20-%20Conservation%20status%20of%20okapi%20in%20Virunga%20National%20Park%2C%20DRC.pdf
+                        - text: "(PDF). London: The Zoological Society of London. Archived from"
+                        - link "the original ↗" [ref=f19e1103] [cursor=pointer]:
+                          - /url: https://www.zsl.org/sites/default/files/Nixon%20and%20Lusenge%202008%20-%20Conservation%20status%20of%20okapi%20in%20Virunga%20National%20Park%2C%20DRC.pdf
+                        - text: (PDF) on 25 August 2021
+                        - generic [ref=f19e1104]: . Retrieved 22 November 2018
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&rft.genre=book&rft.btitle=Conservation+status+of+okapi+in+Virunga+National+Park%2C+Democratic+Republic+of+Congo.+ZSL+Conservation+Report+No.+9&rft.place=London&rft.pub=The+Zoological+Society+of+London&rft.date=2008&rft.au=Nixon%2C+S.+C.&rft.au=Lusenge%2C+T.&rft_id=https%3A%2F%2Fwww.zsl.org%2Fsites%2Fdefault%2Ffiles%2FNixon%2520and%2520Lusenge%25202008%2520-%2520Conservation%2520status%2520of%2520okapi%2520in%2520Virunga%2520National%2520Park%252C%2520DRC.pdf&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1105]:
+                    - link "↑" [ref=f19e1107] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-42
+                    - generic [ref=f19e1108]:
+                      - generic [ref=f19e1109]:
+                        - text: Sever, Zvi (3 October 2020).
+                        - generic "Paid subscription required" [ref=f19e1110]:
+                          - link "\"Searching for the okapi (Okapia johnstoni) in Semuliki National Park, Uganda\" ↗" [ref=f19e1111] [cursor=pointer]:
+                            - /url: https://onlinelibrary.wiley.com/doi/abs/10.1111/aje.12796
+                        - text: ". African Journal of Ecology. 59 (1): 286–292."
+                        - link "doi" [ref=f19e1112] [cursor=pointer]:
+                          - /url: ./Doi_(identifier)
+                        - text: ":"
+                        - link "10.1111/aje.12796 ↗" [ref=f19e1113] [cursor=pointer]:
+                          - /url: https://doi.org/10.1111%2Faje.12796
+                        - text: .
+                        - link "S2CID" [ref=f19e1114] [cursor=pointer]:
+                          - /url: ./S2CID_(identifier)
+                        - link "224839859 ↗" [ref=f19e1115] [cursor=pointer]:
+                          - /url: https://api.semanticscholar.org/CorpusID:224839859
+                        - generic [ref=f19e1116]: . Retrieved 26 March 2021
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=African+Journal+of+Ecology&rft.atitle=Searching+for+the+okapi+%28Okapia+johnstoni%29+in+Semuliki+National+Park%2C+Uganda&rft.volume=59&rft.issue=1&rft.pages=286-292&rft.date=2020-10-03&rft_id=info%3Adoi%2F10.1111%2Faje.12796&rft_id=https%3A%2F%2Fapi.semanticscholar.org%2FCorpusID%3A224839859%23id-name%3DS2CID&rft.aulast=Sever&rft.aufirst=Zvi&rft_id=https%3A%2F%2Fonlinelibrary.wiley.com%2Fdoi%2Fabs%2F10.1111%2Faje.12796&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1117]:
+                    - link "↑" [ref=f19e1119] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-OCP_43-0
+                    - generic [ref=f19e1120]:
+                      - generic [ref=f19e1121]:
+                        - text: Hebert, Amanda (26 November 2013).
+                        - link "\"Okapi Added to IUCN'S Endangered Species List\" ↗" [ref=f19e1122] [cursor=pointer]:
+                          - /url: https://web.archive.org/web/20140603154357/http://www.epulu-story.org/assets/endangered-press-release-11.25.docx
+                        - text: .
+                        - link "Jacksonville, Florida" [ref=f19e1123] [cursor=pointer]:
+                          - /url: ./Jacksonville,_Florida
+                        - text: ":"
+                        - link "Okapi Conservation Project" [ref=f19e1124] [cursor=pointer]:
+                          - /url: ./Okapi_Conservation_Project
+                        - text: . Archived from
+                        - link "the original ↗" [ref=f19e1125] [cursor=pointer]:
+                          - /url: http://www.epulu-story.org/assets/endangered-press-release-11.25.docx
+                        - text: on 3 June 2014
+                        - generic [ref=f19e1126]: . Retrieved 3 June 2014
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.atitle=Okapi+Added+to+IUCN%27S+Endangered+Species+List&rft.date=2013-11-26&rft.aulast=Hebert&rft.aufirst=Amanda&rft_id=http%3A%2F%2Fwww.epulu-story.org%2Fassets%2Fendangered-press-release-11.25.docx&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1127]:
+                    - link "↑" [ref=f19e1129] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-44
+                    - generic [ref=f19e1130]:
+                      - generic [ref=f19e1131]:
+                        - text: Flocken, J. (29 June 2012).
+                        - link "\"Tragic Losses in the Heart of Darkness\" ↗" [ref=f19e1132] [cursor=pointer]:
+                          - /url: http://www.huffingtonpost.com/jeffrey-flocken/okapi-wildlife-reserve-attack_b_1634403.html
+                        - text: . HuffPost
+                        - generic [ref=f19e1133]: . Retrieved 18 April 2015
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.atitle=Tragic+Losses+in+the+Heart+of+Darkness&rft.date=2012-06-29&rft.aulast=Flocken&rft.aufirst=J.&rft_id=http%3A%2F%2Fwww.huffingtonpost.com%2Fjeffrey-flocken%2Fokapi-wildlife-reserve-attack_b_1634403.html&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1134]:
+                    - link "↑" [ref=f19e1136] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-45
+                    - generic [ref=f19e1137]:
+                      - generic [ref=f19e1138]:
+                        - text: Jones, P. (3 April 2013).
+                        - link "\"Infamous elephant poacher turns cannibal in the Congo\" ↗" [ref=f19e1139] [cursor=pointer]:
+                          - /url: https://news.mongabay.com/2013/04/infamous-elephant-poacher-turns-cannibal-in-the-congo/
+                        - text: . Mongabay
+                        - generic [ref=f19e1140]: . Retrieved 16 July 2017
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.atitle=Infamous+elephant+poacher+turns+cannibal+in+the+Congo&rft.date=2013-04-03&rft.aulast=Jones&rft.aufirst=P.&rft_id=https%3A%2F%2Fnews.mongabay.com%2F2013%2F04%2Finfamous-elephant-poacher-turns-cannibal-in-the-congo%2F&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1141]:
+                    - link "↑" [ref=f19e1143] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-meet_46-0
+                    - generic [ref=f19e1144]:
+                      - generic [ref=f19e1145]:
+                        - link "\"Okapi SSP and EEP International Meeting\" ↗" [ref=f19e1146] [cursor=pointer]:
+                          - /url: https://web.archive.org/web/20150418101547/http://www.okapiconservation.org/ssp-eep/
+                        - text: . Okapi Conservation Project. Wildlife Conservation Global. Archived from
+                        - link "the original ↗" [ref=f19e1147] [cursor=pointer]:
+                          - /url: http://www.okapiconservation.org/ssp-eep/
+                        - text: on 18 April 2015
+                        - generic [ref=f19e1148]: . Retrieved 18 April 2015
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=Okapi+Conservation+Project&rft.atitle=Okapi+SSP+and+EEP+International+Meeting&rft_id=http%3A%2F%2Fwww.okapiconservation.org%2Fssp-eep%2F&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1149]:
+                    - link "↑" [ref=f19e1151] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-47
+                    - generic [ref=f19e1152]:
+                      - generic [ref=f19e1153]:
+                        - 'link "\"Of okapis and men: Antwerp Zoo helps preserve endangered species\" ↗" [ref=f19e1154] [cursor=pointer]':
+                          - /url: https://web.archive.org/web/20160814194411/http://www.flanderstoday.eu/living/okapis-and-men-antwerp-zoo-helps-preserve-endangered-species
+                        - text: .
+                        - link "Flanders Today" [ref=f19e1156] [cursor=pointer]:
+                          - /url: ./The_Bulletin_(Belgian_magazine)#Flanders_Today
+                        - text: . 12 August 2016. Archived from
+                        - link "the original ↗" [ref=f19e1157] [cursor=pointer]:
+                          - /url: http://www.flanderstoday.eu/living/okapis-and-men-antwerp-zoo-helps-preserve-endangered-species
+                        - text: on 14 August 2016
+                        - generic [ref=f19e1158]: . Retrieved 27 May 2018
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=Flanders+Today&rft.atitle=Of+okapis+and+men%3A+Antwerp+Zoo+helps+preserve+endangered+species&rft.date=2016-08-12&rft_id=http%3A%2F%2Fwww.flanderstoday.eu%2Fliving%2Fokapis-and-men-antwerp-zoo-helps-preserve-endangered-species&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1159]:
+                    - link "↑" [ref=f19e1161] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-48
+                    - generic [ref=f19e1162]:
+                      - generic [ref=f19e1163]:
+                        - link "\"Okapi's Half-Century\" ↗" [ref=f19e1164] [cursor=pointer]:
+                          - /url: https://web.archive.org/web/20210825055536/https://www.eaza.net/assets/Uploads/Zooquaria/ZQ85.pdf
+                        - text: (PDF). Zooquaria (85).
+                        - link "EAZA" [ref=f19e1165] [cursor=pointer]:
+                          - /url: ./European_Association_of_Zoos_and_Aquaria
+                        - text: ": 7. Spring 2014. Archived from"
+                        - link "the original ↗" [ref=f19e1166] [cursor=pointer]:
+                          - /url: https://www.eaza.net/assets/Uploads/Zooquaria/ZQ85.pdf
+                        - text: (PDF) on 25 August 2021
+                        - generic [ref=f19e1167]: . Retrieved 23 February 2021
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=Zooquaria&rft.atitle=Okapi%27s+Half-Century&rft.ssn=spring&rft.issue=85&rft.pages=7&rft.date=2014&rft_id=https%3A%2F%2Fwww.eaza.net%2Fassets%2FUploads%2FZooquaria%2FZQ85.pdf&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1168]:
+                    - link "↑" [ref=f19e1170] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-49
+                    - generic [ref=f19e1171]:
+                      - generic [ref=f19e1172]:
+                        - link "\"Bronx Zoo Debuts Its Baby Okapi\" ↗" [ref=f19e1173] [cursor=pointer]:
+                          - /url: https://newsroom.wcs.org/News-Releases/articleType/ArticleView/articleId/4802/Bronx-Zoo-Debuts-Its-Baby-Okapi.aspx
+                        - text: .
+                        - link "WCSNewsroom" [ref=f19e1175] [cursor=pointer]:
+                          - /url: ./Wildlife_Conservation_Society
+                        - text: . 27 July 2009
+                        - generic [ref=f19e1176]: . Retrieved 19 October 2018
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=WCSNewsroom&rft.atitle=Bronx+Zoo+Debuts+Its+Baby+Okapi&rft.date=2009-07-27&rft_id=https%3A%2F%2Fnewsroom.wcs.org%2FNews-Releases%2FarticleType%2FArticleView%2FarticleId%2F4802%2FBronx-Zoo-Debuts-Its-Baby-Okapi.aspx&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1177]:
+                    - link "↑" [ref=f19e1179] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-50
+                    - generic [ref=f19e1180]:
+                      - generic [ref=f19e1181]:
+                        - link "\"Baby Okapi Makes Public Debut At Bronx Zoo\" ↗" [ref=f19e1182] [cursor=pointer]:
+                          - /url: https://newyork.cbslocal.com/2011/11/08/baby-okapi-makes-public-debut-at-bronx-zoo/
+                        - text: .
+                        - link "newyork.cbslocal.com" [ref=f19e1184] [cursor=pointer]:
+                          - /url: ./WCBS-TV
+                        - text: . 8 November 2011
+                        - generic [ref=f19e1185]: . Retrieved 19 October 2018
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=newyork.cbslocal.com&rft.atitle=Baby+Okapi+Makes+Public+Debut+At+Bronx+Zoo&rft.date=2011-11-08&rft_id=https%3A%2F%2Fnewyork.cbslocal.com%2F2011%2F11%2F08%2Fbaby-okapi-makes-public-debut-at-bronx-zoo%2F&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1186]:
+                    - link "↑" [ref=f19e1188] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-SDZ_51-0
+                    - generic [ref=f19e1189]:
+                      - generic [ref=f19e1190]:
+                        - link "\"Animals & Plants | Okapi\" ↗" [ref=f19e1191] [cursor=pointer]:
+                          - /url: http://animals.sandiegozoo.org/animals/okapi
+                        - text: .
+                        - link "animals.sandiegozoo.org" [ref=f19e1193] [cursor=pointer]:
+                          - /url: ./San_Diego_Zoo
+                        - generic [ref=f19e1194]: . Retrieved 4 October 2017
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=animals.sandiegozoo.org&rft.atitle=Animals+%26+Plants+%7C+Okapi&rft_id=http%3A%2F%2Fanimals.sandiegozoo.org%2Fanimals%2Fokapi&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1195]:
+                    - link "↑" [ref=f19e1197] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-52
+                    - generic [ref=f19e1198]:
+                      - generic [ref=f19e1199]:
+                        - text: Peterson, Karla (23 August 2017).
+                        - link "\"Endangered okapi born at San Diego Zoo\" ↗" [ref=f19e1200] [cursor=pointer]:
+                          - /url: https://www.sandiegouniontribune.com/entertainment/things-to-do/sd-me-zoo-okapi-20170823-story.html
+                        - text: .
+                        - link "The San Diego Union-Tribune" [ref=f19e1202] [cursor=pointer]:
+                          - /url: ./The_San_Diego_Union-Tribune
+                        - generic [ref=f19e1203]: . Retrieved 23 February 2021
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=The+San+Diego+Union-Tribune&rft.atitle=Endangered+okapi+born+at+San+Diego+Zoo&rft.date=2017-08-23&rft.aulast=Peterson&rft.aufirst=Karla&rft_id=https%3A%2F%2Fwww.sandiegouniontribune.com%2Fentertainment%2Fthings-to-do%2Fsd-me-zoo-okapi-20170823-story.html&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1204]:
+                    - link "↑" [ref=f19e1206] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-53
+                    - generic [ref=f19e1207]:
+                      - generic [ref=f19e1208]:
+                        - link "\"Brookfield Zoo Celebrates Its 28th Okapi Birth Since 1959\" ↗" [ref=f19e1209] [cursor=pointer]:
+                          - /url: https://chicago.cbslocal.com/2017/05/26/brookfield-zoo-okapi-birth/
+                        - text: .
+                        - link "chicago.cbslocal.com" [ref=f19e1211] [cursor=pointer]:
+                          - /url: ./WBBM-TV
+                        - text: . 26 May 2017
+                        - generic [ref=f19e1212]: . Retrieved 4 October 2017
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=chicago.cbslocal.com&rft.atitle=Brookfield+Zoo+Celebrates+Its+28th+Okapi+Birth+Since+1959&rft.date=2017-05-26&rft_id=https%3A%2F%2Fchicago.cbslocal.com%2F2017%2F05%2F26%2Fbrookfield-zoo-okapi-birth%2F&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1213]:
+                    - link "↑" [ref=f19e1215] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-54
+                    - generic [ref=f19e1216]:
+                      - generic [ref=f19e1217]:
+                        - link "\"Okapi arrives at Roosevelt Park Zoo\" ↗" [ref=f19e1218] [cursor=pointer]:
+                          - /url: https://www.minotdailynews.com/news/local-news/2017/09/okapi-arrives-at-roosevelt-park-zoo/
+                        - text: . Minot Daily News. 15 September 2017.
+                        - link "Archived ↗" [ref=f19e1219] [cursor=pointer]:
+                          - /url: https://web.archive.org/web/20200806033135/https://www.minotdailynews.com/news/local-news/2017/09/okapi-arrives-at-roosevelt-park-zoo/
+                        - text: from the original on 6 August 2020
+                        - generic [ref=f19e1220]: . Retrieved 18 May 2020
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=article&rft.jtitle=Minot+Daily+News&rft.atitle=Okapi+arrives+at+Roosevelt+Park+Zoo&rft.date=2017-09-15&rft_id=https%3A%2F%2Fwww.minotdailynews.com%2Fnews%2Flocal-news%2F2017%2F09%2Fokapi-arrives-at-roosevelt-park-zoo%2F&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1221]:
+                    - link "↑" [ref=f19e1223] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-55
+                    - generic [ref=f19e1224]:
+                      - generic [ref=f19e1225]:
+                        - link "\"Okapi\" ↗" [ref=f19e1226] [cursor=pointer]:
+                          - /url: https://www.potawatomizoo.org/animal/okapi/
+                        - text: . Potawatomizoo.org.
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=Potawatomizoo.org&rft.atitle=Okapi&rft_id=https%3A%2F%2Fwww.potawatomizoo.org%2Fanimal%2Fokapi%2F&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1227]:
+                    - link "↑" [ref=f19e1229] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-56
+                    - generic [ref=f19e1230]:
+                      - generic [ref=f19e1231]:
+                        - link "\"Okapi Conservation Project | The Americas\" ↗" [ref=f19e1232] [cursor=pointer]:
+                          - /url: https://web.archive.org/web/20210205130622/https://www.okapiconservation.org/zoo-network-the-americas/
+                        - text: . Okapiconservation.org. Archived from
+                        - link "the original ↗" [ref=f19e1233] [cursor=pointer]:
+                          - /url: https://www.okapiconservation.org/zoo-network-the-americas/
+                        - text: on 5 February 2021
+                        - generic [ref=f19e1234]: . Retrieved 13 May 2019
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=Okapiconservation.org&rft.atitle=Okapi+Conservation+Project+%7C+The+Americas&rft_id=https%3A%2F%2Fwww.okapiconservation.org%2Fzoo-network-the-americas%2F&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1235]:
+                    - link "↑" [ref=f19e1237] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-57
+                    - generic [ref=f19e1238]:
+                      - generic [ref=f19e1239]:
+                        - link "\"Potter Park Zoo Welcomes Elombe the Okapi\" ↗" [ref=f19e1240] [cursor=pointer]:
+                          - /url: https://potterparkzoo.org/potter-park-zoo-welcomes-elombe-the-okapi/
+                        - text: . potterparkzoo.org. 7 May 2024
+                        - generic [ref=f19e1241]: . Retrieved 25 September 2024
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=potterparkzoo.org&rft.atitle=Potter+Park+Zoo+Welcomes+Elombe+the+Okapi&rft.date=2024-05-07&rft_id=https%3A%2F%2Fpotterparkzoo.org%2Fpotter-park-zoo-welcomes-elombe-the-okapi%2F&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1242]:
+                    - link "↑" [ref=f19e1244] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-58
+                    - generic [ref=f19e1245]:
+                      - generic [ref=f19e1246]:
+                        - link "\"Helping to protect endangered species around the world\" ↗" [ref=f19e1247] [cursor=pointer]:
+                          - /url: https://bristolzoo.org.uk/latest-zoo-news/helping-to-protect-endangered-species-around-the-world
+                        - text: . Bristol Zoo. 17 May 2019
+                        - generic [ref=f19e1248]: . Retrieved 23 February 2021
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=Bristol+Zoo&rft.atitle=Helping+to+protect+endangered+species+around+the+world&rft.date=2019-05-17&rft_id=https%3A%2F%2Fbristolzoo.org.uk%2Flatest-zoo-news%2Fhelping-to-protect-endangered-species-around-the-world&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1249]:
+                    - link "↑" [ref=f19e1251] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-59
+                    - generic [ref=f19e1252]:
+                      - generic [ref=f19e1253]:
+                        - link "\"Rare Okapi Arrive at Yorkshire Wildlife Park\" ↗" [ref=f19e1254] [cursor=pointer]:
+                          - /url: https://web.archive.org/web/20190218182041/https://www.yorkshirewildlifepark.com/okapi-arrival/
+                        - text: . Yorkshire Wildlife Park. 17 May 2018. Archived from
+                        - link "the original ↗" [ref=f19e1255] [cursor=pointer]:
+                          - /url: https://www.yorkshirewildlifepark.com/okapi-arrival/
+                        - text: on 18 February 2019
+                        - generic [ref=f19e1256]: . Retrieved 23 February 2021
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=Yorkshire+Wildlife+Park&rft.atitle=Rare+Okapi+Arrive+at+Yorkshire+Wildlife+Park&rft.date=2018-05-17&rft_id=https%3A%2F%2Fwww.yorkshirewildlifepark.com%2Fokapi-arrival%2F&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1257]:
+                    - link "↑" [ref=f19e1259] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-60
+                    - generic [ref=f19e1260]:
+                      - generic [ref=f19e1261]:
+                        - text: Landoni, Lucia (4 April 2026).
+                        - 'link "\"Valbrembo, due okapi trovano casa al parco Le Cornelle: \"Custodiamo una specie rara e minacciata\"\" ↗" [ref=f19e1262] [cursor=pointer]':
+                          - /url: https://milano.repubblica.it/cronaca/2026/04/04/news/valbrembo_due_okapi_parco_cornelle_specie_rara_minacciata-425264443/
+                          - text: "\"Valbrembo, due okapi trovano casa al parco Le Cornelle: \"Custodiamo una specie rara e minacciata\""
+                          - text: "\" ↗"
+                        - text: . Milano.repubblica.it
+                        - generic [ref=f19e1263]: . Retrieved 22 June 2026
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=Milano.repubblica.it&rft.atitle=Valbrembo%2C+due+okapi+trovano+casa+al+parco+Le+Cornelle%3A+%E2%80%9CCustodiamo+una+specie+rara+e+minacciata%E2%80%9D&rft.date=2026-04-04&rft.aulast=Landoni&rft.aufirst=Lucia&rft_id=https%3A%2F%2Fmilano.repubblica.it%2Fcronaca%2F2026%2F04%2F04%2Fnews%2Fvalbrembo_due_okapi_parco_cornelle_specie_rara_minacciata-425264443%2F&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1264]:
+                    - link "↑" [ref=f19e1266] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-61
+                    - generic [ref=f19e1267]:
+                      - generic [ref=f19e1268]:
+                        - text: TG24, Sky (21 September 2023).
+                        - link "\"Parco Zoo di Falconara, dopo 60 anni tornano in Italia gli okapi\" ↗" [ref=f19e1269] [cursor=pointer]:
+                          - /url: https://tg24.sky.it/ambiente/2018/05/03/coppia-okapi-parco-falconara-ancona
+                        - text: . Tg24.sky.it
+                        - generic [ref=f19e1270]: . Retrieved 22 June 2026
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=Tg24.sky.it&rft.atitle=Parco+Zoo+di+Falconara%2C+dopo+60+anni+tornano+in+Italia+gli+okapi&rft.date=2023-09-21&rft.aulast=TG24&rft.aufirst=Sky&rft_id=https%3A%2F%2Ftg24.sky.it%2Fambiente%2F2018%2F05%2F03%2Fcoppia-okapi-parco-falconara-ancona&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                      - generic [ref=f19e1271]:
+                        - code [ref=f19e1272]:
+                          - text: "{{"
+                          - link "cite web" [ref=f19e1273] [cursor=pointer]:
+                            - /url: ./Template:Cite_web
+                          - text: "}}"
+                        - text: ": CS1 maint: numeric names: authors list ("
+                        - link "link" [ref=f19e1274] [cursor=pointer]:
+                          - /url: ./Category:CS1_maint:_numeric_names:_authors_list
+                        - text: )
+                  - listitem [ref=f19e1275]:
+                    - link "↑" [ref=f19e1277] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-62
+                    - generic [ref=f19e1278]:
+                      - generic [ref=f19e1279]:
+                        - link "\"Okapi Conservation Project | Europe\" ↗" [ref=f19e1280] [cursor=pointer]:
+                          - /url: https://web.archive.org/web/20171201042836/https://www.okapiconservation.org/zoo-network-europe-2/
+                        - text: . okapiconservation.org. Archived from
+                        - link "the original ↗" [ref=f19e1281] [cursor=pointer]:
+                          - /url: https://www.okapiconservation.org/zoo-network-europe-2/
+                        - text: on 1 December 2017
+                        - generic [ref=f19e1282]: . Retrieved 25 November 2017
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=okapiconservation.org&rft.atitle=Okapi+Conservation+Project+%7C+Europe&rft_id=https%3A%2F%2Fwww.okapiconservation.org%2Fzoo-network-europe-2%2F&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1283]:
+                    - link "↑" [ref=f19e1285] [cursor=pointer]:
+                      - /url: ./Okapi#cite_ref-63
+                    - generic [ref=f19e1286]:
+                      - generic [ref=f19e1287]:
+                        - link "\"Okapi Conservation Project | Asia\" ↗" [ref=f19e1288] [cursor=pointer]:
+                          - /url: https://web.archive.org/web/20210205133110/https://www.okapiconservation.org/zoo-network-asia/
+                        - text: . okapiconservation.org. Archived from
+                        - link "the original ↗" [ref=f19e1289] [cursor=pointer]:
+                          - /url: https://www.okapiconservation.org/zoo-network-asia/
+                        - text: on 5 February 2021
+                        - generic [ref=f19e1290]: . Retrieved 13 May 2019
+                        - text: .
+                      - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Ajournal&rft.genre=unknown&rft.jtitle=okapiconservation.org&rft.atitle=Okapi+Conservation+Project+%7C+Asia&rft_id=https%3A%2F%2Fwww.okapiconservation.org%2Fzoo-network-asia%2F&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+              - generic [ref=f19e1291]:
+                - heading "Further reading" [level=2] [ref=f19e1292]
+                - list [ref=f19e1293]:
+                  - listitem [ref=f19e1294]:
+                    - text: "Bell, Wolfram (Nov. 2009). Okapis: geheimnisvolle Urwaldgiraffen; Entdeckungsgeschichte, Biologie, Haltung und Medizin einer seltenen Tierart. Schüling Verlag Münster, Germany."
+                    - link "ISBN" [ref=f19e1295] [cursor=pointer]:
+                      - /url: ./ISBN_(identifier)
+                    - link "978-3-86523-144-4" [ref=f19e1296] [cursor=pointer]:
+                      - /url: ./Special:BookSources/978-3-86523-144-4
+                    - text: .
+                  - listitem [ref=f19e1297]:
+                    - text: "Pooley, Simon (2025). Discovering the Okapi: Western Science, Indigenous Knowledge and the search for a rainforest enigma."
+                    - link "Johns Hopkins University Press ↗" [ref=f19e1298] [cursor=pointer]:
+                      - /url: https://www.press.jhu.edu/books/title/53714/discovering-okapi?srsltid=AfmBOooVT3yBLZPsrBugHXejdJsdx4h6ZA2btoXz7a29tvxS0fZHWcDl
+                    - text: .
+                  - listitem [ref=f19e1299]:
+                    - text: Sever, Zvi (March 2021). "
+                    - link "Searching for the okapi (Okapia johnstoni) in Semuliki National Park, Uganda ↗" [ref=f19e1300] [cursor=pointer]:
+                      - /url: https://onlinelibrary.wiley.com/doi/10.1111/aje.12796
+                    - text: "\". Afr. J. Ecol. Vol. 59, issue 1: 1–7."
+                    - link "doi" [ref=f19e1301] [cursor=pointer]:
+                      - /url: ./Doi_(identifier)
+                    - text: ":"
+                    - link "10.1111/aje.12796 ↗" [ref=f19e1302] [cursor=pointer]:
+                      - /url: https://doi.org/10.1111%2Faje.12796
+                    - text: .
+              - generic [ref=f19e1303]:
+                - heading "External links" [level=2] [ref=f19e1304]
+                - list [ref=f19e1305]:
+                  - listitem [ref=f19e1306]:
+                    - link "The okapi management site ↗" [ref=f19e1307] [cursor=pointer]:
+                      - /url: http://www.theokapi.org
+                    - text: (
+                    - link "Archived ↗" [ref=f19e1308] [cursor=pointer]:
+                      - /url: https://web.archive.org/web/20110906011003/http://theokapi.org/
+                    - text: 6 September 2011 at the
+                    - link "Wayback Machine" [ref=f19e1309] [cursor=pointer]:
+                      - /url: ./Wayback_Machine
+                    - text: )
+                  - listitem [ref=f19e1310]:
+                    - link "Monograph of the Okapi ↗" [ref=f19e1311] [cursor=pointer]:
+                      - /url: http://catalog.hathitrust.org/Record/001502940
+                    - text: (1910) by
+                    - link "E. Ray Lankester" [ref=f19e1312] [cursor=pointer]:
+                      - /url: ./E._Ray_Lankester
+                    - text: and William George Ridewood
+                  - listitem [ref=f19e1313]:
+                    - generic [ref=f19e1314]:
+                      - generic "s:1911 Encyclopædia Britannica/Okapi" [ref=f19e1315]:
+                        - link "\"Okapi\" ↗" [ref=f19e1316] [cursor=pointer]:
+                          - /url: https://en.wikisource.org/wiki/1911_Encyclop%C3%A6dia_Britannica/Okapi
+                      - text: .
+                      - link "Encyclopædia Britannica" [ref=f19e1318] [cursor=pointer]:
+                        - /url: ./Encyclopædia_Britannica_Eleventh_Edition
+                      - text: (11th ed.). 1911.
+                    - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&rft.genre=bookitem&rft.atitle=Okapi&rft.btitle=Encyclop%C3%A6dia+Britannica&rft.edition=11th&rft.date=1911&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1319]:
+                    - generic [ref=f19e1320]:
+                      - link "\"Fun Facts for World Okapi Day\" ↗" [ref=f19e1321] [cursor=pointer]:
+                        - /url: https://www.youtube.com/watch?v=1ryjzEWwZtA
+                      - text: . San Diego Zoo. 18 October 2018 – via YouTube.
+                    - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&rft.genre=unknown&rft.btitle=Fun+Facts+for+World+Okapi+Day&rft.pub=San+Diego+Zoo&rft.date=2018-10-18&rft_id=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D1ryjzEWwZtA&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+                  - listitem [ref=f19e1322]:
+                    - generic [ref=f19e1323]:
+                      - link "\"5 Weird, Wild & Wonderful Facts About Okapi\" ↗" [ref=f19e1324] [cursor=pointer]:
+                        - /url: https://www.youtube.com/watch?v=2G8XsyNSIjo
+                      - text: . Brookfield Zoo Chicago. 20 October 2019 – via YouTube.
+                    - generic "ctx_ver=Z39.88-2004&rft_val_fmt=info%3Aofi%2Ffmt%3Akev%3Amtx%3Abook&rft.genre=unknown&rft.btitle=5+Weird%2C+Wild+%26+Wonderful+Facts+About+Okapi&rft.pub=Brookfield+Zoo+Chicago&rft.date=2019-10-20&rft_id=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D2G8XsyNSIjo&rfr_id=info%3Asid%2Fen.wikipedia.org%3AOkapi"
+          - generic [ref=f19e1325]:
+            - text: Content from the Wikipedia article
+            - link "Okapi" [ref=f19e1326] [cursor=pointer]:
+              - /url: https://en.wikipedia.org/wiki/Okapi
+            - text: ", reformatted for this reader with some elements omitted. Text is available under"
+            - link "CC BY-SA 4.0" [ref=f19e1327] [cursor=pointer]:
+              - /url: https://creativecommons.org/licenses/by-sa/4.0/
+            - text: ; images are licensed individually.
+          - paragraph [ref=f19e1328]:
+            - text: Enjoying the wander?
+            - link "buy me a coffee ↗" [ref=f19e1329] [cursor=pointer]:
+              - /url: https://buymeacoffee.com/grayforrester
+  - text: ↗
+  - generic [ref=f19e58]: Opened Okapi — card 1 of 1.
+  - dialog [active] [ref=f19e1335]:
+    - generic [ref=f19e1337]:
+      - generic [ref=f19e1338]:
+        - button "Close modal" [ref=f19e1339] [cursor=pointer]:
+          - img [ref=f19e1340]
+        - generic [ref=f19e1343]:
+          - heading "Sign in to clerk-amethyst-ridge" [level=1] [ref=f19e1344]
+          - paragraph [ref=f19e1345]: Welcome back! Please sign in to continue
+        - generic [ref=f19e1346]:
+          - button "Sign in with Google Continue with Google" [ref=f19e1349] [cursor=pointer]:
+            - generic [ref=f19e1350]:
+              - generic "Sign in with Google" [ref=f19e1352]
+              - generic [ref=f19e1353]: Continue with Google
+          - paragraph [ref=f19e1356]: or
+          - generic [ref=f19e1358]:
+            - generic [ref=f19e1359]:
+              - generic [ref=f19e1362]:
+                - generic [ref=f19e1363]:
+                  - generic [ref=f19e1364]: Email address
+                  - generic [ref=f19e1365]: Last used
+                - textbox "Email address" [ref=f19e1366]:
+                  - /placeholder: Enter your email address
+              - generic:
+                - generic:
+                  - generic: Password
+                - generic:
+                  - textbox:
+                    - /placeholder: Enter your password
+                  - button:
+                    - img
+            - button "Continue" [ref=f19e1369] [cursor=pointer]:
+              - generic [ref=f19e1370]:
+                - text: Continue
+                - img [ref=f19e1371]
+      - generic [ref=f19e1373]:
+        - generic [ref=f19e1374]:
+          - generic [ref=f19e1375]: Don’t have an account?
+          - link "Sign up" [ref=f19e1376] [cursor=pointer]:
+            - /url: http://localhost:3000/CLERK-ROUTER/VIRTUAL/sign-up
+        - generic [ref=f19e1378]:
+          - generic [ref=f19e1380]:
+            - paragraph [ref=f19e1381]: Secured by
+            - link "Clerk logo" [ref=f19e1382] [cursor=pointer]:
+              - /url: https://go.clerk.com/components
+              - img [ref=f19e1383]
+          - paragraph [ref=f19e1388]: Development mode

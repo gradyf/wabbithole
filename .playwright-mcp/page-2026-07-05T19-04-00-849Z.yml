@@ -1,0 +1,53 @@
+- generic [ref=f10e1]:
+  - generic [ref=f10e2]:
+    - main [ref=f10e3]:
+      - generic [ref=f10e4] [cursor=pointer]: wabbit hole
+      - paragraph [ref=f10e5]: Follow one link. Then another. The stack is the story of how you got here.
+      - combobox "Search for a Wikipedia article to start from" [ref=f10e10]
+      - button "or fall in somewhere random ↓" [ref=f10e11] [cursor=pointer]: or fall in somewhere random ↓
+    - generic [ref=f10e13]:
+      - text: Article text from
+      - link "Wikipedia" [ref=f10e14] [cursor=pointer]:
+        - /url: https://en.wikipedia.org
+      - text: ", reformatted, under"
+      - link "CC BY-SA 4.0" [ref=f10e15] [cursor=pointer]:
+        - /url: https://creativecommons.org/licenses/by-sa/4.0/
+      - text: . Not affiliated with the Wikimedia Foundation. ·
+      - button "About" [ref=f10e16] [cursor=pointer]
+      - text: ·
+      - button "Trivia bank" [ref=f10e17] [cursor=pointer]
+      - text: ·
+      - link "Buy me a coffee" [ref=f10e18] [cursor=pointer]:
+        - /url: https://buymeacoffee.com/grayforrester
+  - text: ↗
+  - dialog [ref=f10e22]:
+    - generic [ref=f10e76]:
+      - generic [ref=f10e77]:
+        - button "Close modal" [ref=f10e78] [cursor=pointer]:
+          - img [ref=f10e79]
+        - generic [ref=f10e82]:
+          - heading "Check your email" [level=1] [ref=f10e83]
+          - paragraph [ref=f10e84]: to continue to clerk-amethyst-ridge
+          - paragraph [ref=f10e86]: gray+clerk_test@example.com
+        - generic [ref=f10e87]:
+          - generic [ref=f10e88]:
+            - generic [ref=f10e90]:
+              - generic:
+                - group
+                - textbox "Enter verification code" [active] [ref=f10e91]
+            - button "Didn't receive a code? Resend (30)" [disabled]
+          - paragraph [ref=f10e94]: You're signing in from a new device. We're asking for verification to keep your account secure.
+          - generic [ref=f10e95]:
+            - button "Continue" [ref=f10e96] [cursor=pointer]:
+              - generic [ref=f10e97]:
+                - text: Continue
+                - img [ref=f10e98]
+            - link "Use another method" [ref=f10e101] [cursor=pointer]:
+              - /url: http://localhost:3000/CLERK-ROUTER/VIRTUAL/sign-in/client-trust
+      - generic [ref=f10e104]:
+        - generic [ref=f10e106]:
+          - paragraph [ref=f10e107]: Secured by
+          - link "Clerk logo" [ref=f10e108] [cursor=pointer]:
+            - /url: https://go.clerk.com/components
+            - img [ref=f10e109]
+        - paragraph [ref=f10e114]: Development mode

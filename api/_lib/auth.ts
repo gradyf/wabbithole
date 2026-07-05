@@ -4,7 +4,11 @@
 import { createClerkClient } from '@clerk/backend';
 import { HttpError } from './http';
 
-const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY! });
+const clerk = createClerkClient({
+  secretKey: process.env.CLERK_SECRET_KEY!,
+  publishableKey:
+    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? process.env.VITE_CLERK_PUBLISHABLE_KEY,
+});
 
 // Exact origins allowed to present tokens (Clerk recommends setting this).
 // VERCEL_URL covers preview deployments; localhost covers `vercel dev`.

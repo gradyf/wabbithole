@@ -1,0 +1,20 @@
+- generic [ref=f21e2]:
+  - main [ref=f21e3]:
+    - text: wabbit hole
+    - paragraph [ref=f21e4]: Follow one link. Then another. The stack is the story of how you got here.
+    - combobox "Search for a Wikipedia article to start from" [ref=f21e8]
+    - button "or fall in somewhere random ↓" [ref=f21e9]
+  - generic [ref=f21e10]:
+    - text: Article text from
+    - link "Wikipedia" [ref=f21e11] [cursor=pointer]:
+      - /url: https://en.wikipedia.org
+    - text: ", reformatted, under"
+    - link "CC BY-SA 4.0" [ref=f21e12] [cursor=pointer]:
+      - /url: https://creativecommons.org/licenses/by-sa/4.0/
+    - text: . Not affiliated with the Wikimedia Foundation. ·
+    - button "About" [ref=f21e13]
+    - text: ·
+    - button "Trivia bank" [ref=f21e14]
+    - text: ·
+    - link "Buy me a coffee" [ref=f21e15] [cursor=pointer]:
+      - /url: https://buymeacoffee.com/grayforrester

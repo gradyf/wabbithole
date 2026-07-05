@@ -1,0 +1,6 @@
+[    9573ms] [WARNING] Clerk: Clerk has been loaded with development keys. Development instances have strict usage limits and should not be used when deploying your application to production. Learn more: https://clerk.com/docs/deployments/overview @ http://localhost:3000/node_modules/.vite/deps/@clerk_clerk-js.js?v=ab44fc42:14667
+[   10299ms] Error: Clerk was not loaded with Ui components
+    at _iI.assertComponentsReady (http://localhost:3000/node_modules/.vite/deps/@clerk_clerk-js.js?v=ab44fc42:21159:23)
+    at _iI.openSignIn (http://localhost:3000/node_modules/.vite/deps/@clerk_clerk-js.js?v=ab44fc42:19904:14)
+    at requireAuth (http://localhost:3000/src/trivia.ts:63:12)
+    at async http://localhost:3000/src/trivia.ts:244:12

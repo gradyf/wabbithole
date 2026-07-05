@@ -1,0 +1,24 @@
+- generic [active] [ref=f19e1]:
+  - banner [ref=f19e16]:
+    - button "wabbit hole" [ref=f19e17] [cursor=pointer]
+    - generic [ref=f19e20]: 1 card
+    - button "Trail" [ref=f19e21] [cursor=pointer]: Trail
+    - button "Share" [ref=f19e23] [cursor=pointer]:
+      - generic [ref=f19e25]: Share
+  - generic [ref=f19e26]:
+    - generic [ref=f19e27]:
+      - generic [ref=f19e28]:
+        - heading [level=2] [ref=f19e29]: Trail
+        - button [ref=f19e30] [cursor=pointer]
+      - list [ref=f19e32]:
+        - listitem [ref=f19e33] [cursor=pointer]:
+          - generic [ref=f19e34]: "1"
+          - generic [ref=f19e36]: Okapi
+      - generic [ref=f19e37]:
+        - button [ref=f19e38] [cursor=pointer]: Export Markdown
+        - generic [ref=f19e40]: 1 card
+    - main "Card stack" [ref=f19e41]:
+      - button "1 Okapi" [disabled] [ref=f19e44]:
+        - generic [ref=f19e45]: "1"
+        - generic [ref=f19e46]: Okapi
+  - text: ↗
