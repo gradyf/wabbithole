@@ -1,0 +1,85 @@
+/* Webfonts — Literata (article + display serif) and Source Sans 3 (UI sans).
+   Both OFL-licensed; binaries live in assets/fonts/. */
+
+/* ---- Literata: article text optical size ---- */
+@font-face {
+  font-family: "Literata";
+  src: url("../assets/fonts/Literata-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Literata";
+  src: url("../assets/fonts/Literata-Italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Literata";
+  src: url("../assets/fonts/Literata-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Literata";
+  src: url("../assets/fonts/Literata-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---- Literata Display: 36pt optical masters for titles & wordmark ---- */
+@font-face {
+  font-family: "Literata Display";
+  src: url("../assets/fonts/Literata36pt-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Literata Display";
+  src: url("../assets/fonts/Literata36pt-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Literata Display";
+  src: url("../assets/fonts/Literata36pt-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---- Source Sans 3: UI chrome ---- */
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("../assets/fonts/SourceSans3-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("../assets/fonts/SourceSans3-Italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("../assets/fonts/SourceSans3-Semibold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Source Sans 3";
+  src: url("../assets/fonts/SourceSans3-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}

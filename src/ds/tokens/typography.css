@@ -1,0 +1,35 @@
+/* Wabbit Hole typography.
+   Literata (serif) carries the encyclopedia; Source Sans 3 carries the chrome.
+   Article titles use the 36pt display masters via "Literata Display". */
+
+:root {
+  /* families */
+  --font-serif: "Literata", Georgia, "Times New Roman", serif;
+  --font-display: "Literata Display", "Literata", Georgia, serif;
+  --font-sans: "Source Sans 3", -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  /* size ramp (px) */
+  --text-caption: 12px;   /* attribution, figcaptions, tab numbers */
+  --text-label: 13px;     /* chrome labels, depth indicator, refs */
+  --text-ui: 14px;        /* buttons, inputs, panel body */
+  --text-ui-lg: 16px;     /* search input */
+  --text-body: 17px;      /* article body serif */
+  --text-lg: 19px;        /* lead paragraphs, panel titles */
+  --text-h3: 20px;        /* article h3 */
+  --text-h2: 26px;        /* article h2 */
+  --text-title: 32px;     /* article title on the active card */
+  --text-display: 44px;   /* entry-screen moments */
+  --text-hero: 64px;      /* wordmark on the entry screen */
+
+  /* leading */
+  --leading-tight: 1.15;  /* display, titles */
+  --leading-snug: 1.3;    /* headings */
+  --leading-ui: 1.4;      /* chrome */
+  --leading-body: 1.62;   /* article prose */
+
+  /* tracking */
+  --tracking-display: -0.015em;
+  --tracking-body: 0;
+  --tracking-caps: 0.06em; /* rare all-caps micro labels */
+}

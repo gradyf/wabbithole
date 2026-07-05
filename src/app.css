@@ -1,0 +1,211 @@
+/* App-layer layout for Wabbit Hole. Everything visual comes from the design
+   system (src/ds/styles.css); this file only composes the screens: app frame,
+   stage geometry hooks, entry screen, and small utilities the DS leaves to
+   the consumer. */
+
+[hidden] { display: none !important; }
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap; border: 0;
+}
+
+html, body { height: 100%; }
+body {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.wh-topbar { flex: none; }
+
+.wh-main {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  position: relative;
+}
+
+.wh-stage {
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  overflow: hidden;
+  /* wider pages than the kit default; geometry is app-owned */
+  --card-width: 1360px;
+}
+
+/* widen the reading column to match: text sits beside the infobox instead
+   of being squeezed by it */
+.wh-attrib { max-width: min(960px, 100%); }
+
+/* JS positions each card wrapper: top offset, width, z-index */
+.wh-cardpos {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: top var(--dur-med) var(--ease-settle), width var(--dur-med) var(--ease-settle);
+}
+.wh-cardpos > .wh-card { height: 100%; }
+
+/* the top card's tab is inert */
+.wh-tab:not([data-buried]) { cursor: default; }
+
+/* title block + prose share a widened reading column (text sits beside the
+   floated infobox at roughly the prose measure) */
+.wh-card-inner {
+  max-width: min(960px, 100%);
+  margin: 0 auto;
+}
+
+/* ---- entry screen ---- */
+
+.wh-entry {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-app);
+}
+.wh-entry-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-6) 8vh;
+}
+.wh-entry-tagline {
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  color: var(--text-secondary);
+  margin: 14px 0 40px;
+  text-align: center;
+  max-width: 440px;
+  line-height: 1.5;
+  text-wrap: balance;
+}
+.wh-entry-search { width: min(560px, 100%); }
+.wh-entry-main > .wh-btn { margin-top: var(--space-5); }
+.wh-entry-foot {
+  flex: none;
+  padding: var(--space-4) var(--space-6) var(--space-5);
+  text-align: center;
+  font-size: var(--text-caption);
+  color: var(--text-faint);
+}
+.wh-entry-foot a,
+.wh-linklike { color: var(--text-secondary); }
+.wh-linklike {
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  cursor: pointer;
+}
+
+/* ---- collapsible Contents (synthesized from section headings) ---- */
+
+.wh-toc {
+  margin: 0 0 1.8em;
+  background: var(--surface-app);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: var(--text-ui);
+}
+.wh-toc summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 10px var(--space-4);
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  list-style: none;
+  border-radius: var(--radius-md);
+  transition: background-color var(--dur-fast) var(--ease-swift), color var(--dur-fast) var(--ease-swift);
+}
+.wh-toc summary::-webkit-details-marker { display: none; }
+.wh-toc summary:hover { background: var(--surface-sunken); color: var(--text-primary); }
+.wh-toc summary .wh-icon { width: 15px; height: 15px; }
+.wh-toc-count {
+  margin-left: auto;
+  font-weight: 400;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+.wh-toc-chev { transition: transform var(--dur-fast) var(--ease-swift); }
+.wh-toc[open] .wh-toc-chev { transform: rotate(90deg); }
+.wh-toc-nav { padding: 0 var(--space-4) var(--space-3); }
+.wh-toc-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+@media (min-width: 720px) {
+  .wh-toc-list { columns: 2; column-gap: var(--space-7); }
+}
+.wh-toc-list li { padding: 3px 0; break-inside: avoid; }
+.wh-toc-list a {
+  color: var(--link);
+  text-decoration: none;
+  border-radius: 3px;
+}
+.wh-toc-list a:hover { color: var(--link-hover); text-decoration: underline; text-underline-offset: 0.18em; }
+.wh-toc-list ol {
+  list-style: none;
+  margin: 0;
+  padding-left: var(--space-4);
+  font-size: var(--text-label);
+}
+
+/* ---- support line (below the attribution footer) ---- */
+
+.wh-support {
+  max-width: min(960px, 100%);
+  margin: var(--space-3) auto 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-caption);
+  color: var(--text-faint);
+}
+.wh-support a {
+  color: var(--text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+  transition: color var(--dur-fast) var(--ease-swift);
+}
+.wh-support a:hover { color: var(--accent-deep); }
+
+/* ---- trail sidebar footer count ---- */
+.wh-trail-count {
+  font-size: var(--text-label);
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- about panel prose sizing (matches UI kit) ---- */
+.wh-about-prose { font-size: 15px; line-height: 1.6; }
+
+/* ---- narrow viewports: single full-bleed card, sidebar floats ---- */
+@media (max-width: 719px) {
+  .wh-depth { display: none; }
+  .wh-sidebar {
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+    z-index: 30;
+    box-shadow: var(--shadow-float);
+    background: var(--surface-card);
+  }
+  #btn-back .wh-btn-label,
+  #btn-share .wh-btn-label { display: none; }
+}

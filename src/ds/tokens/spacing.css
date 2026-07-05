@@ -1,0 +1,28 @@
+/* Spacing, measure, radii, and stack geometry. 4px base. */
+
+:root {
+  /* spacing ramp */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+  --space-10: 64px;
+  --space-11: 80px;
+
+  /* reading measure & card geometry */
+  --measure-prose: 680px;  /* max line length for article text */
+  --card-width: 840px;     /* article card width on the desk */
+  --tab-height: 40px;      /* card header strip, always visible */
+  --tab-peek: 40px;        /* vertical offset per buried card */
+
+  /* radii. When in doubt, use the small one. */
+  --radius-sm: 4px;        /* buttons, inputs, chips, footnote pills */
+  --radius-md: 8px;        /* popovers, infoboxes, figures, toasts, search */
+  --radius-card: 10px;     /* card + panel corners (cards: top corners only) */
+  --radius-pill: 999px;    /* reserved; use sparingly */
+}

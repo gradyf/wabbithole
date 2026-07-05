@@ -1,0 +1,12 @@
+/* Motion. Cards settle like paper — quick, decelerating, no bounce.
+   Every animation has a reduced-motion fallback (see css/components.css). */
+
+:root {
+  --ease-settle: cubic-bezier(0.2, 0.9, 0.25, 1); /* @kind other */ /* spawn, reopen, panels */
+  --ease-swift: cubic-bezier(0.4, 0, 0.2, 1); /* @kind other */ /* hovers, tints, fades */
+  --ease-drop: cubic-bezier(0.5, 0, 0.75, 0.5); /* @kind other */ /* dismissals fall away */
+
+  --dur-fast: 120ms; /* @kind other */ /* hover/press feedback */
+  --dur-med: 240ms; /* @kind other */ /* toasts, popovers, panel slide */
+  --dur-slow: 400ms; /* @kind other */ /* card spawn / reopen travel */
+}

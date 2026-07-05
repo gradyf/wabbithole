@@ -1,0 +1,83 @@
+/* Wabbit Hole color system.
+   Index cards: bright white card stock on a cool desk, ruled accents, ink.
+   "Portal" indigo carries links, the product's one true mechanic; carrot is
+   the header-rule accent and small delight. Deliberately NOT Wikipedia's
+   palette (see readme, Legal). */
+
+:root {
+  /* ---- base: card stock ---- */
+  --wh-paper-0: #ffffff; /* the card, where reading happens */
+  --wh-paper-1: #eef0f3; /* the desk, app backdrop behind the stack */
+  --wh-paper-2: #e4e7ec; /* sunken wells, hover tints */
+  --wh-paper-3: #d5d9e0; /* pressed tints */
+
+  /* ---- base: ink (cool near-blacks) ---- */
+  --wh-ink-1: #21242b;   /* primary text */
+  --wh-ink-2: #5c6370;   /* secondary text, captions */
+  --wh-ink-3: #99a0ac;   /* faint: ordinals, placeholders, disabled */
+
+  /* ---- base: lines & ruling ---- */
+  --wh-line-1: #e3e6eb;  /* hairline */
+  --wh-line-2: #c9cfd8;  /* strong border, input strokes */
+  --wh-rule: #bccce4;    /* index-card ruling blue. Decorative only, never text */
+
+  /* ---- base: portal (link indigo, the brand's action color) ---- */
+  --wh-portal: #4353c5;
+  --wh-portal-deep: #303ea3;
+  --wh-portal-tint: #e9ecf9;
+
+  /* ---- base: trail (visited plum) ---- */
+  --wh-plum: #8a5878;
+
+  /* ---- base: carrot (brand accent + the card's header rule) ---- */
+  --wh-carrot: #d9772e;
+  --wh-carrot-deep: #a75718;
+  --wh-carrot-tint: #f8e4cc;
+
+  /* ---- base: clay (dead links, errors) ---- */
+  --wh-clay: #a44a34;
+  --wh-clay-tint: #f4e1dc;
+
+  /* ---- base: moss (rare success) ---- */
+  --wh-moss: #5d7d4b;
+
+  /* ================= semantic aliases ================= */
+
+  /* surfaces */
+  --surface-app: var(--wh-paper-1);      /* the desk */
+  --surface-card: var(--wh-paper-0);     /* article cards, panels, popovers */
+  --surface-sunken: var(--wh-paper-2);   /* wells, hover fills */
+  --surface-pressed: var(--wh-paper-3);
+  --surface-inverse: var(--wh-ink-1);    /* toasts */
+
+  /* text */
+  --text-primary: var(--wh-ink-1);
+  --text-secondary: var(--wh-ink-2);
+  --text-faint: var(--wh-ink-3);
+  --text-inverse: var(--wh-paper-1);
+
+  /* links: one class per behavior (see css/article.css) */
+  --link: var(--wh-portal);              /* internal: spawns a card */
+  --link-hover: var(--wh-portal-deep);
+  --link-tint: var(--wh-portal-tint);
+  --link-visited: var(--wh-plum);        /* already followed */
+  --link-dead: var(--wh-clay);           /* article doesn't exist; inert */
+  --link-external: var(--wh-portal);     /* leaves the burrow, marked ↗ */
+
+  /* accents & status */
+  --accent: var(--wh-carrot);
+  --accent-deep: var(--wh-carrot-deep);
+  --accent-tint: var(--wh-carrot-tint);  /* footnote flash, ::selection */
+  --danger: var(--wh-clay);
+  --danger-tint: var(--wh-clay-tint);
+  --success: var(--wh-moss);
+
+  /* lines & focus */
+  --border-hairline: var(--wh-line-1);
+  --border-strong: var(--wh-line-2);
+  --focus-ring: var(--wh-portal);
+
+  /* depth: dimming the stack */
+  --veil-buried: rgba(238, 240, 243, 0.55); /* over buried card bodies */
+  --scrim: rgba(30, 33, 40, 0.35);          /* behind overlay panels */
+}

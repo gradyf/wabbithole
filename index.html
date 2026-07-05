@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Wabbit Hole · a Wikipedia wander</title>
+    <meta name="description" content="Follow one link. Then another. A stacked-card way to wander Wikipedia. Your trail stays visible the whole way down." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:title" content="Wabbit Hole" />
+    <meta property="og:description" content="A stacked-card way to wander Wikipedia. The stack is the history." />
+  </head>
+  <body>
+    <header class="wh-topbar" id="topbar" hidden>
+      <button class="wh-wordmark" id="btn-home" title="Start over">wabbit hole</button>
+      <span class="wh-topbar-spacer"></span>
+      <button class="wh-btn" data-variant="ghost" id="btn-back" hidden aria-label="Back">
+        <span class="wh-icon" data-name="arrow-left" aria-hidden="true"></span><span class="wh-btn-label">Back</span>
+      </button>
+      <span class="wh-depth" id="depth-chip">
+        <span class="wh-icon" data-name="layers" aria-hidden="true"></span><span id="depth-text">1 card</span>
+      </span>
+      <button class="wh-btn" data-variant="ghost" id="btn-trail" aria-expanded="false" aria-controls="sidebar">
+        <span class="wh-icon" data-name="list" aria-hidden="true"></span>Trail
+      </button>
+      <button class="wh-btn" data-variant="soft" id="btn-share" aria-label="Share">
+        <span class="wh-icon" data-name="link" aria-hidden="true"></span><span class="wh-btn-label">Share</span>
+      </button>
+    </header>
+
+    <div class="wh-main" id="main-row" hidden>
+      <aside class="wh-sidebar" id="sidebar" data-collapsed aria-label="Trail">
+        <div class="wh-sidebar-inner">
+          <div class="wh-sidebar-head">
+            <h2 class="wh-panel-title">Trail</h2>
+            <button class="wh-iconbtn" data-size="sm" id="btn-collapse-trail" aria-label="Collapse trail" title="Collapse trail">
+              <span class="wh-icon" data-name="arrow-left" aria-hidden="true"></span>
+            </button>
+          </div>
+          <div class="wh-sidebar-body" id="trail-list" role="list"></div>
+          <div class="wh-sidebar-foot">
+            <button class="wh-btn" data-variant="soft" data-size="sm" id="btn-export">
+              <span class="wh-icon" data-name="download" aria-hidden="true"></span>Export Markdown
+            </button>
+            <span class="wh-topbar-spacer"></span>
+            <span class="wh-trail-count" id="trail-count"></span>
+          </div>
+        </div>
+      </aside>
+      <main class="wh-stage" id="stage" aria-label="Card stack"></main>
+    </div>
+
+    <section class="wh-entry" id="entry">
+      <main class="wh-entry-main">
+        <span class="wh-wordmark" data-size="hero">wabbit hole</span>
+        <p class="wh-entry-tagline">Follow one link. Then another. The stack is the story of how you got here.</p>
+        <div class="wh-entry-search">
+          <div class="wh-search" data-size="lg">
+            <div class="wh-search-box">
+              <span class="wh-icon" data-name="search" aria-hidden="true"></span>
+              <input
+                id="search-input"
+                type="text"
+                role="combobox"
+                aria-expanded="false"
+                aria-autocomplete="list"
+                aria-controls="search-results"
+                aria-label="Search for a Wikipedia article to start from"
+                placeholder="start anywhere…"
+                autocomplete="off"
+                spellcheck="false"
+              />
+            </div>
+            <div class="wh-search-pop" id="search-results" role="listbox" hidden></div>
+          </div>
+        </div>
+        <button class="wh-btn" data-variant="ghost" id="btn-random">
+          <span class="wh-icon" data-name="shuffle" aria-hidden="true"></span>or fall in somewhere random ↓
+        </button>
+      </main>
+      <footer class="wh-entry-foot">
+        Article text from
+        <a href="https://en.wikipedia.org" target="_blank" rel="noopener noreferrer">Wikipedia</a>, reformatted, under
+        <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>.
+        Not affiliated with the Wikimedia Foundation. · <button class="wh-linklike" id="btn-about">About</button> ·
+        <a href="https://buymeacoffee.com/grayforrester" target="_blank" rel="noopener noreferrer">Buy me a coffee</a>
+      </footer>
+    </section>
+
+    <div class="wh-overlay" id="about-overlay" hidden>
+      <div class="wh-panel" data-side="center" role="dialog" aria-modal="true" aria-label="About">
+        <div class="wh-panel-head">
+          <h2 class="wh-panel-title">About</h2>
+          <button class="wh-iconbtn" data-size="sm" id="btn-close-about" aria-label="Close">
+            <span class="wh-icon" data-name="x" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="wh-panel-body" data-pad>
+          <div class="wh-prose wh-about-prose">
+            <p><b>Wabbit Hole</b> is a way to wander Wikipedia. Every link you follow opens a new card on top of the last one, and the stack of cards is the story of how you got here.</p>
+            <p>Article text comes from Wikipedia's public APIs and is available under <a href="https://creativecommons.org/licenses/by-sa/4.0/" data-link="ext" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a> (some content under GFDL). Articles are modified: reformatted for reading, with navigation boxes, hatnotes, and similar elements omitted. Each card links to the original article, whose history page lists its authors. Images are licensed individually by their authors.</p>
+            <p>Everything runs in your browser: no accounts, no tracking. This project is not endorsed by or affiliated with the Wikimedia Foundation.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wh-toast" id="toast" role="status" hidden></div>
+    <div class="sr-only" id="announcer" aria-live="polite"></div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

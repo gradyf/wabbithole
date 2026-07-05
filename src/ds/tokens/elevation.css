@@ -1,0 +1,23 @@
+/* Elevation. Cool gray shadows, card stock on a desk; never brown or black.
+   Depth = position in the stack. */
+
+:root {
+  /* resting chrome: chips, inputs */
+  --shadow-1: 0 1px 2px rgba(33, 38, 48, 0.08);
+
+  /* hovering chrome: dropdown-ish, raised buttons */
+  --shadow-2: 0 2px 6px -1px rgba(33, 38, 48, 0.12),
+              0 1px 2px rgba(33, 38, 48, 0.07);
+
+  /* article cards: sheets rising from the bottom of the viewport;
+     the soft edge is cast upward onto the cards behind */
+  --shadow-sheet: 0 -10px 28px -14px rgba(33, 38, 48, 0.4),
+                  0 -1px 0 rgba(33, 38, 48, 0.05);
+
+  /* floating layers: panels, search popover */
+  --shadow-float: 0 18px 48px -16px rgba(33, 38, 48, 0.3),
+                  0 4px 12px -6px rgba(33, 38, 48, 0.12);
+
+  /* toasts (ink pill on the desk) */
+  --shadow-toast: 0 8px 24px -8px rgba(19, 22, 28, 0.4);
+}
