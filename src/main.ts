@@ -3,6 +3,7 @@ import './app.css';
 
 import { articleUrl, getRandomTitle, normTitle, searchTitles } from './api';
 import { Stack, type CardNode } from './stack';
+import { initTrivia } from './trivia';
 
 const $ = <T extends HTMLElement>(id: string): T => document.getElementById(id) as T;
 
@@ -28,6 +29,13 @@ function showToast(msg: string): void {
   toastTimer = window.setTimeout(() => (toast.hidden = true), 3500);
 }
 
+const trivia = initTrivia({
+  onToast: showToast,
+  announce(msg) {
+    announcer.textContent = msg;
+  },
+});
+
 const stack = new Stack(stage, {
   onPathChange(path: CardNode[]) {
     const n = path.length;
@@ -43,6 +51,9 @@ const stack = new Stack(stage, {
     announcer.textContent = msg;
   },
   onToast: showToast,
+  onExtract(node) {
+    trivia.openExtract(node);
+  },
 });
 
 // ---- entry: search + random ------------------------------------------------
@@ -257,6 +268,12 @@ $('btn-export').addEventListener('click', () => {
   a.click();
   URL.revokeObjectURL(a.href);
 });
+
+// ---- trivia entry points -----------------------------------------------------
+
+$('btn-bank').addEventListener('click', () => trivia.openBank());
+$('btn-entry-bank').addEventListener('click', () => trivia.openBank());
+$('btn-signin').addEventListener('click', () => trivia.signIn());
 
 // ---- about panel ------------------------------------------------------------------
 

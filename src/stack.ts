@@ -34,6 +34,8 @@ export interface StackEvents {
   onPathChange(path: CardNode[]): void;
   onAnnounce(msg: string): void;
   onToast(msg: string): void;
+  /** When set, cards offer an "Extract trivia" action (the trivia layer). */
+  onExtract?(node: CardNode): void;
 }
 
 const LICENSE_URL = 'https://creativecommons.org/licenses/by-sa/4.0/';
@@ -464,6 +466,23 @@ export class Stack {
       sub.className = 'wh-card-title-sub';
       sub.textContent = node.subtitle;
       inner.appendChild(sub);
+    }
+    if (this.events.onExtract) {
+      const actions = document.createElement('div');
+      actions.className = 'wh-card-actions';
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'wh-btn';
+      btn.dataset.variant = 'soft';
+      btn.dataset.size = 'sm';
+      const icon = document.createElement('span');
+      icon.className = 'wh-icon';
+      icon.dataset.name = 'sparkles';
+      icon.setAttribute('aria-hidden', 'true');
+      btn.append(icon, 'Extract trivia');
+      btn.addEventListener('click', () => this.events.onExtract!(node));
+      actions.appendChild(btn);
+      inner.appendChild(actions);
     }
     return inner;
   }
