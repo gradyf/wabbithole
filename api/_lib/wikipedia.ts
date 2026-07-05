@@ -3,7 +3,7 @@
 // the client): when the canonical API URLs change (announced for H2 2026),
 // this file is the whole blast radius.
 
-import { HttpError } from './http';
+import { HttpError } from './http.js';
 
 const USER_AGENT = 'WabbitHole/0.2 (https://wabbithole.io; gradyforrester3@gmail.com) extraction';
 

@@ -4,10 +4,10 @@
 //   POST {action:'remove', bankItemIds}  -> unlink items
 
 import { and, desc, eq, inArray } from 'drizzle-orm';
-import { requireUser } from './_lib/auth';
-import { db } from './_lib/db';
-import { HttpError, handle, json, readJson } from './_lib/http';
-import { articleQuestions, articles, bankItems } from './_lib/schema';
+import { requireUser } from './_lib/auth.js';
+import { db } from './_lib/db.js';
+import { HttpError, handle, json, readJson } from './_lib/http.js';
+import { articleQuestions, articles, bankItems } from './_lib/schema.js';
 
 interface BankPost {
   action?: unknown;

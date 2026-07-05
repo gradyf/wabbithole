@@ -2,7 +2,7 @@
 // The frontend sends Authorization: Bearer <session token>.
 
 import { createClerkClient } from '@clerk/backend';
-import { HttpError } from './http';
+import { HttpError } from './http.js';
 
 const clerk = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY!,

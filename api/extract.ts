@@ -6,18 +6,18 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import { and, eq, gte, lt, ne, sql } from 'drizzle-orm';
-import { requireUser } from './_lib/auth';
-import { db } from './_lib/db';
-import { HttpError, handle, json, readJson, requireMethod } from './_lib/http';
+import { requireUser } from './_lib/auth.js';
+import { db } from './_lib/db.js';
+import { HttpError, handle, json, readJson, requireMethod } from './_lib/http.js';
 import {
   EXTRACTION_MODEL,
   PROMPT_VERSION,
   QuestionsSchema,
   buildExtractionPrompt,
   validQuestions,
-} from './_lib/prompt';
-import { articleQuestions, articles, extractions } from './_lib/schema';
-import { fetchArticleSource, validLang } from './_lib/wikipedia';
+} from './_lib/prompt.js';
+import { articleQuestions, articles, extractions } from './_lib/schema.js';
+import { fetchArticleSource, validLang } from './_lib/wikipedia.js';
 
 const DAILY_CAP = 25; // fresh extractions per user per day; cache hits are free
 const STALE_LOCK_MS = 2 * 60 * 1000;

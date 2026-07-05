@@ -3,10 +3,10 @@
 // per row (clerk_user_id in the WHERE).
 
 import { and, eq, sql } from 'drizzle-orm';
-import { requireUser } from './_lib/auth';
-import { db } from './_lib/db';
-import { HttpError, handle, json, readJson, requireMethod } from './_lib/http';
-import { bankItems } from './_lib/schema';
+import { requireUser } from './_lib/auth.js';
+import { db } from './_lib/db.js';
+import { HttpError, handle, json, readJson, requireMethod } from './_lib/http.js';
+import { bankItems } from './_lib/schema.js';
 
 interface ResultsBody {
   results?: unknown;
