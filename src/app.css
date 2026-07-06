@@ -828,6 +828,9 @@ html[data-reading] .wh-card[data-state="active"] > .wh-tab .wh-tab-title {
 }
 .wh-quiz-choices { display: flex; flex-direction: column; gap: var(--space-2); }
 .wh-quiz-choice {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
   font-family: var(--font-sans);
   font-size: var(--text-ui);
   text-align: left;
@@ -841,6 +844,9 @@ html[data-reading] .wh-card[data-state="active"] > .wh-tab .wh-tab-title {
 }
 .wh-quiz-choice:hover:not(:disabled) { background: var(--surface-sunken); border-color: var(--border-strong); }
 .wh-quiz-choice:disabled { cursor: default; color: var(--text-secondary); }
+/* number hint: which key picks this choice; stays out of the way, dims once answered */
+.wh-quiz-kbd { flex: none; }
+.wh-quiz-choice:disabled .wh-quiz-kbd { opacity: 0.55; }
 .wh-quiz-choice[data-result="correct"] {
   border-color: var(--accent);
   background: var(--accent-tint);

@@ -235,7 +235,10 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
   }
   function closeOverlay(el: HTMLElement): void {
     el.hidden = true;
-    if (el === quizOverlay) flushQuizResults();
+    if (el === quizOverlay) {
+      detachQuizKeys();
+      flushQuizResults();
+    }
   }
 
   for (const el of [extractOverlay, quizOverlay]) {
@@ -970,11 +973,68 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
   let quizIndex = 0;
   let quizCorrect = 0;
   let quizResults: Array<{ bankItemId: string; correct: boolean }> = [];
+  // The button Enter/Space should run: the advance button while feedback shows,
+  // the finish button on the end screen. Null while a question is unanswered,
+  // which is the state where 1-4 pick a choice instead.
+  let quizPrimaryBtn: HTMLButtonElement | null = null;
 
   quizBtn.addEventListener('click', () => {
     if (bank.length === 0) return;
     startQuiz();
   });
+
+  // ---- quiz keyboard control -------------------------------------------------
+  // Attached only while the quiz overlay is open (see startQuiz/closeOverlay),
+  // so digits never reach the reading path or the search box once it closes.
+  let quizKeysAttached = false;
+
+  function attachQuizKeys(): void {
+    if (quizKeysAttached) return;
+    document.addEventListener('keydown', onQuizKeydown);
+    quizKeysAttached = true;
+  }
+  function detachQuizKeys(): void {
+    if (!quizKeysAttached) return;
+    document.removeEventListener('keydown', onQuizKeydown);
+    quizKeysAttached = false;
+    quizPrimaryBtn = null;
+  }
+
+  function onQuizKeydown(e: KeyboardEvent): void {
+    if (quizOverlay.hidden) return;
+    // Never hijack typing: search box, or any input/textarea/contenteditable.
+    const t = e.target as HTMLElement | null;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable))
+      return;
+    // Only act when the quiz is the topmost open overlay (later in the DOM
+    // paints on top), so a dialog stacked above it keeps the keys.
+    const overlays = Array.from(document.querySelectorAll<HTMLElement>('.wh-overlay')).filter(
+      (o) => !o.hidden,
+    );
+    if (overlays[overlays.length - 1] !== quizOverlay) return;
+    // Leave shortcuts (cmd/ctrl/alt combos) to the browser.
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+    // Feedback or end screen: Enter/Space runs the primary action. When it is
+    // already focused the browser activates it natively, so we don't double-fire.
+    if (quizPrimaryBtn) {
+      if (e.key === 'Enter' || e.key === ' ' || e.code === 'Space') {
+        if (document.activeElement === quizPrimaryBtn) return;
+        e.preventDefault();
+        quizPrimaryBtn.click();
+      }
+      return;
+    }
+
+    // Open, unanswered question: 1-4 (digit row or numpad) pick that choice.
+    const digit = e.code.match(/^(?:Digit|Numpad)([1-4])$/);
+    if (!digit) return;
+    const btn = quizBody.querySelectorAll<HTMLButtonElement>('.wh-quiz-choice')[Number(digit[1]) - 1];
+    if (btn && !btn.disabled) {
+      e.preventDefault();
+      btn.click();
+    }
+  }
 
   function startQuiz(): void {
     quizItems = shuffle([...bank]).slice(0, QUIZ_SIZE);
@@ -982,10 +1042,13 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     quizCorrect = 0;
     quizResults = [];
     openOverlay(quizOverlay);
+    attachQuizKeys();
     renderQuizQuestion();
   }
 
   function renderQuizQuestion(): void {
+    // Back to the answering state: 1-4 pick, Enter/Space are inert until feedback.
+    quizPrimaryBtn = null;
     const item = quizItems[quizIndex];
     quizProgress.textContent = `${quizIndex + 1} of ${quizItems.length}`;
 
@@ -999,7 +1062,16 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'wh-quiz-choice';
-      btn.textContent = choice;
+      // Number hint: which digit picks this choice. Hidden from assistive tech
+      // so the choice reads as just its text.
+      const kbd = document.createElement('span');
+      kbd.className = 'wh-kbd wh-quiz-kbd';
+      kbd.textContent = String(i + 1);
+      kbd.setAttribute('aria-hidden', 'true');
+      const label = document.createElement('span');
+      label.className = 'wh-quiz-choice-label';
+      label.textContent = choice;
+      btn.append(kbd, label);
       btn.addEventListener('click', () => answerQuiz(item, i, choices));
       choices.appendChild(btn);
     });
@@ -1047,6 +1119,8 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     actions.className = 'wh-quiz-actions';
     actions.appendChild(next);
     quizBody.append(feedback, actions);
+    // Feedback is showing: Enter/Space now advance.
+    quizPrimaryBtn = next;
     next.focus();
     opts.announce(feedback.textContent);
   }
@@ -1083,6 +1157,9 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     actions.className = 'wh-quiz-actions';
     actions.append(again, done);
     quizBody.replaceChildren(score, word, actions);
+    // End screen: the solid finish button is primary, so Enter closes the round.
+    quizPrimaryBtn = done;
+    done.focus();
     opts.announce(`Quiz finished. ${quizCorrect} of ${quizItems.length} right.`);
   }
 
