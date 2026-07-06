@@ -3,11 +3,57 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Wabbit Hole · a Wikipedia wander</title>
-    <meta name="description" content="Fall down the Wikipedia rabbit hole. A stacked-card way to wander Wikipedia. Your trail stays visible the whole way down." />
+    <title>Fall down the Wikipedia rabbit hole · Wabbit Hole</title>
+    <meta name="description" content="Fall down the Wikipedia rabbit hole. Every article you open lands as an index card, so the whole trail of how you got here stays visible." />
+    <link rel="canonical" href="https://wabbithole.io/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="/favicon.png" type="image/png" />
-    <meta property="og:title" content="Wabbit Hole" />
-    <meta property="og:description" content="A stacked-card way to wander Wikipedia. The stack is the history." />
+    <meta name="theme-color" content="#d9772e" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Wabbit Hole" />
+    <meta property="og:url" content="https://wabbithole.io/" />
+    <meta property="og:title" content="Fall down the Wikipedia rabbit hole · Wabbit Hole" />
+    <meta property="og:description" content="Fall down the Wikipedia rabbit hole. Every article you open lands as an index card, so the whole trail of how you got here stays visible." />
+    <meta property="og:image" content="https://wabbithole.io/og-card.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Wabbit Hole — fall down the Wikipedia rabbit hole" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Fall down the Wikipedia rabbit hole · Wabbit Hole" />
+    <meta name="twitter:description" content="Fall down the Wikipedia rabbit hole. Every article you open lands as an index card, so the whole trail of how you got here stays visible." />
+    <meta name="twitter:image" content="https://wabbithole.io/og-card.png" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebSite",
+            "@id": "https://wabbithole.io/#website",
+            "name": "Wabbit Hole",
+            "url": "https://wabbithole.io/",
+            "description": "Fall down the Wikipedia rabbit hole. Every article you open lands as an index card, so the whole trail of how you got here stays visible."
+          },
+          {
+            "@type": "WebApplication",
+            "name": "Wabbit Hole",
+            "url": "https://wabbithole.io/",
+            "applicationCategory": "GameApplication",
+            "operatingSystem": "Any",
+            "browserRequirements": "Requires JavaScript.",
+            "isAccessibleForFree": true,
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "description": "A stacked-card way to wander Wikipedia: every link opens a new index card on the pile, so your whole trail stays visible. Race a daily Wikipedia challenge and bank trivia as you go."
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <header class="wh-topbar" id="topbar" hidden>
@@ -182,6 +228,16 @@
               <span class="wh-icon" data-name="layers" aria-hidden="true"></span>
               <h3>The stack is your trail</h3>
               <p>Jump back to any card, share the whole path, or export it as Markdown.</p>
+            </div>
+            <div class="wh-landing-col">
+              <span class="wh-icon" data-name="chevron-right" aria-hidden="true"></span>
+              <h3>Race the daily game</h3>
+              <p>Every day sets a new start and finish. Race from one Wikipedia article to the other in the fewest links, and keep your streak alive as the days add up.</p>
+            </div>
+            <div class="wh-landing-col">
+              <span class="wh-icon" data-name="book-marked" aria-hidden="true"></span>
+              <h3>Bank trivia as you read</h3>
+              <p>Turn any article into quiz questions, pulled from its text by a language model, and save the ones you like to your trivia bank. Quiz yourself whenever you want. Questions can be wrong, so each one links back to its source article.</p>
             </div>
           </div>
         </section>

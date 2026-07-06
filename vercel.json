@@ -1,3 +1,13 @@
 {
-  "rewrites": [{ "source": "/t/:path*", "destination": "/api/t" }]
+  "rewrites": [{ "source": "/t/:path*", "destination": "/api/t" }],
+  "headers": [
+    {
+      "source": "/api/((?!og).*)",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+    }
+  ]
 }

@@ -1,0 +1,7 @@
+# Wabbit Hole — wander Wikipedia. Crawl freely; /api/og serves the share
+# card, so /api is intentionally left open (non-og endpoints send an
+# X-Robots-Tag: noindex header of their own).
+User-agent: *
+Allow: /
+
+Sitemap: https://wabbithole.io/sitemap.xml
