@@ -32,7 +32,13 @@ export async function isUnlimited(userId: string): Promise<boolean> {
   }
   try {
     const user = await clerk.users.getUser(userId);
-    const match = user.emailAddresses.some((e) => unlimitedEmails.has(e.emailAddress.toLowerCase()));
+    // Verified addresses only: anyone can attach someone else's email to
+    // their own profile unverified, which must never grant unlimited.
+    const match = user.emailAddresses.some(
+      (e) =>
+        e.verification?.status === 'verified' &&
+        unlimitedEmails.has(e.emailAddress.toLowerCase()),
+    );
     unlimitedByUser.set(userId, match);
     return match;
   } catch {
