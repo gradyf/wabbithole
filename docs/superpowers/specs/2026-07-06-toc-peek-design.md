@@ -213,3 +213,17 @@ All three touched files are inside the `app.css + main.ts + stack.ts` territory 
 4. **Close/jump ordering:** the one-shot scroll-close listener must be detached *before* the jump's smooth scroll; `closeTocPeek()` must be idempotent.
 5. **Mount point:** must be `.wh-cardpos` (position:absolute, establishes containing block via its `transform`, escapes `.wh-card`'s `overflow:hidden`). A reviewer moving the mount to `.wh-card` reintroduces clipping — leave a comment.
 6. **`data-deep` on restore:** verify the explicit toggles in `restoreTopScroll`/`layout` fire, since the scroll path early-returns on delta 0 for restored cards (§3).
+
+---
+
+## Decisions locked by Gray (2026-07-06, via AskUserQuestion)
+
+- **D1 progress underline: SHIP.** The 2px reading-progress fill on the
+  tab's bottom fold is in scope (opt-in section becomes required).
+- **D2 trigger visibility: whenever scrolled deep** (`data-deep`,
+  the >96px fold superset), not reading-state-only.
+- **D3 glyph: a DISTINCT outline icon, not `list`.** Use a Lucide
+  outline mark (e.g. `align-left` or `list-tree`, whichever subsets
+  cleanest into the existing icon pipeline) so the peek trigger never
+  shares a mark with Trail. The inline `.wh-toc` summary keeps its
+  current icon.
