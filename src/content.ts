@@ -98,11 +98,12 @@ export function processArticle(raw: string): ProcessedArticle {
     wrap.appendChild(table);
   }
 
-  // Perf: let the browser skip layout/paint of off-screen sections.
-  for (const section of srcBody.querySelectorAll('section[data-mw-section-id]')) {
-    (section as HTMLElement).style.contentVisibility = 'auto';
-    (section as HTMLElement).style.containIntrinsicSize = 'auto 500px';
-  }
+  // NB: no `content-visibility: auto` on sections. It applies layout
+  // containment, making each <section> its own block formatting context —
+  // which traps the right-floated infobox inside the lead section so
+  // following sections can't flow beside it (a dead band left of tall
+  // infoboxes, e.g. Xanthi FC Arena). Cross-section float flow, matching
+  // Wikipedia, wins over that per-section paint optimization.
 
   // Contents data: the article's own section headings (h2, with h3 children).
   const toc: TocEntry[] = [];
