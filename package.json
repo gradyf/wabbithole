@@ -17,6 +17,7 @@
     "@clerk/clerk-js": "^6.23.0",
     "@clerk/ui": "^1.24.1",
     "@neondatabase/serverless": "^1.1.0",
+    "@vercel/og": "^0.11.1",
     "dompurify": "^3.2.4",
     "drizzle-orm": "^0.45.2",
     "zod": "^4.4.3"

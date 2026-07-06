@@ -362,12 +362,24 @@ $('btn-back').addEventListener('click', () => {
 
 $('btn-share').addEventListener('click', async () => {
   const n = stack.path.length;
-  const suffix = n === 1 ? '1 card.' : `${n} cards.`;
+  // A trail with >=1 card gets the crawlable /t/ share URL (the hash URL still
+  // works; /t/ is the unfurlable skin). The route caps at 12 titles, so a longer
+  // trail shares its first 12 — and the toast says so.
+  const SHARE_MAX = 12;
+  let link = location.href;
+  let suffix = n === 1 ? '1 card.' : `${n} cards.`;
+  if (n >= 1) {
+    const titles = stack.path
+      .slice(0, SHARE_MAX)
+      .map((node) => encodeURIComponent(node.title.replace(/ /g, '_')));
+    link = `${location.origin}/t/${stack.lang}/${titles.join('/')}`;
+    if (n > SHARE_MAX) suffix += ' (first 12)';
+  }
   try {
-    await navigator.clipboard.writeText(location.href);
+    await navigator.clipboard.writeText(link);
     showToast(`Trail link copied. ${suffix}`);
   } catch {
-    showToast(location.href);
+    showToast(link);
   }
 });
 
