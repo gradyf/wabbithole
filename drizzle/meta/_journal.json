@@ -8,6 +8,13 @@
       "when": 1783277292842,
       "tag": "0000_amused_hulk",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1783312544343,
+      "tag": "0001_shocking_havok",
+      "breakpoints": true
     }
   ]
 }

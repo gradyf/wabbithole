@@ -3,6 +3,7 @@
 
 import { sql } from 'drizzle-orm';
 import {
+  boolean,
   index,
   integer,
   jsonb,
@@ -87,5 +88,26 @@ export const bankItems = pgTable(
   (t) => [
     uniqueIndex('bank_user_question_idx').on(t.clerkUserId, t.questionId),
     index('bank_user_idx').on(t.clerkUserId),
+  ],
+);
+
+// A saved trail is the linear card path (same {lang, title} nodes the URL hash
+// encodes). Signed-in users keep a library of named trails plus one auto trail
+// that resumes their last session; the partial unique index is what pins "one
+// auto trail per user" (a bare boolean predicate, like extractions' lock).
+export const trails = pgTable(
+  'trails',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    clerkUserId: text('clerk_user_id').notNull(),
+    title: text('title').notNull(),
+    nodes: jsonb('nodes').$type<{ lang: string; title: string }[]>().notNull(),
+    isAuto: boolean('is_auto').notNull().default(false),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex('trails_user_auto_idx').on(t.clerkUserId).where(sql`${t.isAuto}`),
+    index('trails_user_idx').on(t.clerkUserId),
   ],
 );
