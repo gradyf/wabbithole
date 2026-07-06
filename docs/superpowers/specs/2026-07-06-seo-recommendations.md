@@ -96,3 +96,9 @@ The first-paint LCP element is a 152 KB PNG of what is essentially vector art (`
   SVG logo) DEFERRED.
 - Minors M1-M8: approved by standing agreement, implemented with this
   task set.
+
+## Copy + trails sign-off (Gray, 2026-07-06)
+
+- X3 "How it works" blocks: APPROVED AS WRITTEN (Race the daily game;
+  Bank trivia as you read — including the questions-can-be-wrong caveat).
+- Featured trails: ALL TEN APPROVED as shipped in api/_lib/featured.ts.
