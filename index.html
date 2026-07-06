@@ -24,8 +24,8 @@
       <button class="wh-btn" data-variant="ghost" id="btn-trail" aria-expanded="false" aria-controls="sidebar">
         <span class="wh-icon" data-name="list" aria-hidden="true"></span>Trail
       </button>
-      <button class="wh-btn" data-variant="ghost" id="btn-bank" hidden aria-label="Trivia bank">
-        <span class="wh-icon" data-name="book-marked" aria-hidden="true"></span><span class="wh-btn-label">Bank</span>
+      <button class="wh-btn" data-variant="ghost" id="btn-bank" hidden aria-label="Trivia">
+        <span class="wh-icon" data-name="book-marked" aria-hidden="true"></span><span class="wh-btn-label">Trivia</span>
       </button>
       <button class="wh-btn" data-variant="soft" id="btn-share" aria-label="Share">
         <span class="wh-icon" data-name="link" aria-hidden="true"></span><span class="wh-btn-label">Share</span>
@@ -90,16 +90,22 @@
         </div>
       </aside>
       <main class="wh-stage" id="stage" aria-label="Card stack"></main>
-      <aside class="wh-sidebar" id="bank-sidebar" data-side="right" data-collapsed aria-label="Trivia bank">
+      <aside class="wh-sidebar" id="bank-sidebar" data-side="right" data-collapsed aria-label="Trivia">
         <div class="wh-sidebar-inner">
-          <div class="wh-sidebar-head">
-            <h2 class="wh-panel-title">Trivia bank</h2>
-            <button class="wh-iconbtn" data-size="sm" id="btn-close-bank" aria-label="Collapse bank" title="Collapse bank">
+          <div class="wh-sidebar-head wh-trivia-head">
+            <div class="wh-seg" role="tablist" aria-label="Trivia views">
+              <button class="wh-seg-btn" type="button" role="tab" id="tab-bank" aria-controls="bank-body" aria-selected="true" tabindex="0">Bank</button>
+              <button class="wh-seg-btn" type="button" role="tab" id="tab-stats" aria-controls="stats-body" aria-selected="false" tabindex="-1">Stats</button>
+              <button class="wh-seg-btn" type="button" role="tab" id="tab-history" aria-controls="history-body" aria-selected="false" tabindex="-1">History</button>
+            </div>
+            <button class="wh-iconbtn" data-size="sm" id="btn-close-bank" aria-label="Collapse trivia" title="Collapse trivia">
               <span class="wh-icon" data-name="chevron-right" aria-hidden="true"></span>
             </button>
           </div>
-          <div class="wh-sidebar-body" id="bank-body"></div>
-          <div class="wh-sidebar-foot">
+          <div class="wh-sidebar-body" id="bank-body" role="tabpanel" aria-labelledby="tab-bank" tabindex="0"></div>
+          <div class="wh-sidebar-body" id="stats-body" role="tabpanel" aria-labelledby="tab-stats" tabindex="0" hidden></div>
+          <div class="wh-sidebar-body" id="history-body" role="tabpanel" aria-labelledby="tab-history" tabindex="0" hidden></div>
+          <div class="wh-sidebar-foot" id="bank-foot">
             <span class="wh-trail-count" id="bank-count"></span>
             <span class="wh-topbar-spacer"></span>
             <button class="wh-btn" data-size="sm" id="btn-quiz" disabled>

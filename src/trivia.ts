@@ -63,6 +63,12 @@ interface BankItem {
   articleTitle: string;
 }
 
+interface QuizSession {
+  playedAt: string;
+  questionCount: number;
+  correctCount: number;
+}
+
 class TriviaError extends Error {
   constructor(
     public code: string,
@@ -446,14 +452,42 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     extractFoot.hidden = true;
   }
 
-  // ---- bank (docked right sidebar, mirroring the Trail) ----------------------
+  // ---- trivia portal (docked right sidebar: Bank | Stats | History) ----------
+  // One right dock, three tabs. Bank and Stats both read the /api/bank payload
+  // (Stats is derived client-side); History has its own endpoint. The bank foot
+  // (count + Quiz me) is contextual to the Bank tab.
 
   const bankSidebar = $('bank-sidebar');
   const bankBody = $('bank-body');
+  const statsBody = $('stats-body');
+  const historyBody = $('history-body');
+  const bankFoot = $('bank-foot');
   const bankCount = $('bank-count');
   const quizBtn = $<HTMLButtonElement>('btn-quiz');
   let bank: BankItem[] = [];
   let bankRemaining: number | null = 0;
+  let sessions: QuizSession[] = [];
+  let sessionTotals = { rounds: 0, questions: 0, correct: 0 };
+
+  type TriviaTab = 'bank' | 'stats' | 'history';
+  const TAB_ORDER: TriviaTab[] = ['bank', 'stats', 'history'];
+  const tabButtons: Record<TriviaTab, HTMLButtonElement> = {
+    bank: $('tab-bank'),
+    stats: $('tab-stats'),
+    history: $('tab-history'),
+  };
+  const tabPanels: Record<TriviaTab, HTMLElement> = {
+    bank: bankBody,
+    stats: statsBody,
+    history: historyBody,
+  };
+  // Last-used tab persists within the session, so reopening the portal lands
+  // where you left it (spec allows Bank-only; last-used is the friendlier pick).
+  let activeTab: TriviaTab = 'bank';
+  // Per-open caches: cleared each time the portal opens so tab content is fresh,
+  // reused while it stays open so switching tabs doesn't refetch.
+  let bankFetched = false;
+  let historyFetched = false;
 
   function bankOpen(): boolean {
     return !bankSidebar.hasAttribute('data-collapsed');
@@ -466,21 +500,114 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     $('btn-bank').setAttribute('aria-expanded', String(open));
   }
 
-  async function refreshBank(): Promise<void> {
+  async function loadBankData(): Promise<void> {
     const data = await apiFetch<{ items: BankItem[]; remaining: number | null }>('/api/bank');
     bank = data.items;
     bankRemaining = data.remaining;
-    renderBank();
+    bankFetched = true;
   }
 
-  /** Topbar/entry action. In a session this toggles the docked sidebar; on
-   * the entry screen there is no stage to dock to, so it quizzes directly. */
+  async function loadHistory(): Promise<void> {
+    const data = await apiFetch<{ sessions: QuizSession[]; totals: typeof sessionTotals }>(
+      '/api/quiz-results',
+    );
+    sessions = data.sessions;
+    sessionTotals = data.totals;
+    historyFetched = true;
+  }
+
+  // Re-pull the bank and repaint whichever bank-derived tab is showing. Used
+  // after an add lands while the portal is open.
+  async function refreshBank(): Promise<void> {
+    await loadBankData();
+    if (activeTab === 'bank') renderBank();
+    else if (activeTab === 'stats') renderStats();
+  }
+
+  function setActiveTab(tab: TriviaTab): void {
+    activeTab = tab;
+    for (const key of TAB_ORDER) {
+      const selected = key === tab;
+      tabButtons[key].setAttribute('aria-selected', String(selected));
+      tabButtons[key].tabIndex = selected ? 0 : -1;
+      tabPanels[key].hidden = !selected;
+    }
+    bankFoot.hidden = tab !== 'bank';
+  }
+
+  function renderTabError(container: HTMLElement, err: unknown): void {
+    const note = document.createElement('p');
+    note.className = 'wh-trivia-intro';
+    note.textContent = err instanceof TriviaError ? err.message : "That didn't load. Try again.";
+    container.replaceChildren(note);
+  }
+
+  async function loadTab(tab: TriviaTab): Promise<void> {
+    if (tab === 'bank') {
+      if (bankFetched) return renderBank();
+      bankBody.replaceChildren(skeleton());
+      quizBtn.disabled = true;
+      bankCount.textContent = '';
+      try {
+        await loadBankData();
+        renderBank();
+      } catch (err) {
+        renderTabError(bankBody, err);
+      }
+    } else if (tab === 'stats') {
+      if (bankFetched) return renderStats();
+      statsBody.replaceChildren(skeleton());
+      try {
+        await loadBankData();
+        renderStats();
+      } catch (err) {
+        renderTabError(statsBody, err);
+      }
+    } else {
+      if (historyFetched) return renderHistory();
+      historyBody.replaceChildren(skeleton());
+      try {
+        await loadHistory();
+        renderHistory();
+      } catch (err) {
+        renderTabError(historyBody, err);
+      }
+    }
+  }
+
+  function selectTab(tab: TriviaTab): void {
+    if (tab === activeTab) return;
+    setActiveTab(tab);
+    void loadTab(tab);
+  }
+
+  for (const tab of TAB_ORDER) {
+    tabButtons[tab].addEventListener('click', () => selectTab(tab));
+  }
+  // Arrow keys move selection within the tablist (roving tabindex); Home/End
+  // jump to the ends. Plain Tab/click still work.
+  tabButtons.bank.parentElement?.addEventListener('keydown', (e) => {
+    const idx = TAB_ORDER.indexOf(activeTab);
+    let next = idx;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (idx + 1) % TAB_ORDER.length;
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (idx - 1 + TAB_ORDER.length) % TAB_ORDER.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = TAB_ORDER.length - 1;
+    else return;
+    e.preventDefault();
+    const tab = TAB_ORDER[next];
+    selectTab(tab);
+    tabButtons[tab].focus();
+  });
+
+  /** Topbar/entry action. In a session this toggles the docked portal; on the
+   * entry screen there is no stage to dock to, so it quizzes directly. */
   function openBank(): void {
     void (async () => {
       if (!(await requireAuth({ type: 'bank' }))) return;
       if ($('main-row').hidden) {
         try {
-          await refreshBank();
+          await loadBankData();
         } catch {
           opts.onToast("The bank didn't load. Try again.");
           return;
@@ -494,17 +621,11 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
         return;
       }
       setBankSidebar(true);
-      bankBody.replaceChildren(skeleton());
-      quizBtn.disabled = true;
-      bankCount.textContent = '';
-      try {
-        await refreshBank();
-      } catch (err) {
-        const note = document.createElement('p');
-        note.className = 'wh-trivia-intro';
-        note.textContent = err instanceof TriviaError ? err.message : "The bank didn't load. Try again.";
-        bankBody.replaceChildren(note);
-      }
+      // Fresh data each open; the last-used tab within the session stays put.
+      bankFetched = false;
+      historyFetched = false;
+      setActiveTab(activeTab);
+      void loadTab(activeTab);
     })();
   }
 
@@ -512,20 +633,13 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
 
   function renderBank(): void {
     if (bank.length === 0) {
-      const empty = document.createElement('div');
-      empty.className = 'wh-note';
-      const icon = document.createElement('span');
-      icon.className = 'wh-icon';
-      icon.dataset.name = 'sparkles';
-      icon.setAttribute('aria-hidden', 'true');
-      const title = document.createElement('p');
-      title.className = 'wh-note-title';
-      title.textContent = 'Nothing here yet';
-      const body = document.createElement('p');
-      body.className = 'wh-note-body';
-      body.textContent = 'Open any card and press Extract trivia to start your bank.';
-      empty.append(icon, title, body);
-      bankBody.replaceChildren(empty);
+      bankBody.replaceChildren(
+        noteBlock(
+          'sparkles',
+          'Nothing here yet',
+          'Open any card and press Extract trivia to start your bank.',
+        ),
+      );
       quizBtn.disabled = true;
       bankCount.textContent = '';
       return;
@@ -606,7 +720,13 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     });
     summary.appendChild(remove);
     row.appendChild(summary);
+    row.appendChild(revealBlock(item));
+    return row;
+  }
 
+  // The answer + explanation drawer shared by bank rows and the Stats
+  // "toughest questions" list (same reveal pattern, .wh-bank-reveal styling).
+  function revealBlock(item: BankItem): HTMLElement {
     const reveal = document.createElement('div');
     reveal.className = 'wh-bank-reveal';
     const answer = document.createElement('p');
@@ -619,8 +739,219 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
       why.textContent = item.explanation;
       reveal.appendChild(why);
     }
-    row.appendChild(reveal);
+    return reveal;
+  }
+
+  // ---- stats (derived client-side from the /api/bank payload) ----------------
+
+  function renderStats(): void {
+    if (bank.length === 0) {
+      statsBody.replaceChildren(
+        noteBlock(
+          'sparkles',
+          'No stats yet',
+          'Extract trivia from a card, then quiz yourself. Your accuracy shows up here.',
+        ),
+      );
+      return;
+    }
+
+    const frag = document.createDocumentFragment();
+
+    // Headline: total questions · answered at least once · overall accuracy.
+    const answeredItems = bank.filter((b) => b.timesAnswered > 0).length;
+    const totalAnswered = bank.reduce((s, b) => s + b.timesAnswered, 0);
+    const totalCorrect = bank.reduce((s, b) => s + b.timesCorrect, 0);
+    const overall = totalAnswered > 0 ? Math.round((totalCorrect / totalAnswered) * 100) : null;
+
+    const head = document.createElement('div');
+    head.className = 'wh-stats-head';
+    head.append(
+      statCell(String(bank.length), bank.length === 1 ? 'question' : 'questions'),
+      statCell(String(answeredItems), 'answered'),
+      statCell(overall === null ? '—' : `${overall}%`, 'accuracy'),
+    );
+    frag.appendChild(head);
+
+    // Per article, worst accuracy first (the useful study order). Articles with
+    // nothing answered sink to the bottom as "not quizzed yet".
+    const groups = new Map<string, BankItem[]>();
+    for (const item of bank) {
+      const key = `${item.articleLang}:${item.articleTitle}`;
+      (groups.get(key) ?? groups.set(key, []).get(key)!).push(item);
+    }
+    const articleStats = Array.from(groups.values()).map((items) => {
+      const answered = items.reduce((s, b) => s + b.timesAnswered, 0);
+      const correct = items.reduce((s, b) => s + b.timesCorrect, 0);
+      return {
+        title: items[0].articleTitle.replace(/_/g, ' '),
+        count: items.length,
+        answered,
+        accuracy: answered > 0 ? correct / answered : null,
+      };
+    });
+    articleStats.sort((a, b) => {
+      if (a.accuracy === null && b.accuracy === null) return a.title.localeCompare(b.title);
+      if (a.accuracy === null) return 1;
+      if (b.accuracy === null) return -1;
+      if (a.accuracy !== b.accuracy) return a.accuracy - b.accuracy;
+      return b.answered - a.answered;
+    });
+
+    frag.appendChild(sectionHead('By article'));
+    const list = document.createElement('div');
+    list.className = 'wh-stats-articles';
+    for (const a of articleStats) list.appendChild(articleStatRow(a));
+    frag.appendChild(list);
+
+    // Toughest questions: bottom 5 by accuracy, min 2 attempts.
+    const tough = bank
+      .filter((b) => b.timesAnswered >= 2)
+      .sort(
+        (a, b) =>
+          a.timesCorrect / a.timesAnswered - b.timesCorrect / b.timesAnswered ||
+          b.timesAnswered - a.timesAnswered,
+      )
+      .slice(0, 5);
+    if (tough.length > 0) {
+      frag.appendChild(sectionHead('Toughest questions'));
+      for (const item of tough) frag.appendChild(toughRow(item));
+    }
+
+    statsBody.replaceChildren(frag);
+  }
+
+  function statCell(value: string, label: string): HTMLElement {
+    const cell = document.createElement('div');
+    cell.className = 'wh-stat';
+    const v = document.createElement('span');
+    v.className = 'wh-stat-value';
+    v.textContent = value;
+    const l = document.createElement('span');
+    l.className = 'wh-stat-label';
+    l.textContent = label;
+    cell.append(v, l);
+    return cell;
+  }
+
+  function sectionHead(text: string): HTMLElement {
+    const h = document.createElement('h3');
+    h.className = 'wh-stats-section';
+    h.textContent = text;
+    return h;
+  }
+
+  function articleStatRow(a: {
+    title: string;
+    count: number;
+    accuracy: number | null;
+  }): HTMLElement {
+    const row = document.createElement('div');
+    row.className = 'wh-stats-article';
+    const title = document.createElement('span');
+    title.className = 'wh-stats-article-title';
+    title.textContent = a.title;
+    const meta = document.createElement('span');
+    meta.className = 'wh-stats-article-meta';
+    const qn = a.count === 1 ? '1 question' : `${a.count} questions`;
+    meta.textContent =
+      a.accuracy === null ? `${qn} · not quizzed yet` : `${qn} · ${Math.round(a.accuracy * 100)}%`;
+    row.append(title, meta);
     return row;
+  }
+
+  function toughRow(item: BankItem): HTMLElement {
+    const row = document.createElement('details');
+    row.className = 'wh-bank-item';
+    const summary = document.createElement('summary');
+    const caret = document.createElement('span');
+    caret.className = 'wh-icon wh-bank-caret';
+    caret.dataset.name = 'chevron-right';
+    caret.setAttribute('aria-hidden', 'true');
+    const text = document.createElement('span');
+    text.className = 'wh-bank-q';
+    text.textContent = item.prompt;
+    const stats = document.createElement('span');
+    stats.className = 'wh-bank-stats';
+    stats.textContent = `${item.timesCorrect}/${item.timesAnswered}`;
+    stats.title = `Answered right ${item.timesCorrect} of ${item.timesAnswered} times`;
+    summary.append(caret, text, stats);
+    row.append(summary, revealBlock(item));
+    return row;
+  }
+
+  // ---- history (own endpoint: the user's past quiz rounds) -------------------
+
+  function renderHistory(): void {
+    if (sessions.length === 0) {
+      historyBody.replaceChildren(
+        noteBlock(
+          'circle-check',
+          'No rounds yet',
+          'Quiz yourself from the Bank tab and your past rounds show up here.',
+        ),
+      );
+      return;
+    }
+
+    const frag = document.createDocumentFragment();
+    const agg = document.createElement('p');
+    agg.className = 'wh-history-agg';
+    const roundWord = sessionTotals.rounds === 1 ? '1 round' : `${sessionTotals.rounds} rounds`;
+    const avg =
+      sessionTotals.questions > 0
+        ? Math.round((sessionTotals.correct / sessionTotals.questions) * 100)
+        : null;
+    agg.textContent = avg === null ? roundWord : `${roundWord} · ${avg}% average`;
+    frag.appendChild(agg);
+
+    const list = document.createElement('div');
+    list.className = 'wh-history-list';
+    for (const s of sessions) {
+      const row = document.createElement('div');
+      row.className = 'wh-history-row';
+      const score = document.createElement('span');
+      score.className = 'wh-history-score';
+      score.textContent = `${s.correctCount}/${s.questionCount}`;
+      const when = document.createElement('span');
+      when.className = 'wh-history-when';
+      when.textContent = relativeTime(s.playedAt);
+      row.append(score, when);
+      list.appendChild(row);
+    }
+    frag.appendChild(list);
+    historyBody.replaceChildren(frag);
+  }
+
+  function relativeTime(iso: string): string {
+    const then = new Date(iso).getTime();
+    if (Number.isNaN(then)) return '';
+    const min = Math.floor((Date.now() - then) / 60_000);
+    if (min < 1) return 'just now';
+    if (min < 60) return `${min}m ago`;
+    const hr = Math.floor(min / 60);
+    if (hr < 24) return `${hr}h ago`;
+    const day = Math.floor(hr / 24);
+    if (day < 7) return `${day}d ago`;
+    return new Date(then).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+
+  // A centered empty/nudge block, shared by the three tabs.
+  function noteBlock(iconName: string, title: string, body: string): HTMLElement {
+    const wrap = document.createElement('div');
+    wrap.className = 'wh-note';
+    const icon = document.createElement('span');
+    icon.className = 'wh-icon';
+    icon.dataset.name = iconName;
+    icon.setAttribute('aria-hidden', 'true');
+    const t = document.createElement('p');
+    t.className = 'wh-note-title';
+    t.textContent = title;
+    const b = document.createElement('p');
+    b.className = 'wh-note-body';
+    b.textContent = body;
+    wrap.append(icon, t, b);
+    return wrap;
   }
 
   // ---- quiz ---------------------------------------------------------------------
@@ -752,9 +1083,13 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     if (quizResults.length === 0) return;
     const results = quizResults;
     quizResults = [];
+    const questionCount = results.length;
+    const correctCount = results.filter((r) => r.correct).length;
+    // A fresh round means the (cached) History tab is now stale.
+    historyFetched = false;
     void apiFetch('/api/quiz-results', {
       method: 'POST',
-      body: JSON.stringify({ results }),
+      body: JSON.stringify({ results, questionCount, correctCount }),
     }).catch(() => {
       // Stats are a courtesy; a failed flush shouldn't interrupt anything.
     });

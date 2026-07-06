@@ -1,4 +1,4 @@
-// Drizzle schema for the trivia layer. Four tables; Clerk is the source of
+// Drizzle schema for the trivia layer. Seven tables; Clerk is the source of
 // truth for users, so rows are keyed by clerk_user_id (no users table).
 
 import { sql } from 'drizzle-orm';
@@ -134,4 +134,20 @@ export const trails = pgTable(
     uniqueIndex('trails_user_auto_idx').on(t.clerkUserId).where(sql`${t.isAuto}`),
     index('trails_user_idx').on(t.clerkUserId),
   ],
+);
+
+// One row per completed quiz round, so History can show a play-by-play. Rows
+// are append-only (no unique constraint — a user genuinely plays many rounds);
+// the (user, time) index serves the "my last N rounds, newest first" query and
+// the aggregate line. question_count/correct_count are the round's tally.
+export const quizSessions = pgTable(
+  'quiz_sessions',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    clerkUserId: text('clerk_user_id').notNull(),
+    playedAt: timestamp('played_at', { withTimezone: true }).notNull().defaultNow(),
+    questionCount: integer('question_count').notNull(),
+    correctCount: integer('correct_count').notNull(),
+  },
+  (t) => [index('quiz_sessions_user_time_idx').on(t.clerkUserId, t.playedAt)],
 );

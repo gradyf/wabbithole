@@ -264,7 +264,7 @@ function buildTabCluster(node: CardNode): HTMLElement {
     home,
     extract,
     clusterBtn('list', 'Trail', () => $('btn-trail').click()),
-    clusterBtn('book-marked', 'Bank', () => $('btn-bank').click()),
+    clusterBtn('book-marked', 'Trivia', () => $('btn-bank').click()),
     clusterBtn('link', 'Share', () => $('btn-share').click()),
   );
   return cluster;
