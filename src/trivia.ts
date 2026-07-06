@@ -408,8 +408,10 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
           const key = `${panelNode.lang}:${panelNode.title}`;
           const prev = statusCache.get(key);
           statusCache.set(key, { hasQuestions: true, inBank: (prev?.inBank ?? 0) + kept });
+          // Scope to the active card: since the trail cascade, ancestor peek
+          // strips are also non-hidden and precede the active card in DOM order.
           const visibleBtn = document.querySelector<HTMLButtonElement>(
-            '.wh-cardpos:not([hidden]) .wh-card-actions .wh-btn',
+            '.wh-cardpos[data-active] .wh-card-actions .wh-btn',
           );
           if (visibleBtn) paintExtractButton(visibleBtn, statusCache.get(key)!);
         }
