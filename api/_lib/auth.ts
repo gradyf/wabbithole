@@ -4,7 +4,7 @@
 import { createClerkClient } from '@clerk/backend';
 import { HttpError } from './http.js';
 
-const clerk = createClerkClient({
+export const clerk = createClerkClient({
   secretKey: process.env.CLERK_SECRET_KEY!,
   publishableKey:
     process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? process.env.VITE_CLERK_PUBLISHABLE_KEY,

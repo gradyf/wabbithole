@@ -33,7 +33,8 @@ interface ApiQuestion {
 interface ExtractResponse {
   article: { title: string; displayTitle: string; description?: string };
   cached: boolean;
-  weeklyRemaining: number;
+  // null for owner accounts, which have no weekly cap.
+  weeklyRemaining: number | null;
   weeklyCap: number;
   questions: ApiQuestion[];
 }
@@ -258,7 +259,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
   const extractTitle = $('extract-title');
   const extractRemaining = $('extract-remaining');
   const addBtn = $<HTMLButtonElement>('btn-add-bank');
-  let panelRemaining = 0;
+  let panelRemaining: number | null = 0;
   let panelNode: { lang: string; title: string } | null = null;
 
   function openExtract(node: { lang: string; title: string }): void {
@@ -299,7 +300,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
       label.className = 'wh-pick';
       const input = document.createElement('input');
       input.type = 'checkbox';
-      input.checked = i < data.weeklyRemaining;
+      input.checked = data.weeklyRemaining === null || i < data.weeklyRemaining;
       input.value = q.id;
       input.addEventListener('change', updateAddButton);
       const box = document.createElement('span');
@@ -346,18 +347,20 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     // unchecked rows grey out rather than letting a doomed add through.
     const inputs = Array.from(extractBody.querySelectorAll<HTMLInputElement>('.wh-pick input'));
     const selected = inputs.filter((i) => i.checked).length;
-    const atLimit = selected >= panelRemaining;
+    const atLimit = panelRemaining !== null && selected >= panelRemaining;
     for (const input of inputs) {
       const off = atLimit && !input.checked;
       input.disabled = off;
       input.closest('.wh-pick')?.toggleAttribute('data-disabled', off);
     }
     extractRemaining.textContent =
-      panelRemaining === 0
-        ? 'No room this week'
-        : panelRemaining === 1
-          ? '1 left this week'
-          : `${panelRemaining} left this week`;
+      panelRemaining === null
+        ? ''
+        : panelRemaining === 0
+          ? 'No room this week'
+          : panelRemaining === 1
+            ? '1 left this week'
+            : `${panelRemaining} left this week`;
     addBtn.disabled = selected === 0;
     addBtn.textContent = '';
     const icon = document.createElement('span');
@@ -376,7 +379,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     addBtn.disabled = true;
     void (async () => {
       try {
-        const res = await apiFetch<{ added: number; remaining: number }>('/api/bank', {
+        const res = await apiFetch<{ added: number; remaining: number | null }>('/api/bank', {
           method: 'POST',
           body: JSON.stringify({ action: 'add', questionIds: ids }),
         });
@@ -447,7 +450,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
   const bankCount = $('bank-count');
   const quizBtn = $<HTMLButtonElement>('btn-quiz');
   let bank: BankItem[] = [];
-  let bankRemaining = 0;
+  let bankRemaining: number | null = 0;
 
   function bankOpen(): boolean {
     return !bankSidebar.hasAttribute('data-collapsed');
@@ -461,7 +464,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
   }
 
   async function refreshBank(): Promise<void> {
-    const data = await apiFetch<{ items: BankItem[]; remaining: number }>('/api/bank');
+    const data = await apiFetch<{ items: BankItem[]; remaining: number | null }>('/api/bank');
     bank = data.items;
     bankRemaining = data.remaining;
     renderBank();
@@ -544,7 +547,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     bankBody.replaceChildren(frag);
     quizBtn.disabled = false;
     const n = bank.length === 1 ? '1 question' : `${bank.length} questions`;
-    bankCount.textContent = `${n} · ${bankRemaining} left this week`;
+    bankCount.textContent = bankRemaining === null ? n : `${n} · ${bankRemaining} left this week`;
   }
 
   function bankRow(item: BankItem): HTMLElement {

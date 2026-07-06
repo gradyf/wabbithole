@@ -78,15 +78,15 @@ async function add(userId: string, questionIds: string[]): Promise<Response> {
     const remaining = await weeklyRemaining(userId, tx);
     if (remaining === 0 || existing.length === 0) return { added: 0, remaining };
 
-    // The cap bounds how many can land this request; the client mirrors this.
+    // Owner accounts (remaining null) take everything; otherwise the cap
+    // bounds how many can land this request. The client mirrors this.
+    const limit = remaining ?? existing.length;
     const inserted = await tx
       .insert(bankItems)
-      .values(
-        existing.slice(0, remaining).map((q) => ({ clerkUserId: userId, questionId: q.id })),
-      )
+      .values(existing.slice(0, limit).map((q) => ({ clerkUserId: userId, questionId: q.id })))
       .onConflictDoNothing()
       .returning({ id: bankItems.id });
-    return { added: inserted.length, remaining: remaining - inserted.length };
+    return { added: inserted.length, remaining: remaining === null ? null : remaining - inserted.length };
   });
 
   if (result.added === 0 && result.remaining === 0) {

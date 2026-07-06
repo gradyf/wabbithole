@@ -9,7 +9,7 @@ import { and, eq, gte, lt, ne, sql } from 'drizzle-orm';
 import { requireUser } from './_lib/auth.js';
 import { db } from './_lib/db.js';
 import { HttpError, handle, json, readJson, requireMethod } from './_lib/http.js';
-import { WEEKLY_ADD_CAP, weeklyRemaining } from './_lib/limits.js';
+import { WEEKLY_ADD_CAP, isUnlimited, weeklyRemaining } from './_lib/limits.js';
 import {
   EXTRACTION_MODEL,
   PROMPT_VERSION,
@@ -57,7 +57,7 @@ export default handle(async (request) => {
   const cached = await loadQuestions(articleRow.id);
   if (cached.length > 0) return respond(source, cached, true, userId);
 
-  await enforceDailyCap(userId);
+  if (!(await isUnlimited(userId))) await enforceDailyCap(userId);
   const lockId = await acquireLock(articleRow.id, userId);
 
   // Someone may have finished between our cache read and the lock.
