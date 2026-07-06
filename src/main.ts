@@ -107,11 +107,83 @@ const stack = new Stack(stage, {
       topbar.removeAttribute('aria-hidden');
     }
   },
+  onTabExtras(node, tab) {
+    tab.appendChild(buildTabCluster(node));
+  },
 });
 
+// ---- slim action cluster: the reading-state controls inside the tab --------
+// A right-aligned icon group appended to each card's tab, shown only while
+// reading the active card. Clicks delegate to the real topbar buttons so aria
+// and behavior live in one place; the topbar is inert while reading, but a
+// programmatic .click() still fires those handlers.
+
+function clusterBtn(iconName: string, label: string, onClick: () => void): HTMLButtonElement {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'wh-iconbtn';
+  btn.setAttribute('aria-label', label);
+  btn.title = label;
+  const icon = document.createElement('span');
+  icon.className = 'wh-icon';
+  icon.dataset.name = iconName;
+  icon.setAttribute('aria-hidden', 'true');
+  btn.appendChild(icon);
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    onClick();
+  });
+  return btn;
+}
+
+function buildTabCluster(node: CardNode): HTMLElement {
+  const cluster = document.createElement('div');
+  cluster.className = 'wh-tab-cluster';
+
+  const home = document.createElement('button');
+  home.type = 'button';
+  home.className = 'wh-iconbtn wh-tab-home';
+  home.setAttribute('aria-label', 'Home');
+  home.title = 'Home';
+  const mark = document.createElement('span');
+  mark.className = 'wh-logo-mark';
+  mark.setAttribute('aria-hidden', 'true');
+  home.appendChild(mark);
+  home.addEventListener('click', (e) => {
+    e.stopPropagation();
+    $('btn-home').click();
+  });
+
+  // Same extract path and status decoration as the in-article button.
+  const extract = document.createElement('button');
+  extract.type = 'button';
+  extract.className = 'wh-iconbtn wh-tab-extract';
+  extract.setAttribute('aria-label', 'Extract trivia');
+  extract.title = 'Extract trivia';
+  const spark = document.createElement('span');
+  spark.className = 'wh-icon';
+  spark.dataset.name = 'sparkles';
+  spark.setAttribute('aria-hidden', 'true');
+  extract.appendChild(spark);
+  extract.addEventListener('click', (e) => {
+    e.stopPropagation();
+    trivia.openExtract({ lang: node.lang, title: node.title });
+  });
+  trivia.decorateExtractButton({ lang: node.lang, title: node.title }, extract);
+
+  cluster.append(
+    home,
+    extract,
+    clusterBtn('list', 'Trail', () => $('btn-trail').click()),
+    clusterBtn('book-marked', 'Bank', () => $('btn-bank').click()),
+    clusterBtn('link', 'Share', () => $('btn-share').click()),
+  );
+  return cluster;
+}
+
 // ---- reading state: exits owned by main.ts -----------------------------------
-// Opening either sidebar, or moving keyboard focus into the topbar or the
-// active card tab, restores full chrome.
+// Opening either sidebar, or moving keyboard focus into the topbar, restores
+// full chrome. Focus inside the tab cluster deliberately does not exit.
 const bankSidebar = $('bank-sidebar');
 const readingExitObserver = new MutationObserver((records) => {
   for (const r of records) {
@@ -126,7 +198,9 @@ readingExitObserver.observe(bankSidebar, { attributes: true, attributeFilter: ['
 
 document.addEventListener('focusin', (e) => {
   const t = e.target as HTMLElement | null;
-  if (t && (t.closest('#topbar') || t.closest('.wh-card[data-state="active"] > .wh-tab'))) {
+  // Topbar only: focus inside the tab cluster must keep reading state, so the
+  // slim actions stay usable by keyboard (see reading-space spec, criterion 8).
+  if (t && t.closest('#topbar')) {
     stack.exitReading();
   }
 });

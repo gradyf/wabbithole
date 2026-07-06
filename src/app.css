@@ -86,9 +86,40 @@ html[data-reading] .wh-card[data-state="active"] > .wh-tab .wh-tab-sub {
   display: none;
 }
 
+/* slim action cluster: right-aligned icon group inside the active tab, shown
+   only while reading. Collapsed to zero footprint otherwise so it never
+   squeezes the full-chrome tab or overflows the mobile card. */
+.wh-tab-cluster {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+  max-width: 0;
+  overflow: hidden;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+html[data-reading] .wh-card[data-state="active"] > .wh-tab .wh-tab-cluster {
+  max-width: none;
+  overflow: visible;
+  visibility: visible;
+  opacity: 1;
+}
+/* let the title yield room to the cluster in the slim tab */
+html[data-reading] .wh-card[data-state="active"] > .wh-tab .wh-tab-title {
+  min-width: 0;
+}
+.wh-tab-cluster .wh-iconbtn { flex: none; }
+.wh-tab-home .wh-logo-mark { height: 18px; }
+/* extract button carries the status label for screen readers via aria-label;
+   the injected text stays icon-only in the tab */
+.wh-tab-extract { font-size: 0; }
+
 @media (prefers-reduced-motion: reduce) {
   .wh-topbar,
-  .wh-card[data-state="active"] > .wh-tab {
+  .wh-card[data-state="active"] > .wh-tab,
+  .wh-tab-cluster {
     transition: none;
   }
 }
