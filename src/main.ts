@@ -99,6 +99,10 @@ const trivia = initTrivia({
     updateLandingAuth();
     updateHomeScreens();
     trailsUI.setSignedIn(signedIn);
+    // Race account sync (Task 10): signing in uploads local results and
+    // fetches the server streak. Clerk loads lazily, so this always fires
+    // after `race` is assigned below; anonymous visitors never get here.
+    race?.setSignedIn(signedIn);
   },
 });
 
@@ -175,6 +179,10 @@ const trailsUI = initTrails({
 // observes it (spawns count; a canonical-title arrival at the target wins).
 race = initRace({
   lang: () => stack.lang,
+  // Same discipline as trails: trivia.ts owns Clerk and the authenticated
+  // api(); race.ts only calls it while signed in, so anonymous racing fires
+  // no /api/race request and never loads the Clerk bundle.
+  api: trivia.api,
   startArticle(lang, title) {
     setSidebar(false);
     void stack.startWith(lang, title);

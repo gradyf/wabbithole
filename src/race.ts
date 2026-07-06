@@ -2,8 +2,10 @@
 // article to a target, links only. Score = cards spawned (start = 1). Win =
 // the active card's canonical title equals the target. Results + streaks AND
 // the in-progress scored run persist to localStorage `wh-race` (a reload
-// resumes the same attempt; only deliberate exits forfeit). No account, no
-// API — signed-out players get the whole game (account sync is a later task).
+// resumes the same attempt; only deliberate exits forfeit). Signed-out players
+// get the whole game with zero API calls; signed in, results best-effort sync
+// to the account (/api/race) so streaks follow the player across devices —
+// every sync failure is silent and the local game never depends on it.
 
 import { normTitle } from './api';
 import pairs from './race/pairs.json';
@@ -115,14 +117,18 @@ function save(store: RaceStore): void {
   }
 }
 
-/** First scored attempt of a date sticks (upsert-ignore), matching the eventual
+/** First scored attempt of a date sticks (upsert-ignore), matching the server's
  *  account-sync semantics. Recording a result also finishes any persisted
- *  in-progress run — every scored finish (win or miss) routes through here. */
-function recordResult(key: string, rec: RaceRecord): void {
+ *  in-progress run — every scored finish (win or miss) routes through here.
+ *  Returns whether THIS record was stored (false = the date already had one),
+ *  so callers only sync outcomes that actually count. */
+function recordResult(key: string, rec: RaceRecord): boolean {
   const store = load();
   delete store.run;
-  if (!store.byDate[key]) store.byDate[key] = rec;
+  const fresh = !store.byDate[key];
+  if (fresh) store.byDate[key] = rec;
   save(store);
+  return fresh;
 }
 
 function prevKey(key: string): string {
@@ -171,6 +177,10 @@ function fmtElapsed(ms: number): string {
 
 export interface RaceDeps {
   lang(): string;
+  /** Authenticated JSON fetch from the trivia layer (Bearer token). Only ever
+   *  called while signed in — invoking it forces the Clerk bundle to load, so
+   *  every call site gates on the signedIn flag (the trails.ts discipline). */
+  api<T>(path: string, init?: RequestInit): Promise<T>;
   /** Open an article as the top of a fresh stack (wraps Stack.startWith). */
   startArticle(lang: string, title: string): void;
   /** Return to the entry screen (empty stack). */
@@ -205,6 +215,9 @@ export interface RaceUI {
    *  link, so a scored run records a miss (otherwise navigating the hash to
    *  the target would be a cheap "win"). Freeplay just ends. */
   onDeepLink(): void;
+  /** main.ts calls this whenever the signed-in state is (re)determined.
+   *  Turning signed-in kicks off the best-effort account sync. */
+  setSignedIn(signedIn: boolean): void;
 }
 
 const $ = <T extends HTMLElement>(id: string): T => document.getElementById(id) as T;
@@ -237,6 +250,120 @@ export function initRace(deps: RaceDeps): RaceUI {
   function today(): { key: string; pair: Pair } {
     const key = dayKey();
     return { key, pair: pairForKey(key) };
+  }
+
+  // ---- account sync (signed-in only) ----------------------------------------
+  // Anonymous play never touches /api/race and never loads Clerk: every call
+  // below is gated on `signedIn`, mirroring trails.ts. All sync is best-effort
+  // fire-and-forget — a failure leaves the localStorage game untouched.
+
+  let signedIn = false;
+  /** The server-computed streak from the last GET, or null when signed out /
+   *  not yet fetched. Server results also fold into byDate (see syncAccount). */
+  let serverStreak: number | null = null;
+  let syncSeq = 0;
+
+  interface ServerResult {
+    raceDate: string;
+    cards: number;
+    elapsedMs: number;
+    won: boolean;
+  }
+
+  function postResult(key: string, pair: Pair, rec: RaceRecord): void {
+    if (!signedIn) return;
+    void deps
+      .api('/api/race', {
+        method: 'POST',
+        body: JSON.stringify({
+          action: 'result',
+          raceDate: key,
+          startTitle: pair.start,
+          targetTitle: pair.target,
+          cards: rec.cards,
+          elapsedMs: rec.elapsedMs,
+          won: rec.won,
+        }),
+      })
+      .catch(() => {
+        /* best-effort: the local record stands; sign-in sync retries later */
+      });
+  }
+
+  /** Every scored finish routes through here: persist locally, and — only when
+   *  the record actually stored (first of its date) — best-effort upload it.
+   *  The win/miss UX never waits on, or hears about, the network. */
+  function recordAndSync(key: string, pair: Pair, rec: RaceRecord): void {
+    if (recordResult(key, rec)) postResult(key, pair, rec);
+  }
+
+  /** Sign-in / boot-with-session: upload any local results the server may lack
+   *  (its first-of-date upsert-ignore makes blind re-sends idempotent — no
+   *  reconciliation reads), then GET and trust the server: its results fold
+   *  into byDate and its streak is preferred for display. A local byDate entry
+   *  stores no titles, but the pair for a date is deterministic (pairForKey),
+   *  so uploads reconstruct them. */
+  function syncAccount(): void {
+    const seq = ++syncSeq;
+    void (async () => {
+      for (const [date, rec] of Object.entries(load().byDate)) {
+        if (!signedIn || seq !== syncSeq) return;
+        const pair = pairForKey(date);
+        try {
+          await deps.api('/api/race', {
+            method: 'POST',
+            body: JSON.stringify({
+              action: 'result',
+              raceDate: date,
+              startTitle: pair.start,
+              targetTitle: pair.target,
+              cards: rec.cards,
+              elapsedMs: rec.elapsedMs,
+              won: rec.won,
+            }),
+          });
+        } catch {
+          /* best-effort; move on */
+        }
+      }
+      try {
+        const data = await deps.api<{ results: ServerResult[]; streak: number }>('/api/race');
+        if (!signedIn || seq !== syncSeq) return;
+        const store = load();
+        for (const r of data.results) {
+          store.byDate[r.raceDate] = { cards: r.cards, won: r.won, elapsedMs: r.elapsedMs };
+        }
+        save(store);
+        serverStreak = data.streak;
+        renderCards();
+      } catch {
+        /* the local view stands until the next sign-in sync */
+      }
+    })();
+  }
+
+  function setSignedIn(next: boolean): void {
+    const was = signedIn;
+    signedIn = next;
+    if (next && !was) syncAccount();
+    if (!next && was) {
+      serverStreak = null;
+      syncSeq++; // cancel any in-flight sync's writes
+      renderCards();
+    }
+  }
+
+  /** The streak shown on race cards + the win overlay. Signed in, the server
+   *  streak is preferred (it remembers other devices and more history than the
+   *  merged window) — but the server anchors at the most recent WON date
+   *  because it can't know the player's local today, so its number alone can
+   *  be stale. Local liveness gates it: when the locally-computed chain is
+   *  broken (a lost or skipped day), the streak really is 0/dead no matter
+   *  what the server remembers. */
+  function displayStreak(byDate: Record<string, RaceRecord>, key: string): number {
+    const local = computeStreak(byDate, key);
+    if (serverStreak === null || local === 0) return local;
+    return Math.max(local, serverStreak);
   }
 
   // ---- banner ---------------------------------------------------------------
@@ -300,7 +427,7 @@ export function initRace(deps: RaceDeps): RaceUI {
    *  a scored run records a miss under ITS OWN day; freeplay just ends. */
   function endAsMiss(msg: string): void {
     if (mode === 'racing' && run) {
-      recordResult(run.key, {
+      recordAndSync(run.key, run.pair, {
         cards: run.cards,
         won: false,
         elapsedMs: Date.now() - run.startedAt,
@@ -318,7 +445,7 @@ export function initRace(deps: RaceDeps): RaceUI {
     const cards = run.cards;
     const scored = mode === 'racing';
     run.won = true;
-    if (scored) recordResult(key, { cards, won: true, elapsedMs });
+    if (scored) recordAndSync(key, pair, { cards, won: true, elapsedMs });
     mode = 'off';
     hideBanner();
     openWin(key, pair, cards, elapsedMs, scored);
@@ -329,7 +456,7 @@ export function initRace(deps: RaceDeps): RaceUI {
 
   // ---- win overlay ----------------------------------------------------------
   function openWin(key: string, pair: Pair, cards: number, elapsedMs: number, scored: boolean): void {
-    const streak = scored ? computeStreak(load().byDate, key) : 0;
+    const streak = scored ? displayStreak(load().byDate, key) : 0;
     winBody.replaceChildren();
 
     const kicker = document.createElement('p');
@@ -395,7 +522,7 @@ export function initRace(deps: RaceDeps): RaceUI {
     pendingLeave = null;
     if (!leave || !proceed) return;
     if (mode === 'racing' && run) {
-      recordResult(run.key, {
+      recordAndSync(run.key, run.pair, {
         cards: run.cards,
         won: false,
         elapsedMs: Date.now() - run.startedAt,
@@ -455,7 +582,7 @@ export function initRace(deps: RaceDeps): RaceUI {
     const { key, pair } = today();
     const store = load();
     const rec = store.byDate[key];
-    const streak = computeStreak(store.byDate, key);
+    const streak = displayStreak(store.byDate, key);
     container.replaceChildren();
 
     const card = document.createElement('div');
@@ -554,12 +681,18 @@ export function initRace(deps: RaceDeps): RaceUI {
   function onBoot(initial: { lang: string; titles: string[] } | null): { lang: string; titles: string[] } | null {
     const saved = load().run;
     if (!saved) return null;
+    // onBoot runs before Clerk loads, so this records locally only; the
+    // sign-in sync that follows a session boot uploads it.
     const finish = (): void => {
-      recordResult(saved.key, {
-        cards: saved.cards,
-        won: false,
-        elapsedMs: Date.now() - saved.startedAt,
-      });
+      recordAndSync(
+        saved.key,
+        { start: saved.start, target: saved.target },
+        {
+          cards: saved.cards,
+          won: false,
+          elapsedMs: Date.now() - saved.startedAt,
+        },
+      );
     };
     if (saved.key !== dayKey()) {
       // The run's day ended without a win; it consumed that day's attempt.
@@ -646,5 +779,5 @@ export function initRace(deps: RaceDeps): RaceUI {
     load,
   };
 
-  return { onBoot, renderCards, onPathChange, onSpawn, attemptLeave, onDeepLink };
+  return { onBoot, renderCards, onPathChange, onSpawn, attemptLeave, onDeepLink, setSignedIn };
 }

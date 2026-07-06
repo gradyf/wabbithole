@@ -91,6 +91,30 @@ export const bankItems = pgTable(
   ],
 );
 
+// One scored daily-race attempt per user per LOCAL date. race_date is the
+// player's local YYYY-MM-DD day key (client-supplied, Wordle-style) — not a
+// server timestamp — so the unique index enforces the game rule "first result
+// of a date sticks" across devices. `won` is recorded because the client
+// records misses too and streaks count wins only.
+export const raceResults = pgTable(
+  'race_results',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    clerkUserId: text('clerk_user_id').notNull(),
+    raceDate: text('race_date').notNull(), // player's LOCAL day key, YYYY-MM-DD
+    startTitle: text('start_title').notNull(),
+    targetTitle: text('target_title').notNull(),
+    cards: integer('cards').notNull(),
+    elapsedMs: integer('elapsed_ms').notNull(),
+    won: boolean('won').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex('race_user_date_idx').on(t.clerkUserId, t.raceDate),
+    index('race_user_idx').on(t.clerkUserId),
+  ],
+);
+
 // A saved trail is the linear card path (same {lang, title} nodes the URL hash
 // encodes). Signed-in users keep a library of named trails plus one auto trail
 // that resumes their last session; the partial unique index is what pins "one

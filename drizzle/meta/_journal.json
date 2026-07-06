@@ -15,6 +15,13 @@
       "when": 1783312544343,
       "tag": "0001_shocking_havok",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783347818197,
+      "tag": "0002_spooky_pete_wisdom",
+      "breakpoints": true
     }
   ]
 }
