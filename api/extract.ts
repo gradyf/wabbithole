@@ -5,8 +5,9 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
-import { and, eq, gte, lt, ne, sql } from 'drizzle-orm';
+import { and, eq, lt, sql } from 'drizzle-orm';
 import { requireUser } from './_lib/auth.js';
+import { enforceGenerationBudget, logGeneration } from './_lib/budget.js';
 import { db } from './_lib/db.js';
 import { HttpError, handle, json, readJson, requireMethod } from './_lib/http.js';
 import { WEEKLY_ADD_CAP, isUnlimited, weeklyRemaining } from './_lib/limits.js';
@@ -20,7 +21,6 @@ import {
 import { articleQuestions, articles, extractions } from './_lib/schema.js';
 import { fetchArticleSource, validLang } from './_lib/wikipedia.js';
 
-const DAILY_CAP = 25; // fresh extractions per user per day; cache hits are free
 const STALE_LOCK_MS = 2 * 60 * 1000;
 
 interface ExtractBody {
@@ -57,7 +57,12 @@ export default handle(async (request) => {
   const cached = await loadQuestions(articleRow.id);
   if (cached.length > 0) return respond(source, cached, true, userId);
 
-  if (!(await isUnlimited(userId))) await enforceDailyCap(userId);
+  // Wallet guard (cache misses only — hits above are free). The kill switch and
+  // global daily ceiling stop everyone including owners; the per-user cap
+  // exempts owners.
+  const isOwner = await isUnlimited(userId);
+  await enforceGenerationBudget(userId, isOwner);
+
   const lockId = await acquireLock(articleRow.id, userId);
 
   // Someone may have finished between our cache read and the lock.
@@ -68,6 +73,9 @@ export default handle(async (request) => {
   }
 
   try {
+    // Count before we spend: a timeout or crash during generateQuestions still
+    // leaves this row, so the attempt counts against both caps (no free retry).
+    await logGeneration(userId, 'extract', articleRow.id);
     const generated = await generateQuestions(source);
     const rows = await db
       .insert(articleQuestions)
@@ -103,23 +111,6 @@ async function loadQuestions(articleId: number): Promise<QuestionRow[]> {
         eq(articleQuestions.promptVersion, PROMPT_VERSION),
       ),
     );
-}
-
-async function enforceDailyCap(userId: string): Promise<void> {
-  const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-  const [{ count }] = await db
-    .select({ count: sql<number>`count(*)::int` })
-    .from(extractions)
-    .where(
-      and(
-        eq(extractions.clerkUserId, userId),
-        gte(extractions.createdAt, dayAgo),
-        ne(extractions.status, 'failed'),
-      ),
-    );
-  if (count >= DAILY_CAP) {
-    throw new HttpError(429, 'daily_cap', 'Daily extraction limit reached. Try again tomorrow.');
-  }
 }
 
 // The partial unique index (one pending row per article+version) is the lock.

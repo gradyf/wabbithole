@@ -425,21 +425,28 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     note.className = 'wh-note';
     const icon = document.createElement('span');
     icon.className = 'wh-icon';
-    icon.dataset.name = e.code === 'extraction_in_progress' ? 'sparkles' : 'rotate-ccw';
+    icon.dataset.name =
+      e.code === 'extraction_in_progress'
+        ? 'sparkles'
+        : e.code === 'generation_paused'
+          ? 'info'
+          : 'rotate-ccw';
     icon.setAttribute('aria-hidden', 'true');
     const title = document.createElement('p');
     title.className = 'wh-note-title';
     title.textContent =
       e.code === 'daily_cap' || e.code === 'weekly_cap'
         ? "That's plenty for now"
-        : e.code === 'extraction_in_progress'
-          ? 'Almost there'
-          : "That didn't work";
+        : e.code === 'generation_paused'
+          ? 'Trivia is resting'
+          : e.code === 'extraction_in_progress'
+            ? 'Almost there'
+            : "That didn't work";
     const body = document.createElement('p');
     body.className = 'wh-note-body';
     body.textContent = e.message;
     note.append(icon, title, body);
-    if (e.code !== 'daily_cap') {
+    if (e.code !== 'daily_cap' && e.code !== 'generation_paused') {
       const retry = document.createElement('button');
       retry.type = 'button';
       retry.className = 'wh-btn';

@@ -151,3 +151,25 @@ export const quizSessions = pgTable(
   },
   (t) => [index('quiz_sessions_user_time_idx').on(t.clerkUserId, t.playedAt)],
 );
+
+// The wallet guard. One append-only row is written BEFORE every paid Haiku
+// generation call (extract today, ad-hoc later), regardless of outcome, so a
+// timeout or crash still counts against the budget — this closes the "failed
+// generations retry for free" hole. Both caps read from here, not from
+// extractions.status: the global daily ceiling counts all rows in the last
+// rolling 24h, the per-user cap counts one user's rows. article_id is
+// audit-only (nullable, no FK) so the log is decoupled from article lifecycle.
+export const generationLog = pgTable(
+  'generation_log',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    clerkUserId: text('clerk_user_id').notNull(),
+    kind: text('kind').notNull(), // 'extract' | 'adhoc'
+    articleId: integer('article_id'), // nullable, audit only
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    index('generation_log_time_idx').on(t.createdAt),
+    index('generation_log_user_time_idx').on(t.clerkUserId, t.createdAt),
+  ],
+);
