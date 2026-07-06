@@ -248,3 +248,6 @@ Ordered by dependency. **Phases 0 and 1 ship independently and should ship first
   (25 q/article, highlight-to-question, 50/week bank, 10 ad hoc/day).
 - **D7/D8 wallet guard: pending** — Gray asked for a clearer
   explanation before deciding.
+- **D7/D8 wallet guard: LATER, with the premium batch** (Gray, after
+  plain-language explanation). It stays Phase 1 WITHIN the premium
+  implementation — first task of that batch, not a queue-jumper.
