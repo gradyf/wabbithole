@@ -126,12 +126,110 @@ html[data-reading] .wh-card[data-state="active"] > .wh-tab .wh-tab-title {
    the injected text stays icon-only in the tab */
 .wh-tab-extract { font-size: 0; }
 
+/* ---- ambient reading-progress underline (D1) ---- */
+/* a 2px fill on the active tab's existing carrot fold, always visible (every
+   state incl. mobile), zero tap budget. --wh-read (0..1) is set by stack.ts on
+   scroll; position:relative anchors the ::after over the border-bottom. */
+.wh-card[data-state="active"] > .wh-tab { position: relative; }
+.wh-card[data-state="active"] > .wh-tab::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px; /* overlay the 2px carrot border-bottom exactly */
+  height: 2px;
+  background: var(--link);
+  transform: scaleX(var(--wh-read, 0));
+  transform-origin: left;
+  transition: transform var(--dur-fast) linear;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .wh-topbar,
   .wh-card[data-state="active"] > .wh-tab,
   .wh-tab-cluster {
     transition: none;
   }
+  .wh-card[data-state="active"] > .wh-tab::after { transition: none; }
+  .wh-toc-pop { animation: none; }
+}
+
+/* ---- mid-read Contents peek ---- */
+
+/* trigger: an outline glyph in the active card's tab, left of the title. Hidden
+   until the article has a real TOC (data-has-toc) AND the reader is past the
+   fold (data-deep) — at the top the inline .wh-toc block already serves. */
+.wh-toc-trigger {
+  flex: none;
+  display: none;
+}
+.wh-card[data-state="active"] > .wh-tab[data-has-toc][data-deep] .wh-toc-trigger {
+  display: inline-flex;
+}
+.wh-toc-trigger[aria-expanded="true"] {
+  background: var(--surface-sunken);
+  color: var(--text-primary);
+}
+
+/* popover: mounted on .wh-cardpos so it escapes .wh-card's overflow:hidden and
+   floats over the prose. z-index 20 keeps it below both docks (30) and toast
+   (50), so an impossible transient overlap resolves in the dock's favor. The
+   race banner sits above the stage entirely, so it never collides with this. */
+.wh-toc-pop {
+  position: absolute;
+  top: 36px;
+  left: var(--space-4);
+  z-index: 20;
+  max-width: min(360px, calc(100% - 32px));
+  max-height: min(60vh, 480px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--surface-card);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-float);
+  padding: var(--space-2) 0 var(--space-3);
+  transform-origin: top left;
+  animation: wh-toc-pop-in var(--dur-med) var(--ease-settle) both;
+}
+@keyframes wh-toc-pop-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+.wh-toc-pop-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 4px var(--space-4) 8px;
+  margin-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border-hairline);
+  font-family: var(--font-sans);
+  font-size: var(--text-ui);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.wh-toc-pop-head .wh-icon { width: 15px; height: 15px; }
+.wh-toc-pop-count {
+  margin-left: auto;
+  font-weight: 400;
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+/* force single column: the cloned list carries the inline block's desktop
+   2-column rule, which would cram two columns into a ~340px popover. */
+.wh-toc-pop .wh-toc-nav { padding: 0; }
+.wh-toc-pop .wh-toc-list { columns: 1; }
+.wh-toc-pop .wh-toc-list li { padding: 0; }
+.wh-toc-pop .wh-toc-list a {
+  display: block;
+  padding: 5px var(--space-4);
+  border-radius: 0;
+}
+.wh-toc-pop .wh-toc-list a:hover { background: var(--surface-sunken); text-decoration: none; }
+/* you-are-here row: the trail's current-item idiom (link-tint fill). */
+.wh-toc-pop .wh-toc-list a[data-current] {
+  background: var(--link-tint);
+  color: var(--link-hover);
 }
 
 /* title block + prose share a widened reading column (text sits beside the
@@ -569,6 +667,7 @@ html[data-reading] .wh-card[data-state="active"] > .wh-tab .wh-tab-title {
 .wh-icon[data-name="user"] { -webkit-mask-image: url("./ds/assets/icons/user.svg"); mask-image: url("./ds/assets/icons/user.svg"); }
 .wh-icon[data-name="circle-check"] { -webkit-mask-image: url("./ds/assets/icons/circle-check.svg"); mask-image: url("./ds/assets/icons/circle-check.svg"); }
 .wh-icon[data-name="book-marked"] { -webkit-mask-image: url("./ds/assets/icons/book-marked.svg"); mask-image: url("./ds/assets/icons/book-marked.svg"); }
+.wh-icon[data-name="list-tree"] { -webkit-mask-image: url("./ds/assets/icons/list-tree.svg"); mask-image: url("./ds/assets/icons/list-tree.svg"); }
 
 /* Clerk user button slot in the topbar */
 .wh-userbtn { display: flex; align-items: center; }

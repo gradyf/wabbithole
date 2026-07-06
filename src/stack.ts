@@ -300,7 +300,13 @@ export class Stack {
       view.tabSubEl.textContent = processed.subtitle ?? '';
 
       const inner = this.titleBlock(view.node);
-      if (processed.toc.length >= 3) inner.appendChild(this.tocBlock(processed.toc));
+      if (processed.toc.length >= 3) {
+        inner.appendChild(this.tocBlock(processed.toc));
+        // Single-sources the "has Contents" decision with the inline block: the
+        // peek trigger (main.ts) reveals only on this attribute, so short
+        // articles never sprout a dead control.
+        view.tabEl.dataset.hasToc = '';
+      }
       inner.appendChild(processed.body);
       view.bodyEl.replaceChildren(inner, this.attribution(view.node), this.supportLine());
       view.hydrated = true;
@@ -310,6 +316,9 @@ export class Stack {
         `Opened ${view.node.title} — card ${this.views.indexOf(view) + 1} of ${this.views.length}.`,
       );
       this.layout();
+      // Real content now has its true scrollHeight — reseed the fold state, so
+      // the progress underline reads correctly instead of the skeleton's ~1.
+      this.markDeep(view, view.bodyEl.scrollTop);
       this.focusTop();
     } catch (err) {
       view.loading = false;
@@ -335,16 +344,7 @@ export class Stack {
         break;
       case 'fragment': {
         e.preventDefault();
-        const body = view.bodyEl;
-        const target = body.querySelector(`[id="${CSS.escape(kind.frag)}"]`) as HTMLElement | null;
-        if (target) {
-          const top =
-            target.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 56;
-          body.scrollTo({ top, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
-          target.classList.remove('wh-flash');
-          void target.offsetWidth;
-          target.classList.add('wh-flash');
-        }
+        this.scrollToHeading(view.bodyEl, kind.frag);
         break;
       }
       case 'external':
@@ -355,6 +355,33 @@ export class Stack {
       case 'none':
         e.preventDefault();
         break;
+    }
+  }
+
+  /** Smooth-scroll a card body to a section heading and flash it. Shared by the
+   *  inline Contents links (handleContentClick) and the Contents peek popover
+   *  (via jumpToActiveFragment). Returns the heading, or null if not found. */
+  private scrollToHeading(body: HTMLElement, frag: string): HTMLElement | null {
+    const target = body.querySelector(`[id="${CSS.escape(frag)}"]`) as HTMLElement | null;
+    if (!target) return null;
+    const top = target.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 56;
+    body.scrollTo({ top, behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    target.classList.remove('wh-flash');
+    void target.offsetWidth;
+    target.classList.add('wh-flash');
+    return target;
+  }
+
+  /** Jump the active card to a section, for the Contents peek (card chrome that
+   *  lives in main.ts, outside the stack). Focuses the heading last, mirroring
+   *  focusTop, so keyboard users land at the section they picked. */
+  jumpToActiveFragment(frag: string): void {
+    const view = this.views[this.views.length - 1];
+    if (!view || !view.hydrated) return;
+    const target = this.scrollToHeading(view.bodyEl, frag);
+    if (target) {
+      target.tabIndex = -1;
+      target.focus({ preventScroll: true });
     }
   }
 
@@ -414,6 +441,10 @@ export class Stack {
       this.accumDelta = 0;
       this.lastDir = 0;
       this.setReading(false);
+      // Same reason as restoreTopScroll: the scroll path won't fire for the
+      // freshly-switched body, so seed its fold state now.
+      const top = this.views[n - 1];
+      if (top) this.markDeep(top, top.bodyEl.scrollTop);
     }
 
     this.events.onPathChange(this.path);
@@ -424,6 +455,12 @@ export class Stack {
   private handleScroll(body: HTMLElement): void {
     if (body !== this.activeBody) return;
     const st = body.scrollTop;
+    // Fold state + reading-progress: the Contents peek trigger (main.ts) reveals
+    // on data-deep, and the tab's progress underline reads --wh-read. Both must
+    // update on every scroll tick, so set them BEFORE the delta===0 early return
+    // (a programmatic restore can re-fire this with delta 0).
+    const active = this.views[this.views.length - 1];
+    if (active) this.markDeep(active, st);
     const delta = st - this.lastScrollTop;
     this.lastScrollTop = st;
     if (delta === 0) return;
@@ -446,6 +483,16 @@ export class Stack {
     this.events.onReadingChange?.(reading);
   }
 
+  /** Sync a tab's fold + reading-progress affordances for a given scrollTop.
+   *  data-deep gates the Contents peek trigger (>96px, the same fold reading
+   *  uses); --wh-read (0..1) drives the tab's progress underline. */
+  private markDeep(view: CardView, st: number): void {
+    view.tabEl.toggleAttribute('data-deep', st > 96);
+    const sh = view.bodyEl.scrollHeight;
+    const frac = sh > 0 ? Math.min(1, (st + view.bodyEl.clientHeight) / sh) : 0;
+    view.tabEl.style.setProperty('--wh-read', String(frac));
+  }
+
   /** Force full chrome back — main.ts calls this when a sidebar opens or
    *  keyboard focus lands in the chrome. */
   exitReading(): void {
@@ -459,6 +506,9 @@ export class Stack {
   private restoreTopScroll(view: CardView): void {
     view.bodyEl.scrollTop = view.savedScrollTop;
     if (view.bodyEl === this.activeBody) this.lastScrollTop = view.bodyEl.scrollTop;
+    // handleScroll early-returns on delta 0, so a programmatic restore never
+    // trips the scroll path — set the fold state here explicitly.
+    this.markDeep(view, view.bodyEl.scrollTop);
   }
 
   private focusTop(): void {

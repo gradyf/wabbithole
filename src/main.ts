@@ -147,9 +147,15 @@ const stack = new Stack(stage, {
     } else {
       topbar.removeAttribute('inert');
       topbar.removeAttribute('aria-hidden');
+      // One line covers every reading exit — scroll-up, reach-top, sidebar-open,
+      // topbar-focus, card-switch — since all funnel through setReading(false).
+      closeTocPeek();
     }
   },
   onTabExtras(node, tab) {
+    // Contents peek trigger sits LEFT of the title (before the subtitle), out of
+    // the crowded right-hand cluster; the ellipsizing title absorbs its width.
+    tab.insertBefore(buildTocTrigger(), tab.querySelector('.wh-tab-sub'));
     tab.appendChild(buildTabCluster(node));
   },
 });
@@ -268,6 +274,135 @@ function buildTabCluster(node: CardNode): HTMLElement {
     clusterBtn('link', 'Share', () => $('btn-share').click()),
   );
   return cluster;
+}
+
+// ---- mid-read Contents peek: transient card chrome, NOT a third dock --------
+// A small outline-glyph trigger inside the active card's tab opens a popover
+// listing the article's sections with you-are-here highlighting and section
+// jumping. It rides the card (tab + absolutely-positioned popover on .wh-cardpos),
+// carries no data-collapsed, and never joins the .wh-main flex row — so the
+// sidebar-close observer is blind to it and it never compresses the stage.
+// Architecture invariant: DOCKS (Trail, Bank) are the only two dwell surfaces;
+// intra-article navigation like this is card chrome and dies with reading state.
+
+function buildTocTrigger(): HTMLButtonElement {
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'wh-iconbtn wh-toc-trigger';
+  btn.setAttribute('aria-label', 'Contents');
+  btn.title = 'Contents';
+  btn.setAttribute('aria-haspopup', 'dialog');
+  btn.setAttribute('aria-expanded', 'false');
+  btn.setAttribute('aria-controls', 'wh-toc-pop');
+  const icon = document.createElement('span');
+  icon.className = 'wh-icon';
+  icon.dataset.name = 'list-tree';
+  icon.setAttribute('aria-hidden', 'true');
+  btn.appendChild(icon);
+  btn.addEventListener('click', (e) => {
+    // Same guard the cluster buttons use: the trigger lives inside the disabled
+    // top-card tab <button>, so stop the click reaching the tab's resurface.
+    e.stopPropagation();
+    if (btn.getAttribute('aria-expanded') === 'true') closeTocPeek();
+    else openTocPeek(btn);
+  });
+  return btn;
+}
+
+// A single peek is open at a time. Track its parts so close is idempotent and
+// can detach the one-shot scroll listener before a jump's smooth scroll.
+let tocPeek: { pop: HTMLElement; trigger: HTMLButtonElement; body: HTMLElement; onScroll: () => void } | null = null;
+
+function openTocPeek(trigger: HTMLButtonElement): void {
+  closeTocPeek(); // never stack two
+  const card = trigger.closest('.wh-card');
+  // Mount on .wh-cardpos (position:absolute + transform => containing block),
+  // which escapes .wh-card's overflow:hidden. Moving this to .wh-card reclips.
+  const mount = trigger.closest('.wh-cardpos');
+  const body = card?.querySelector('.wh-card-body') as HTMLElement | null;
+  const nav = body?.querySelector('.wh-toc-nav') as HTMLElement | null;
+  if (!card || !mount || !body || !nav) return;
+
+  const pop = document.createElement('div');
+  pop.className = 'wh-toc-pop';
+  pop.id = 'wh-toc-pop';
+  pop.setAttribute('role', 'dialog');
+  pop.setAttribute('aria-label', 'Contents');
+
+  // Light, non-interactive header: outline glyph + "Contents" + the exact
+  // section-count string the inline block already rendered.
+  const head = document.createElement('div');
+  head.className = 'wh-toc-pop-head';
+  const hIcon = document.createElement('span');
+  hIcon.className = 'wh-icon';
+  hIcon.dataset.name = 'list-tree';
+  hIcon.setAttribute('aria-hidden', 'true');
+  const hLabel = document.createElement('span');
+  hLabel.className = 'wh-toc-pop-title';
+  hLabel.textContent = 'Contents';
+  const hCount = document.createElement('span');
+  hCount.className = 'wh-toc-pop-count';
+  hCount.textContent = body.querySelector('.wh-toc-count')?.textContent ?? '';
+  head.append(hIcon, hLabel, hCount);
+
+  // Clone the live nav: byte-identical markup + inherited .wh-toc-list styling,
+  // no new StackEvents hook (operate on the rendered block).
+  const clone = nav.cloneNode(true) as HTMLElement;
+
+  // Scroll-spy at open (no live observer): mark the last heading at/above the
+  // 56px fold reference the jump uses. Fresh every open, since the peek closes
+  // on any scroll — no IntersectionObserver lifecycle to manage.
+  const fold = body.getBoundingClientRect().top + 56;
+  let current: HTMLAnchorElement | null = null;
+  for (const a of Array.from(clone.querySelectorAll('a')) as HTMLAnchorElement[]) {
+    const id = a.getAttribute('href')?.slice(1);
+    if (!id) continue;
+    const heading = body.querySelector(`[id="${CSS.escape(id)}"]`) as HTMLElement | null;
+    if (heading && heading.getBoundingClientRect().top <= fold) current = a;
+  }
+  if (current) {
+    current.setAttribute('aria-current', 'location');
+    current.setAttribute('data-current', '');
+  }
+
+  // Delegated jump: close first (detaches the scroll listener so the smooth
+  // scroll can't re-fire it), then hand off to the shared fragment-scroll code.
+  clone.addEventListener('click', (e) => {
+    const a = (e.target as HTMLElement).closest('a');
+    if (!a || !clone.contains(a)) return;
+    e.preventDefault();
+    const id = a.getAttribute('href')?.slice(1);
+    closeTocPeek(true); // skip focus restore: the jump focuses the heading
+    if (id) stack.jumpToActiveFragment(id);
+  });
+
+  pop.append(head, clone);
+  mount.appendChild(pop);
+  trigger.setAttribute('aria-expanded', 'true');
+
+  const onScroll = () => closeTocPeek();
+  body.addEventListener('scroll', onScroll, { once: true, passive: true });
+  tocPeek = { pop, trigger, body, onScroll };
+
+  // Focus the current section (or the first link), so keyboard users land at
+  // "you are here". preventScroll keeps the card body still.
+  const focusTarget = (clone.querySelector('[data-current]') ?? clone.querySelector('a')) as HTMLElement | null;
+  focusTarget?.focus({ preventScroll: true });
+}
+
+function closeTocPeek(skipFocusRestore = false): void {
+  const peek = tocPeek;
+  if (!peek) return;
+  tocPeek = null; // clear first so re-entrant close calls no-op
+  peek.body.removeEventListener('scroll', peek.onScroll);
+  // Only pull focus back to the trigger if it was inside the popover — if some
+  // other control (a sidebar toggle) just took focus and drove this close, don't
+  // fight it. The trigger lives in a condensing tab, so a stranded focus there
+  // must land somewhere deliberate.
+  const hadFocus = peek.pop.contains(document.activeElement);
+  peek.pop.remove();
+  peek.trigger.setAttribute('aria-expanded', 'false');
+  if (!skipFocusRestore && hadFocus) peek.trigger.focus({ preventScroll: true });
 }
 
 // ---- reading state: exits owned by main.ts -----------------------------------
@@ -391,6 +526,12 @@ searchInput.addEventListener('keydown', (e) => {
 
 document.addEventListener('click', (e) => {
   if (!searchPop.hidden && !(e.target as HTMLElement).closest('.wh-search')) closeResults();
+  // Outside-click closes the Contents peek (the trigger's own click stops
+  // propagation, so its toggle handler owns clicks on the trigger itself).
+  if (tocPeek) {
+    const t = e.target as HTMLElement;
+    if (!t.closest('.wh-toc-pop') && !t.closest('.wh-toc-trigger')) closeTocPeek();
+  }
 });
 
 function start(title: string): void {
@@ -553,7 +694,9 @@ aboutOverlay.addEventListener('click', (e) => {
 
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Escape') return;
-  if (!aboutOverlay.hidden) aboutOverlay.hidden = true;
+  // Peek closes first, ahead of the about-overlay / back fallthrough.
+  if (tocPeek) closeTocPeek();
+  else if (!aboutOverlay.hidden) aboutOverlay.hidden = true;
   else if (stack.path.length > 1) stack.resurface(stack.path.length - 2, true);
 });
 
