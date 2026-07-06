@@ -528,6 +528,12 @@ window.addEventListener('popstate', (e) => {
 
 setSidebar(false);
 updateLandingAuth();
+// Anonymous visitors get Sign in on the idle topbar without paying for the
+// Clerk bundle: its click handler above lazy-loads Clerk via trivia.signIn().
+// Returning signed-in users (knownSignedIn cookie heuristic) skip this so
+// Sign in never flashes while Clerk boots; once Clerk loads, trivia.ts's
+// onAuthChange owns the toggle and wins from then on.
+if (!knownSignedIn) $('btn-signin').hidden = false;
 const initial = parseHash();
 if (initial) {
   void stack.applyTrail(initial.lang, initial.titles, false);
