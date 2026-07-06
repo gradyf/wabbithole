@@ -1,8 +1,9 @@
 // Daily Wabbit Race: a Wordle-style once-a-day link race from a curated start
 // article to a target, links only. Score = cards spawned (start = 1). Win =
-// the active card's canonical title equals the target. State lives in memory
-// for the run; results + streaks persist to localStorage `wh-race`. No account,
-// no API — signed-out players get the whole game (account sync is a later task).
+// the active card's canonical title equals the target. Results + streaks AND
+// the in-progress scored run persist to localStorage `wh-race` (a reload
+// resumes the same attempt; only deliberate exits forfeit). No account, no
+// API — signed-out players get the whole game (account sync is a later task).
 
 import { normTitle } from './api';
 import pairs from './race/pairs.json';
@@ -55,8 +56,39 @@ export interface RaceRecord {
   won: boolean;
   elapsedMs: number;
 }
+/** A scored run in progress, persisted so a reload or crash RESUMES the same
+ *  attempt instead of dropping it (which would be a free retry) or punishing
+ *  it. Day key and pair are SNAPSHOTS taken at start — a run is atomic to the
+ *  day it began, even if play crosses local midnight. `trail` is the walked
+ *  path (display titles), used at boot to tell a genuine reload of the race
+ *  trail from deep-link URL entry. */
+export interface PersistedRun {
+  key: string;
+  start: string;
+  target: string;
+  lang: string;
+  cards: number;
+  startedAt: number;
+  trail: string[];
+}
 export interface RaceStore {
   byDate: Record<string, RaceRecord>;
+  run?: PersistedRun;
+}
+
+function validRun(r: unknown): r is PersistedRun {
+  if (!r || typeof r !== 'object') return false;
+  const o = r as Record<string, unknown>;
+  return (
+    typeof o.key === 'string' &&
+    typeof o.start === 'string' &&
+    typeof o.target === 'string' &&
+    typeof o.lang === 'string' &&
+    typeof o.cards === 'number' &&
+    typeof o.startedAt === 'number' &&
+    Array.isArray(o.trail) &&
+    o.trail.every((t) => typeof t === 'string')
+  );
 }
 
 function load(): RaceStore {
@@ -64,7 +96,10 @@ function load(): RaceStore {
     const raw = localStorage.getItem(STORE_KEY);
     if (raw) {
       const o = JSON.parse(raw) as RaceStore;
-      if (o && typeof o === 'object' && o.byDate && typeof o.byDate === 'object') return o;
+      if (o && typeof o === 'object' && o.byDate && typeof o.byDate === 'object') {
+        if (o.run !== undefined && !validRun(o.run)) delete o.run;
+        return o;
+      }
     }
   } catch {
     /* storage unavailable / malformed — start fresh */
@@ -81,11 +116,12 @@ function save(store: RaceStore): void {
 }
 
 /** First scored attempt of a date sticks (upsert-ignore), matching the eventual
- *  account-sync semantics. */
+ *  account-sync semantics. Recording a result also finishes any persisted
+ *  in-progress run — every scored finish (win or miss) routes through here. */
 function recordResult(key: string, rec: RaceRecord): void {
   const store = load();
-  if (store.byDate[key]) return;
-  store.byDate[key] = rec;
+  delete store.run;
+  if (!store.byDate[key]) store.byDate[key] = rec;
   save(store);
 }
 
@@ -148,6 +184,13 @@ export interface RaceDeps {
 }
 
 export interface RaceUI {
+  /** Boot-time run recovery, called with the parsed initial hash BEFORE the
+   *  stack opens anything. If a persisted run for today exists and the load is
+   *  a genuine reload of the race trail (or a fresh root visit), race mode is
+   *  restored and the trail to open is returned; main.ts applies it. Returns
+   *  null when there is nothing to resume (any stale or forfeited run has
+   *  been recorded internally). */
+  onBoot(initial: { lang: string; titles: string[] } | null): { lang: string; titles: string[] } | null;
   /** (Re)render the landing + entry race cards for today's state. */
   renderCards(): void;
   /** Stack path changed — drives win detection + banner card count. */
@@ -157,13 +200,11 @@ export interface RaceUI {
   /** Guarded navigation away from a race (Home, banner leave). Runs `proceed`
    *  once it is safe (immediately, or after the abandon confirm). */
   attemptLeave(proceed: () => void): void;
-  /** A deep link / manual URL edit is taking over the stack. Ends race mode
-   *  immediately — URL entry is not a link, so a scored run records a miss
-   *  (otherwise editing the hash to the target would be a 1-card "win", and
-   *  backing out would grant a free retry). Freeplay just ends. */
+  /** In-session URL entry (a state-less popstate carrying a trail hash) is
+   *  taking over the stack. Ends race mode immediately — URL entry is not a
+   *  link, so a scored run records a miss (otherwise navigating the hash to
+   *  the target would be a cheap "win"). Freeplay just ends. */
   onDeepLink(): void;
-  /** True while a race or freeplay run is on the desk. */
-  isActive(): boolean;
 }
 
 const $ = <T extends HTMLElement>(id: string): T => document.getElementById(id) as T;
@@ -171,7 +212,10 @@ const $ = <T extends HTMLElement>(id: string): T => document.getElementById(id) 
 export function initRace(deps: RaceDeps): RaceUI {
   type Mode = 'off' | 'racing' | 'freeplay';
   let mode: Mode = 'off';
-  let run: { startedAt: number; cards: number; won: boolean } | null = null;
+  // key + pair are snapshots taken when the run starts: the run stays atomic
+  // to its own day (win check, banner, and the recorded date all use the
+  // snapshot), even when play crosses local midnight.
+  let run: { key: string; pair: Pair; startedAt: number; cards: number; won: boolean } | null = null;
 
   const bar = $('racebar');
   const barTarget = $('racebar-target');
@@ -197,8 +241,8 @@ export function initRace(deps: RaceDeps): RaceUI {
 
   // ---- banner ---------------------------------------------------------------
   function showBanner(): void {
-    const { pair } = today();
-    barTarget.textContent = disp(pair.target);
+    // The banner belongs to the run, so the target comes from its snapshot.
+    barTarget.textContent = disp(run?.pair.target ?? today().pair.target);
     barMode.hidden = mode !== 'freeplay';
     barLeave.hidden = mode === 'freeplay'; // freeplay just ends when you go home
     updateBanner();
@@ -212,11 +256,32 @@ export function initRace(deps: RaceDeps): RaceUI {
   }
 
   // ---- run lifecycle --------------------------------------------------------
+
+  /** Persist the in-progress scored run (freeplay is never persisted — it has
+   *  no scoring stakes to protect across a reload). Called from start() and on
+   *  every race path change; the persisted trail is what onBoot compares the
+   *  initial hash against to tell a reload from URL entry. */
+  function persistRun(trail?: string[]): void {
+    if (mode !== 'racing' || !run) return;
+    const store = load();
+    store.run = {
+      key: run.key,
+      start: run.pair.start,
+      target: run.pair.target,
+      lang: deps.lang(),
+      cards: run.cards,
+      startedAt: run.startedAt,
+      trail: trail ?? store.run?.trail ?? [],
+    };
+    save(store);
+  }
+
   function start(): void {
     const { key, pair } = today();
     const scored = !load().byDate[key]; // first scored attempt of the day, else freeplay
     mode = scored ? 'racing' : 'freeplay';
-    run = { startedAt: Date.now(), cards: 0, won: false };
+    run = { key, pair, startedAt: Date.now(), cards: 0, won: false };
+    persistRun([]);
     showBanner();
     deps.startArticle(deps.lang(), pair.start); // spawns the start card -> onSpawn -> cards = 1
     deps.announce(
@@ -230,12 +295,12 @@ export function initRace(deps: RaceDeps): RaceUI {
     hideBanner();
   }
 
-  /** Non-win exit of the current run outside the confirm flow (popstate to
-   *  root, manual URL edit). One scored attempt per day: a scored run records
-   *  a miss; freeplay just ends. */
+  /** Non-win exit of the current run outside the confirm flow (browser back
+   *  past the start card, in-session URL entry). One scored attempt per day:
+   *  a scored run records a miss under ITS OWN day; freeplay just ends. */
   function endAsMiss(msg: string): void {
     if (mode === 'racing' && run) {
-      recordResult(today().key, {
+      recordResult(run.key, {
         cards: run.cards,
         won: false,
         elapsedMs: Date.now() - run.startedAt,
@@ -248,7 +313,7 @@ export function initRace(deps: RaceDeps): RaceUI {
 
   function handleWin(): void {
     if (!run) return;
-    const { key, pair } = today();
+    const { key, pair } = run; // the run's own day + pair, not today()'s
     const elapsedMs = Date.now() - run.startedAt;
     const cards = run.cards;
     const scored = mode === 'racing';
@@ -256,15 +321,15 @@ export function initRace(deps: RaceDeps): RaceUI {
     if (scored) recordResult(key, { cards, won: true, elapsedMs });
     mode = 'off';
     hideBanner();
-    openWin(pair, cards, elapsedMs, scored);
+    openWin(key, pair, cards, elapsedMs, scored);
     renderCards();
     deps.announce(`You reached ${disp(pair.target)} in ${cardsLabel(cards)}.`);
     run = null;
   }
 
   // ---- win overlay ----------------------------------------------------------
-  function openWin(pair: Pair, cards: number, elapsedMs: number, scored: boolean): void {
-    const streak = scored ? computeStreak(load().byDate, today().key) : 0;
+  function openWin(key: string, pair: Pair, cards: number, elapsedMs: number, scored: boolean): void {
+    const streak = scored ? computeStreak(load().byDate, key) : 0;
     winBody.replaceChildren();
 
     const kicker = document.createElement('p');
@@ -290,13 +355,14 @@ export function initRace(deps: RaceDeps): RaceUI {
       winBody.append(note);
     }
 
-    // Win-screen share uses the real path just walked + the race badge params.
+    // Win-screen share uses the real path just walked + the race badge params
+    // (dated with the run's own day key, not the calendar's).
     winShare.onclick = () => {
       const path = deps.currentPath();
       const titles = path.map((n) => n.title);
       const lang = path[0]?.lang ?? deps.lang();
-      const url = deps.buildShareUrl(lang, titles, { date: today().key, cards });
-      const text = `Daily wabbit race ${today().key}: ${disp(pair.start)} → ${disp(pair.target)} in ${cardsLabel(cards)}\n${url}`;
+      const url = deps.buildShareUrl(lang, titles, { date: key, cards });
+      const text = `Daily wabbit race ${key}: ${disp(pair.start)} → ${disp(pair.target)} in ${cardsLabel(cards)}\n${url}`;
       void copy(text, 'Race result copied.');
     };
     winOverlay.hidden = false;
@@ -329,7 +395,7 @@ export function initRace(deps: RaceDeps): RaceUI {
     pendingLeave = null;
     if (!leave || !proceed) return;
     if (mode === 'racing' && run) {
-      recordResult(today().key, {
+      recordResult(run.key, {
         cards: run.cards,
         won: false,
         elapsedMs: Date.now() - run.startedAt,
@@ -485,6 +551,51 @@ export function initRace(deps: RaceDeps): RaceUI {
   }
 
   // ---- public surface -------------------------------------------------------
+  function onBoot(initial: { lang: string; titles: string[] } | null): { lang: string; titles: string[] } | null {
+    const saved = load().run;
+    if (!saved) return null;
+    const finish = (): void => {
+      recordResult(saved.key, {
+        cards: saved.cards,
+        won: false,
+        elapsedMs: Date.now() - saved.startedAt,
+      });
+    };
+    if (saved.key !== dayKey()) {
+      // The run's day ended without a win; it consumed that day's attempt.
+      // Today is untouched — a fresh race card awaits.
+      finish();
+      return null;
+    }
+    // A live run for today. A genuine reload carries exactly the trail the
+    // race last committed to the hash; any other hash is deep-link URL entry,
+    // which forfeits the run (same rule as in-session URL entry). A hashless
+    // root visit resumes too — reopening the site mid-run returns you to your
+    // race rather than quietly burning or resetting it.
+    const sameTrail =
+      initial !== null &&
+      initial.lang === saved.lang &&
+      initial.titles.length === saved.trail.length &&
+      initial.titles.every((t, i) => titleEquals(t, saved.trail[i]));
+    if (initial !== null && !sameTrail) {
+      finish();
+      deps.onToast('Entering a link ended today’s run.');
+      renderCards();
+      return null;
+    }
+    mode = 'racing';
+    run = {
+      key: saved.key,
+      pair: { start: saved.start, target: saved.target },
+      startedAt: saved.startedAt,
+      cards: saved.cards,
+      won: false,
+    };
+    showBanner();
+    deps.announce(`Race resumed: reach ${disp(saved.target)}. ${cardsLabel(saved.cards)} so far.`);
+    return { lang: saved.lang, titles: saved.trail.length > 0 ? saved.trail : [saved.start] };
+  }
+
   function onPathChange(path: Array<{ title: string }>): void {
     if (mode === 'off') {
       if (!bar.hidden) hideBanner();
@@ -497,8 +608,9 @@ export function initRace(deps: RaceDeps): RaceUI {
       return;
     }
     updateBanner();
+    persistRun(path.map((n) => n.title)); // count + walked trail survive a reload
     const tip = path[path.length - 1];
-    if (run && !run.won && titleEquals(tip.title, today().pair.target)) handleWin();
+    if (run && !run.won && titleEquals(tip.title, run.pair.target)) handleWin();
   }
 
   function onSpawn(): void {
@@ -524,8 +636,6 @@ export function initRace(deps: RaceDeps): RaceUI {
     endAsMiss('Entering a link ended today’s run.');
   }
 
-  const isActive = (): boolean => mode !== 'off';
-
   // Debug handle for in-browser verification of the pure day-key/pair math.
   (window as unknown as { __whRace?: unknown }).__whRace = {
     dayKey,
@@ -536,5 +646,5 @@ export function initRace(deps: RaceDeps): RaceUI {
     load,
   };
 
-  return { renderCards, onPathChange, onSpawn, attemptLeave, onDeepLink, isActive };
+  return { onBoot, renderCards, onPathChange, onSpawn, attemptLeave, onDeepLink };
 }

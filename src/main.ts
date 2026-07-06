@@ -576,8 +576,17 @@ window.addEventListener('popstate', (e) => {
     const parsed = parseHash();
     // A state-less entry carrying a trail hash is URL entry (a manual hash
     // edit, or backing into an original deep-link entry) — that is not link
-    // wandering, so race mode ends here (scored runs record a miss).
-    if (parsed && parsed.titles.length > 0) race?.onDeepLink();
+    // wandering, so race mode ends here (scored runs record a miss). A hash
+    // identical to the current path is a no-op navigation, not an entry:
+    // forgive it (some browsers/automation fire popstate for these).
+    if (parsed && parsed.titles.length > 0) {
+      const current = stack.titles();
+      const same =
+        parsed.lang === stack.lang &&
+        parsed.titles.length === current.length &&
+        parsed.titles.every((t, i) => t.toLowerCase() === normTitle(current[i]).toLowerCase());
+      if (!same) race?.onDeepLink();
+    }
     void stack.applyTrail(parsed?.lang ?? stack.lang, parsed?.titles ?? [], false);
   }
 });
@@ -593,7 +602,13 @@ updateLandingAuth();
 // onAuthChange owns the toggle and wins from then on.
 if (!knownSignedIn) $('btn-signin').hidden = false;
 const initial = parseHash();
-if (initial) {
+// A persisted scored race resumes across reloads/crashes: race.onBoot restores
+// race mode and hands back the trail to reopen. Any stale or forfeited run has
+// already been recorded inside onBoot by the time it returns null.
+const resumed = race?.onBoot(initial) ?? null;
+if (resumed) {
+  void stack.applyTrail(resumed.lang, resumed.titles, false);
+} else if (initial) {
   void stack.applyTrail(initial.lang, initial.titles, false);
 } else {
   // Every fresh page load at the root starts on the landing.
