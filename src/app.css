@@ -57,6 +57,42 @@ body {
 /* the top card's tab is inert */
 .wh-tab:not([data-buried]) { cursor: default; }
 
+/* trim the reading column's top gap (DS ships var(--space-6)) */
+.wh-card-body { padding-top: var(--space-4); }
+
+/* ---- reading state: collapse chrome to reclaim vertical space ---- */
+
+/* topbar collapses away entirely while scrolling down a card */
+.wh-topbar {
+  overflow: hidden;
+  transition: height 180ms var(--ease-settle), opacity 120ms ease;
+}
+html[data-reading] .wh-topbar {
+  height: 0;
+  opacity: 0;
+}
+
+/* the active card's tab condenses to a slim bar; carrot rule stays (DS) */
+.wh-card[data-state="active"] > .wh-tab {
+  transition: height 180ms var(--ease-settle);
+}
+html[data-reading] .wh-card[data-state="active"] > .wh-tab {
+  height: 36px;
+}
+html[data-reading] .wh-card[data-state="active"] > .wh-tab .wh-tab-title {
+  font-size: 15px;
+}
+html[data-reading] .wh-card[data-state="active"] > .wh-tab .wh-tab-sub {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wh-topbar,
+  .wh-card[data-state="active"] > .wh-tab {
+    transition: none;
+  }
+}
+
 /* title block + prose share a widened reading column (text sits beside the
    floated infobox at roughly the prose measure) */
 .wh-card-inner {

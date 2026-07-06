@@ -38,6 +38,10 @@ export interface StackEvents {
   onExtract?(node: CardNode): void;
   /** Called after the extract button renders, so the trivia layer can decorate it. */
   onExtractButton?(node: CardNode, btn: HTMLButtonElement): void;
+  /** Reading state: true while scrolling down the active card, false on restore. */
+  onReadingChange?(reading: boolean): void;
+  /** Called after a card's tab renders, so the app can add tab-level controls. */
+  onTabExtras?(node: CardNode, tab: HTMLElement): void;
 }
 
 const LICENSE_URL = 'https://creativecommons.org/licenses/by-sa/4.0/';
@@ -52,6 +56,15 @@ export class Stack {
   private views: CardView[] = [];
   private stage: HTMLElement;
   private events: StackEvents;
+
+  // Reading state: watch the ACTIVE card's scroll. Scrolling down collapses
+  // the chrome; scrolling up (or reaching the top, or a new active card)
+  // restores it. Deltas accumulate per direction so small jitters don't flip.
+  private reading = false;
+  private activeBody: HTMLElement | null = null;
+  private lastScrollTop = 0;
+  private accumDelta = 0;
+  private lastDir = 0; // -1 up, 1 down, 0 none
 
   constructor(stage: HTMLElement, events: StackEvents) {
     this.stage = stage;
@@ -110,7 +123,7 @@ export class Stack {
     const top = this.views[idx];
     if (!top.hydrated && !top.loading) void this.hydrate(top);
     this.layout();
-    top.bodyEl.scrollTop = top.savedScrollTop;
+    this.restoreTopScroll(top);
     this.commit(push);
     this.events.onAnnounce(`Returned to ${top.node.title} — card ${idx + 1} of ${this.views.length}.`);
     this.focusTop();
@@ -148,7 +161,7 @@ export class Stack {
     this.commit(push);
     const top = this.views[this.views.length - 1];
     if (top) {
-      top.bodyEl.scrollTop = top.savedScrollTop;
+      this.restoreTopScroll(top);
       if (!top.hydrated && !top.loading) await this.hydrate(top);
     }
   }
@@ -219,6 +232,8 @@ export class Stack {
       if (idx >= 0 && idx < this.views.length - 1) this.resurface(idx, true);
     });
     body.addEventListener('click', (e) => this.handleContentClick(e, view));
+    body.addEventListener('scroll', () => this.handleScroll(body), { passive: true });
+    this.events.onTabExtras?.(node, tab);
 
     if (opts.animate !== false && !prefersReducedMotion()) {
       card.classList.add('wh-card-enter');
@@ -381,7 +396,60 @@ export class Stack {
       }
     });
 
+    // A new active card always starts with full chrome and a fresh scroll
+    // baseline. (Simpler branch: even a deep-restored scrollTop starts unread.)
+    const topBody = this.views[n - 1]?.bodyEl ?? null;
+    if (topBody !== this.activeBody) {
+      this.activeBody = topBody;
+      this.lastScrollTop = topBody ? topBody.scrollTop : 0;
+      this.accumDelta = 0;
+      this.lastDir = 0;
+      this.setReading(false);
+    }
+
     this.events.onPathChange(this.path);
+  }
+
+  // ---- reading state ----------------------------------------------------------
+
+  private handleScroll(body: HTMLElement): void {
+    if (body !== this.activeBody) return;
+    const st = body.scrollTop;
+    const delta = st - this.lastScrollTop;
+    this.lastScrollTop = st;
+    if (delta === 0) return;
+    const dir = delta > 0 ? 1 : -1;
+    if (dir !== this.lastDir) {
+      this.lastDir = dir;
+      this.accumDelta = 0;
+    }
+    this.accumDelta += Math.abs(delta);
+    if (!this.reading) {
+      if (dir === 1 && st > 96 && this.accumDelta > 24) this.setReading(true);
+    } else if (st < 96 || (dir === -1 && this.accumDelta > 16)) {
+      this.setReading(false);
+    }
+  }
+
+  private setReading(reading: boolean): void {
+    if (this.reading === reading) return;
+    this.reading = reading;
+    this.events.onReadingChange?.(reading);
+  }
+
+  /** Force full chrome back — main.ts calls this when a sidebar opens or
+   *  keyboard focus lands in the chrome. */
+  exitReading(): void {
+    this.accumDelta = 0;
+    this.lastDir = 0;
+    this.setReading(false);
+  }
+
+  /** Restore a card's saved scroll position without tripping the reading
+   *  state: the programmatic scroll would otherwise read as a big jump. */
+  private restoreTopScroll(view: CardView): void {
+    view.bodyEl.scrollTop = view.savedScrollTop;
+    if (view.bodyEl === this.activeBody) this.lastScrollTop = view.bodyEl.scrollTop;
   }
 
   private focusTop(): void {

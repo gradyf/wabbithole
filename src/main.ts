@@ -96,6 +96,39 @@ const stack = new Stack(stage, {
   onExtractButton(node, btn) {
     trivia.decorateExtractButton(node, btn);
   },
+  onReadingChange(reading) {
+    document.documentElement.toggleAttribute('data-reading', reading);
+    // CSS collapses the topbar; JS pulls it out of the a11y + tab order too.
+    if (reading) {
+      topbar.setAttribute('inert', '');
+      topbar.setAttribute('aria-hidden', 'true');
+    } else {
+      topbar.removeAttribute('inert');
+      topbar.removeAttribute('aria-hidden');
+    }
+  },
+});
+
+// ---- reading state: exits owned by main.ts -----------------------------------
+// Opening either sidebar, or moving keyboard focus into the topbar or the
+// active card tab, restores full chrome.
+const bankSidebar = $('bank-sidebar');
+const readingExitObserver = new MutationObserver((records) => {
+  for (const r of records) {
+    if (!(r.target as HTMLElement).hasAttribute('data-collapsed')) {
+      stack.exitReading();
+      return;
+    }
+  }
+});
+readingExitObserver.observe(sidebar, { attributes: true, attributeFilter: ['data-collapsed'] });
+readingExitObserver.observe(bankSidebar, { attributes: true, attributeFilter: ['data-collapsed'] });
+
+document.addEventListener('focusin', (e) => {
+  const t = e.target as HTMLElement | null;
+  if (t && (t.closest('#topbar') || t.closest('.wh-card[data-state="active"] > .wh-tab'))) {
+    stack.exitReading();
+  }
 });
 
 // ---- entry: search + random ------------------------------------------------
