@@ -456,15 +456,22 @@ html[data-reading] .wh-card[data-state="active"] > .wh-tab .wh-tab-title {
 .wh-entry {
   /* Flows below the topbar (which now greets the entry screen) rather than
      covering it. When shown, the app frame + landing are display:none, so the
-     entry fills the space under the topbar. */
+     entry fills the space under the topbar. Scrolls (like .wh-landing) when
+     race card + trails push the column past the fixed-height body. */
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
   background: var(--surface-app);
+  overflow-y: auto;
 }
 .wh-entry-main {
-  flex: 1;
+  /* flex-basis auto + no shrink: never smaller than content, so the centered
+     column can't overflow its own box (which would clip the logo at the top
+     and the trails at the bottom — body is overflow:hidden). When content
+     fits, grow:1 fills the space and justify-content centers as before; when
+     it doesn't, .wh-entry scrolls. */
+  flex: 1 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
