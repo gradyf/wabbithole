@@ -150,3 +150,16 @@ Add `gen:pairs`/`revalidate` to `package.json` (not `build`). Run the generator,
 ---
 
 *Interim (Phase 0) is independent of the winner and should ship immediately. Phases 1–4 deliver the permanent fix; Phase 5 addresses the one real weakness (graph drift) at hobby-appropriate cost.*
+---
+
+## Decision 1 AMENDED by Gray (2026-07-06, post-Task-17 evidence)
+
+Task 17's implementation proved verified dist>=4 is structurally
+incompatible with famous hub starts (all 10 research "unrelated" famous
+pairs measured dist 2-3). Gray's call: **MIXED CALENDAR** — one pipeline,
+verified >=3 minimum for EVERY pair (no one/two-clickers ever), actual
+verified distance recorded in pairs.meta.json provenance; famous-feeling
+>=3 pairs form the backbone with quirky >=4 pairs mixed in for variety.
+The human review gate (PR diff eyeball) remains the unrelatedness
+backstop. Decisions 2-4 unchanged (365 pairs / static / hotfix shipped
+as 964c111).
