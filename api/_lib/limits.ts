@@ -6,20 +6,22 @@
 // at the price of losing the question — acceptable, not worth tombstones.
 
 import { and, eq, gte, sql } from 'drizzle-orm';
-import { db } from './db.js';
+import { db, type DbTx } from './db.js';
 import { bankItems } from './schema.js';
 
 export const WEEKLY_ADD_CAP = 10;
 
-export async function weeklyAddsUsed(userId: string): Promise<number> {
+/** Pass the executor when counting inside a locked transaction; the
+ * default reads through the plain HTTP connection (display only). */
+export async function weeklyAddsUsed(userId: string, executor: typeof db | DbTx = db): Promise<number> {
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-  const [{ count }] = await db
+  const [{ count }] = await executor
     .select({ count: sql<number>`count(*)::int` })
     .from(bankItems)
     .where(and(eq(bankItems.clerkUserId, userId), gte(bankItems.addedAt, weekAgo)));
   return count;
 }
 
-export async function weeklyRemaining(userId: string): Promise<number> {
-  return Math.max(0, WEEKLY_ADD_CAP - (await weeklyAddsUsed(userId)));
+export async function weeklyRemaining(userId: string, executor: typeof db | DbTx = db): Promise<number> {
+  return Math.max(0, WEEKLY_ADD_CAP - (await weeklyAddsUsed(userId, executor)));
 }

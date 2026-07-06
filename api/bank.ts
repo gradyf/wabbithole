@@ -5,7 +5,7 @@
 
 import { and, desc, eq, inArray } from 'drizzle-orm';
 import { requireUser } from './_lib/auth.js';
-import { db } from './_lib/db.js';
+import { db, withUserLock } from './_lib/db.js';
 import { HttpError, handle, json, readJson } from './_lib/http.js';
 import { WEEKLY_ADD_CAP, weeklyRemaining } from './_lib/limits.js';
 import { articleQuestions, articles, bankItems } from './_lib/schema.js';
@@ -66,31 +66,37 @@ async function list(userId: string): Promise<Response> {
 }
 
 async function add(userId: string, questionIds: string[]): Promise<Response> {
-  const remaining = await weeklyRemaining(userId);
-  if (remaining === 0) {
+  // Only questions that actually exist; insert is idempotent per user+question.
+  const existing = await db
+    .select({ id: articleQuestions.id })
+    .from(articleQuestions)
+    .where(inArray(articleQuestions.id, questionIds));
+
+  // Cap check and insert share a per-user lock so two concurrent adds
+  // can't both spend the same remaining slots.
+  const result = await withUserLock(userId, async (tx) => {
+    const remaining = await weeklyRemaining(userId, tx);
+    if (remaining === 0 || existing.length === 0) return { added: 0, remaining };
+
+    // The cap bounds how many can land this request; the client mirrors this.
+    const inserted = await tx
+      .insert(bankItems)
+      .values(
+        existing.slice(0, remaining).map((q) => ({ clerkUserId: userId, questionId: q.id })),
+      )
+      .onConflictDoNothing()
+      .returning({ id: bankItems.id });
+    return { added: inserted.length, remaining: remaining - inserted.length };
+  });
+
+  if (result.added === 0 && result.remaining === 0) {
     throw new HttpError(
       429,
       'weekly_cap',
       `Your bank takes ${WEEKLY_ADD_CAP} new questions a week. It has room again soon.`,
     );
   }
-
-  // Only questions that actually exist; insert is idempotent per user+question.
-  const existing = await db
-    .select({ id: articleQuestions.id })
-    .from(articleQuestions)
-    .where(inArray(articleQuestions.id, questionIds));
-  if (existing.length === 0) return json({ added: 0, remaining });
-
-  // The cap bounds how many can land this request; the client mirrors this.
-  const inserted = await db
-    .insert(bankItems)
-    .values(
-      existing.slice(0, remaining).map((q) => ({ clerkUserId: userId, questionId: q.id })),
-    )
-    .onConflictDoNothing()
-    .returning({ id: bankItems.id });
-  return json({ added: inserted.length, remaining: await weeklyRemaining(userId) });
+  return json(result);
 }
 
 async function remove(userId: string, bankItemIds: string[]): Promise<Response> {
