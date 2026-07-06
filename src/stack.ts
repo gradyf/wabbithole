@@ -52,6 +52,19 @@ const LICENSE_URL = 'https://creativecommons.org/licenses/by-sa/4.0/';
 const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const isMobile = () => window.matchMedia('(max-width: 719px)').matches;
 
+// Trail cascade (Task 21). Near the top of the active card the ancestor tabs
+// "unstack" into a visible cascade so the trail reads at a glance; scrolling in
+// collapses them behind the active tab (today's space-saver). The flip is
+// hysteretic around the ~96px Contents-peek fold so it never jitters at the
+// boundary, and the number of peek strips is capped so a deep trail can't eat
+// the screen — older cards stay in the Trail dock, with a "+N earlier" marker.
+const CASCADE_CAP_DESKTOP = 4;
+const CASCADE_CAP_MOBILE = 1;
+const CASCADE_UNSTACK_BELOW = 64; // scrolled back up past this -> unstack
+const CASCADE_COLLAPSE_ABOVE = 112; // scrolled down past this -> collapse
+const CASCADE_INSET_STEP = 8; // px of width inset per buried level (the nesting)
+const CASCADE_INSET_MAX = 28;
+
 export class Stack {
   lang = 'en';
   private nodes = new Map<number, CardNode>();
@@ -69,9 +82,15 @@ export class Stack {
   private accumDelta = 0;
   private lastDir = 0; // -1 up, 1 down, 0 none
 
+  // Cascade state: true when the trail is unstacked (near the card top). The DOM
+  // flip is the stage's data-unstacked attribute; the count of ancestor strips
+  // lives in the --peek-count CSS var, which pushes the active card down.
+  private unstacked = true;
+
   constructor(stage: HTMLElement, events: StackEvents) {
     this.stage = stage;
     this.events = events;
+    this.stage.toggleAttribute('data-unstacked', true);
     window.addEventListener('resize', () => this.layout());
   }
 
@@ -387,20 +406,13 @@ export class Stack {
 
   private layout(): void {
     const n = this.views.length;
-    const mobile = isMobile();
-    // Focus mode: only the current card is on the desk. The trail lives in
-    // the Trail panel; spawning animates the new card in over the old one.
+    // The active card is on the desk; its ancestors ride above it as tab strips,
+    // cascaded when the reader is at the top and collapsed behind it otherwise
+    // (positionCards owns that geometry). Spawning animates the new card in.
 
     this.views.forEach((view, i) => {
       const isTop = i === n - 1;
-      const { wrapEl, cardEl, tabEl, bodyEl } = view;
-
-      wrapEl.hidden = !isTop;
-      if (isTop) {
-        wrapEl.style.top = '6px';
-        wrapEl.style.width = mobile ? 'calc(100% - 16px)' : 'min(var(--card-width), calc(100% - 48px))';
-        wrapEl.style.zIndex = '1';
-      }
+      const { cardEl, tabEl, bodyEl } = view;
 
       // state + interactivity
       if (isTop) {
@@ -447,7 +459,86 @@ export class Stack {
       if (top) this.markDeep(top, top.bodyEl.scrollTop);
     }
 
+    // Assign cascade geometry last, so it reads the settled unstacked state.
+    this.positionCards();
     this.events.onPathChange(this.path);
+  }
+
+  // ---- trail cascade ----------------------------------------------------------
+
+  /** Place the active card and its ancestor peek strips for the current path.
+   *  Runs on every layout (path change); the cheap unstacked/collapsed flip that
+   *  happens on scroll is setUnstacked, which only toggles the stage attribute
+   *  and the strips' inertness — the strips are already positioned here. */
+  private positionCards(): void {
+    const n = this.views.length;
+    const cap = isMobile() ? CASCADE_CAP_MOBILE : CASCADE_CAP_DESKTOP;
+    const ancestors = Math.max(0, n - 1);
+    const visCount = Math.min(cap, ancestors);
+    const visibleStart = ancestors - visCount; // first ancestor shown as a strip
+    this.stage.style.setProperty('--peek-count', String(visCount));
+    this.stage.toggleAttribute('data-unstacked', this.unstacked);
+
+    this.views.forEach((view, i) => {
+      const w = view.wrapEl;
+      if (i === n - 1) {
+        // active card: CSS owns its width + resting/pushed-down top via
+        // [data-active]; z-index keeps it above the piled strips.
+        w.hidden = false;
+        w.toggleAttribute('data-active', true);
+        w.removeAttribute('data-peek');
+        w.removeAttribute('data-more');
+        w.removeAttribute('inert');
+        w.style.zIndex = String(visCount + 1);
+        w.style.removeProperty('--peek-y');
+        w.style.removeProperty('--peek-inset');
+        w.style.removeProperty('--peek-more');
+        return;
+      }
+      w.removeAttribute('data-active');
+      if (i >= visibleStart) {
+        const pos = i - visibleStart; // 0 = oldest visible (top of the cascade)
+        w.hidden = false;
+        w.toggleAttribute('data-peek', true);
+        w.toggleAttribute('inert', !this.unstacked);
+        w.style.setProperty('--peek-y', String(pos));
+        w.style.setProperty(
+          '--peek-inset',
+          `${Math.min((visCount - 1 - pos) * CASCADE_INSET_STEP, CASCADE_INSET_MAX)}px`,
+        );
+        w.style.zIndex = String(pos + 1);
+        if (pos === 0 && visibleStart > 0) {
+          // deeper trail than the cap: mark the top strip "+N earlier".
+          w.toggleAttribute('data-more', true);
+          w.style.setProperty('--peek-more', `"${visibleStart}"`);
+        } else {
+          w.removeAttribute('data-more');
+          w.style.removeProperty('--peek-more');
+        }
+      } else {
+        // older than the cap: fully hidden; the Trail dock holds these.
+        w.hidden = true;
+        w.removeAttribute('data-peek');
+        w.removeAttribute('data-more');
+        w.removeAttribute('inert');
+        w.style.removeProperty('--peek-y');
+        w.style.removeProperty('--peek-inset');
+        w.style.removeProperty('--peek-more');
+      }
+    });
+  }
+
+  /** Flip the trail between unstacked (cascade) and collapsed. Cheap enough to
+   *  run from the scroll path: it only toggles the stage attribute (CSS animates
+   *  the strips) and the strips' inertness, so a collapsed strip leaves the tab
+   *  order. positionCards has already placed each strip. */
+  private setUnstacked(x: boolean): void {
+    if (this.unstacked === x) return;
+    this.unstacked = x;
+    this.stage.toggleAttribute('data-unstacked', x);
+    for (const v of this.views) {
+      if (v.wrapEl.hasAttribute('data-peek')) v.wrapEl.toggleAttribute('inert', !x);
+    }
   }
 
   // ---- reading state ----------------------------------------------------------
@@ -491,6 +582,13 @@ export class Stack {
     const sh = view.bodyEl.scrollHeight;
     const frac = sh > 0 ? Math.min(1, (st + view.bodyEl.clientHeight) / sh) : 0;
     view.tabEl.style.setProperty('--wh-read', String(frac));
+    // Trail cascade rides the same fold as the Contents peek, with a hysteresis
+    // dead-band (64..112) so hovering the boundary never flickers the strips.
+    // Only the active card's scroll drives it.
+    if (view === this.views[this.views.length - 1]) {
+      if (this.unstacked && st > CASCADE_COLLAPSE_ABOVE) this.setUnstacked(false);
+      else if (!this.unstacked && st < CASCADE_UNSTACK_BELOW) this.setUnstacked(true);
+    }
   }
 
   /** Force full chrome back — main.ts calls this when a sidebar opens or

@@ -38,6 +38,12 @@ body {
   overflow: hidden;
   /* wider pages than the kit default; geometry is app-owned */
   --card-width: 1360px;
+  /* the active card's on-desk width, shared with the ancestor peek strips so a
+     cascade stays visually anchored to the reading column */
+  --stack-width: min(var(--card-width), calc(100% - 48px));
+}
+@media (max-width: 719px) {
+  .wh-stage { --stack-width: calc(100% - 16px); }
 }
 
 /* widen the reading column to match: text sits beside the infobox instead
@@ -144,6 +150,68 @@ html[data-reading] .wh-card[data-state="active"] > .wh-tab .wh-tab-title {
   transition: transform var(--dur-fast) linear;
 }
 
+/* ---- scroll-reactive trail cascade: ancestor tabs unstack at the card top ---- */
+/* Near the top of the active card the trail "unstacks": each ancestor's tab
+   strip cascades above the article so the whole path reads at a glance (the DS's
+   original stacked-index-card look, restored). Scrolling into the article
+   collapses the strips behind the active tab, reclaiming today's single-tab
+   space. Geometry (which cards peek, their order and width inset, the active
+   card's push-down) is assigned in stack.ts; the flip between the two states is
+   the single data-unstacked attribute below, driven off the same ~96px fold as
+   the Contents peek (with a hysteresis dead-band in JS) so it never thrashes. */
+
+/* the active card owns its on-desk width + a resting top; unstacking pushes it
+   down by one tab-height per visible ancestor. Both transition via the base
+   .wh-cardpos rule (top, width). */
+.wh-cardpos[data-active] {
+  top: 6px;
+  width: var(--stack-width);
+}
+.wh-stage[data-unstacked] .wh-cardpos[data-active] {
+  top: calc(6px + var(--peek-count, 0) * var(--tab-height));
+}
+
+/* an ancestor rendered as a tab-only peek strip. Collapsed by default: piled at
+   the resting top behind the active card, faded and inert. Unstacking spreads
+   them into the cascade. */
+.wh-cardpos[data-peek] {
+  top: 6px;
+  bottom: auto;
+  height: var(--tab-height);
+  width: calc(var(--stack-width) - var(--peek-inset, 0px));
+  /* keep the base translateX(-50%) centering; add the cascade offset */
+  transform: translateX(-50%) translateY(0);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform var(--dur-med) var(--ease-settle),
+    opacity var(--dur-med) var(--ease-settle);
+}
+.wh-stage[data-unstacked] .wh-cardpos[data-peek] {
+  transform: translateX(-50%) translateY(calc(var(--peek-y, 0) * var(--tab-height)));
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* "+N earlier" pill on the topmost strip when the trail runs deeper than the
+   cascade cap; the full history still lives in the Trail dock. Informational —
+   the strip itself stays a jump-back target underneath. */
+.wh-cardpos[data-more]::after {
+  content: "+" var(--peek-more, "0") " earlier";
+  position: absolute;
+  top: 9px;
+  right: 12px;
+  padding: 1px 8px;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-pill);
+  pointer-events: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .wh-topbar,
   .wh-card[data-state="active"] > .wh-tab,
@@ -152,6 +220,9 @@ html[data-reading] .wh-card[data-state="active"] > .wh-tab .wh-tab-title {
   }
   .wh-card[data-state="active"] > .wh-tab::after { transition: none; }
   .wh-toc-pop { animation: none; }
+  /* the cascade snaps between states instead of animating */
+  .wh-cardpos,
+  .wh-cardpos[data-peek] { transition: none; }
 }
 
 /* ---- mid-read Contents peek ---- */
