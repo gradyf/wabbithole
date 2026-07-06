@@ -42,6 +42,9 @@ export interface StackEvents {
   onReadingChange?(reading: boolean): void;
   /** Called after a card's tab renders, so the app can add tab-level controls. */
   onTabExtras?(node: CardNode, tab: HTMLElement): void;
+  /** A genuinely NEW card was appended to the tip (start or link spawn), not a
+   *  trail-jump revisit or a deep-link reconcile. The race layer counts these. */
+  onSpawn?(node: CardNode): void;
 }
 
 const LICENSE_URL = 'https://creativecommons.org/licenses/by-sa/4.0/';
@@ -92,6 +95,9 @@ export class Stack {
     this.nodes.clear();
     this.nextId = 1;
     const node = this.makeNode(title, null);
+    // Count the spawn BEFORE appendView, whose layout() fires onPathChange —
+    // win detection there must already see this card in the score.
+    this.events.onSpawn?.(node);
     const view = this.appendView(node);
     this.commit(true);
     await this.hydrate(view);
@@ -110,6 +116,9 @@ export class Stack {
       ? parent.childIds.map((id) => this.nodes.get(id)!).find((n) => n.title.toLowerCase() === t.toLowerCase())
       : undefined;
     if (!node) node = this.makeNode(t, parent?.id ?? null);
+    // Count the spawn BEFORE appendView, whose layout() fires onPathChange —
+    // win detection there must already see this card in the score.
+    this.events.onSpawn?.(node);
     const view = this.appendView(node);
     this.commit(true);
     await this.hydrate(view);

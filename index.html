@@ -36,6 +36,17 @@
       <div id="user-button" class="wh-userbtn" hidden></div>
     </header>
 
+    <div class="wh-racebar" id="racebar" hidden>
+      <span class="wh-racebar-kicker">race to</span>
+      <span class="wh-racebar-target" id="racebar-target"></span>
+      <span class="wh-racebar-cards" id="racebar-cards">1 card</span>
+      <span class="wh-racebar-mode" id="racebar-mode" hidden>freeplay</span>
+      <span class="wh-topbar-spacer"></span>
+      <button class="wh-btn" data-variant="ghost" data-size="sm" id="racebar-leave">
+        <span class="wh-icon" data-name="x" aria-hidden="true"></span><span class="wh-btn-label">Leave</span>
+      </button>
+    </div>
+
     <div class="wh-main" id="main-row" hidden>
       <aside class="wh-sidebar" id="sidebar" data-collapsed aria-label="Trail">
         <div class="wh-sidebar-inner">
@@ -126,6 +137,7 @@
               <button type="button" class="wh-btn" data-variant="solid" id="btn-landing-start">Start wandering</button>
               <button type="button" class="wh-btn" data-variant="ghost" id="btn-landing-quiz">Quiz me</button>
             </div>
+            <div class="wh-landing-race" id="landing-race"></div>
             <p class="wh-landing-note">Your trivia bank and trails, saved on every device.</p>
             <button type="button" class="wh-linklike" id="btn-landing-wander">or wander without an account ↓</button>
           </div>
@@ -209,6 +221,7 @@
         <button class="wh-btn" data-variant="ghost" id="btn-random">
           <span class="wh-icon" data-name="shuffle" aria-hidden="true"></span>or fall in somewhere random ↓
         </button>
+        <section class="wh-entry-race" id="entry-race" aria-label="Today's race"></section>
         <section class="wh-entry-trails" id="entry-trails" aria-label="Your trails" hidden>
           <h2 class="wh-entry-trails-head">Your trails</h2>
           <div class="wh-entry-trails-list" id="entry-trails-list"></div>
@@ -272,6 +285,41 @@
           </button>
         </div>
         <div class="wh-panel-body" data-pad id="quiz-body"></div>
+      </div>
+    </div>
+
+    <div class="wh-overlay" id="race-win-overlay" hidden>
+      <div class="wh-panel" data-side="center" role="dialog" aria-modal="true" aria-labelledby="race-win-title">
+        <div class="wh-panel-head">
+          <h2 class="wh-panel-title" id="race-win-title">You made it</h2>
+          <button class="wh-iconbtn" data-size="sm" id="btn-race-win-close" aria-label="Close">
+            <span class="wh-icon" data-name="x" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="wh-panel-body" data-pad id="race-win-body"></div>
+        <div class="wh-panel-foot">
+          <button class="wh-btn" data-variant="ghost" data-size="sm" id="btn-race-win-keep">Keep wandering</button>
+          <span class="wh-topbar-spacer"></span>
+          <button class="wh-btn" data-variant="solid" data-size="sm" id="btn-race-win-share">
+            <span class="wh-icon" data-name="link" aria-hidden="true"></span>Share result
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="wh-overlay" id="race-abandon-overlay" hidden>
+      <div class="wh-panel" data-side="center" role="dialog" aria-modal="true" aria-labelledby="race-abandon-title">
+        <div class="wh-panel-head">
+          <h2 class="wh-panel-title" id="race-abandon-title">Leave today's race?</h2>
+        </div>
+        <div class="wh-panel-body" data-pad>
+          <p class="wh-race-abandon-copy">Leaving ends today's run. Your one scored attempt for today will count as a miss.</p>
+        </div>
+        <div class="wh-panel-foot">
+          <button class="wh-btn" data-variant="ghost" data-size="sm" id="btn-race-abandon-keep">Keep racing</button>
+          <span class="wh-topbar-spacer"></span>
+          <button class="wh-btn" data-variant="soft" data-size="sm" id="btn-race-abandon-leave">Leave race</button>
+        </div>
       </div>
     </div>
 

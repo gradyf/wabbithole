@@ -5,6 +5,17 @@ import { articleUrl, getRandomTitle, normTitle, searchTitles } from './api';
 import { Stack, type CardNode } from './stack';
 import { initTrails } from './trails';
 import { initTrivia } from './trivia';
+import { initRace, type RaceUI } from './race';
+
+// A trail's crawlable /t/ share URL. Caps at 12 titles (the share route's
+// limit); race params add the daily-race badge to the unfurl + og image.
+const SHARE_MAX = 12;
+function buildShareUrl(lang: string, titles: string[], race?: { date: string; cards: number }): string {
+  const segs = titles.slice(0, SHARE_MAX).map((t) => encodeURIComponent(t.replace(/ /g, '_')));
+  let url = `${location.origin}/t/${lang}/${segs.join('/')}`;
+  if (race) url += `?race=${race.date}&cards=${race.cards}`;
+  return url;
+}
 
 const $ = <T extends HTMLElement>(id: string): T => document.getElementById(id) as T;
 
@@ -38,6 +49,11 @@ const landing = $('landing');
 let knownSignedIn = /(?:^|;\s*)__client_uat=(?!0(?:;|$))\d/.test(document.cookie);
 const skipLanding = () => sessionStorage.getItem('wh-skip-landing') === '1';
 
+// Assigned once the stack exists (the race reads/drives it). Referenced from
+// the stack events + home-screen updates via `race?.`, all of which run after
+// this is set.
+let race: RaceUI | undefined;
+
 function updateHomeScreens(): void {
   const inSession = stack.path.length > 0;
   const showLanding = !inSession && !skipLanding();
@@ -52,6 +68,9 @@ function updateHomeScreens(): void {
   // Returning to the entry screen: refresh "Your trails" so a just-saved trail
   // (or a cleared auto trail) shows. No-op signed out.
   if (!entry.hidden) trailsUI?.onEntryShown();
+  // Keep today's race cards on the landing + entry current with local date and
+  // any recorded result. Cheap; a no-op-ish DOM rebuild.
+  race?.renderCards();
 }
 
 function updateLandingAuth(): void {
@@ -97,6 +116,13 @@ const stack = new Stack(stage, {
     renderTrail(path);
     // Persist the current path for signed-in users (debounced; empty clears it).
     trailsUI.autosave(path.map((node) => ({ lang: node.lang, title: node.title })));
+    // Race layer: win detection + live card count (races are trails too, so the
+    // autosave above still runs during a race).
+    race?.onPathChange(path);
+  },
+  onSpawn() {
+    // Every genuinely new card is one point of race score.
+    race?.onSpawn();
   },
   onAnnounce(msg) {
     announcer.textContent = msg;
@@ -141,6 +167,29 @@ const trailsUI = initTrails({
   },
   currentPath() {
     return stack.path.map((node) => ({ lang: node.lang, title: node.title }));
+  },
+});
+
+// ---- daily race: engine, banner, win overlay, streaks (localStorage) --------
+// The race drives the stack (starting a run opens the start article) and
+// observes it (spawns count; a canonical-title arrival at the target wins).
+race = initRace({
+  lang: () => stack.lang,
+  startArticle(lang, title) {
+    setSidebar(false);
+    void stack.startWith(lang, title);
+  },
+  goHome() {
+    setSidebar(false);
+    void stack.applyTrail(stack.lang, [], true);
+  },
+  currentPath() {
+    return stack.path.map((node) => ({ lang: node.lang, title: node.title }));
+  },
+  buildShareUrl,
+  onToast: showToast,
+  announce(msg) {
+    announcer.textContent = msg;
   },
 });
 
@@ -357,8 +406,12 @@ $('btn-random').addEventListener('click', async () => {
 // ---- topbar ------------------------------------------------------------------
 
 $('btn-home').addEventListener('click', () => {
-  setSidebar(false);
-  void stack.applyTrail(stack.lang, [], true);
+  // Home leaves the race surface (it exposes search/random), so a race exits
+  // here after a confirm; freeplay and normal sessions go straight home.
+  race?.attemptLeave(() => {
+    setSidebar(false);
+    void stack.applyTrail(stack.lang, [], true);
+  });
 });
 
 $('btn-back').addEventListener('click', () => {
@@ -370,14 +423,13 @@ $('btn-share').addEventListener('click', async () => {
   // A trail with >=1 card gets the crawlable /t/ share URL (the hash URL still
   // works; /t/ is the unfurlable skin). The route caps at 12 titles, so a longer
   // trail shares its first 12 — and the toast says so.
-  const SHARE_MAX = 12;
   let link = location.href;
   let suffix = n === 1 ? '1 card.' : `${n} cards.`;
   if (n >= 1) {
-    const titles = stack.path
-      .slice(0, SHARE_MAX)
-      .map((node) => encodeURIComponent(node.title.replace(/ /g, '_')));
-    link = `${location.origin}/t/${stack.lang}/${titles.join('/')}`;
+    link = buildShareUrl(
+      stack.lang,
+      stack.path.map((node) => node.title),
+    );
     if (n > SHARE_MAX) suffix += ' (first 12)';
   }
   try {
@@ -517,9 +569,15 @@ function parseHash(): { lang: string; titles: string[] } | null {
 window.addEventListener('popstate', (e) => {
   const state = e.state as TrailState | null;
   if (state?.trail) {
+    // In-session back/forward (states we pushed) — the race rides along:
+    // trail jumps are free, and emptying the path ends the run in race.ts.
     void stack.applyTrail(state.lang ?? 'en', state.trail, false);
   } else {
     const parsed = parseHash();
+    // A state-less entry carrying a trail hash is URL entry (a manual hash
+    // edit, or backing into an original deep-link entry) — that is not link
+    // wandering, so race mode ends here (scored runs record a miss).
+    if (parsed && parsed.titles.length > 0) race?.onDeepLink();
     void stack.applyTrail(parsed?.lang ?? stack.lang, parsed?.titles ?? [], false);
   }
 });
