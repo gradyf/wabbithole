@@ -18,6 +18,9 @@ export interface TriviaUI {
   signUp(): void;
   /** Decorate a card's extract button with cache/bank state (signed-in only). */
   decorateExtractButton(node: { lang: string; title: string }, btn: HTMLButtonElement): void;
+  /** Authenticated JSON fetch (Bearer token, throws on error). Callers MUST
+   *  gate on signed-in state — invoking this forces the Clerk bundle to load. */
+  api<T>(path: string, init?: RequestInit): Promise<T>;
 }
 
 interface ApiQuestion {
@@ -835,6 +838,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     openExtract,
     openBank,
     decorateExtractButton,
+    api: apiFetch,
     signIn: () => {
       void requireAuth();
     },

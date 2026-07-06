@@ -3,6 +3,7 @@ import './app.css';
 
 import { articleUrl, getRandomTitle, normTitle, searchTitles } from './api';
 import { Stack, type CardNode } from './stack';
+import { initTrails } from './trails';
 import { initTrivia } from './trivia';
 
 const $ = <T extends HTMLElement>(id: string): T => document.getElementById(id) as T;
@@ -42,6 +43,9 @@ function updateHomeScreens(): void {
   const showLanding = !inSession && !skipLanding();
   landing.hidden = !showLanding;
   entry.hidden = inSession || showLanding;
+  // Returning to the entry screen: refresh "Your trails" so a just-saved trail
+  // (or a cleared auto trail) shows. No-op signed out.
+  if (!entry.hidden) trailsUI?.onEntryShown();
 }
 
 function updateLandingAuth(): void {
@@ -69,6 +73,7 @@ const trivia = initTrivia({
     knownSignedIn = signedIn;
     updateLandingAuth();
     updateHomeScreens();
+    trailsUI.setSignedIn(signedIn);
   },
 });
 
@@ -85,6 +90,8 @@ const stack = new Stack(stage, {
     $('btn-back').hidden = n < 2;
     document.title = n > 0 ? `${path[n - 1].title} · wabbit hole` : 'Wabbit Hole · a Wikipedia wander';
     renderTrail(path);
+    // Persist the current path for signed-in users (debounced; empty clears it).
+    trailsUI.autosave(path.map((node) => ({ lang: node.lang, title: node.title })));
   },
   onAnnounce(msg) {
     announcer.textContent = msg;
@@ -109,6 +116,26 @@ const stack = new Stack(stage, {
   },
   onTabExtras(node, tab) {
     tab.appendChild(buildTabCluster(node));
+  },
+});
+
+// ---- trails: auto-resume + saved trails (signed-in only) -------------------
+// trivia.ts owns Clerk and the authenticated api(); trails only ever calls it
+// while signed in, so anonymous wandering fires no /api/trails request and
+// never loads the Clerk bundle on this account.
+const trailsUI = initTrails({
+  api: trivia.api,
+  onToast: showToast,
+  announce(msg) {
+    announcer.textContent = msg;
+  },
+  openTrail(lang, titles) {
+    sessionStorage.setItem('wh-skip-landing', '1');
+    setSidebar(false);
+    void stack.applyTrail(lang, titles, true);
+  },
+  currentPath() {
+    return stack.path.map((node) => ({ lang: node.lang, title: node.title }));
   },
 });
 

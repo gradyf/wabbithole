@@ -359,6 +359,105 @@ html[data-reading] .wh-card[data-state="active"] > .wh-tab .wh-tab-title {
 }
 .wh-entry-search { width: min(560px, 100%); }
 .wh-entry-main > .wh-btn { margin-top: var(--space-5); }
+
+/* "Your trails": signed-in resume + saved trails, under the search box */
+.wh-entry-trails {
+  width: min(560px, 100%);
+  margin-top: var(--space-6);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--border-hairline);
+  text-align: left;
+}
+.wh-entry-trails-head {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: 0 0 var(--space-3);
+}
+.wh-entry-trails-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.wh-trailcard {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+  transition: border-color var(--dur-fast) var(--ease-swift);
+}
+.wh-trailcard:hover { border-color: var(--border-strong); }
+.wh-trailcard-open {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+  background: none;
+  border: 0;
+  font: inherit;
+  padding: 10px var(--space-4);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+.wh-trailcard-kicker {
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-caps);
+  text-transform: uppercase;
+  color: var(--accent-deep);
+}
+.wh-trailcard-title {
+  font-family: var(--font-serif);
+  font-size: 15.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wh-trailcard-meta {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption);
+  color: var(--text-faint);
+  font-variant-numeric: tabular-nums;
+}
+.wh-trailcard .wh-iconbtn {
+  flex: none;
+  align-self: center;
+  margin-right: var(--space-2);
+  color: var(--text-faint);
+}
+.wh-trailcard-auto { border-color: var(--accent); background: var(--accent-tint); }
+.wh-trailcard-auto:hover { border-color: var(--accent-deep); }
+
+/* trail sidebar foot: the Save trail control stacks above the export row */
+.wh-trail-foot {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-2);
+}
+.wh-trail-foot-row { display: flex; align-items: center; gap: var(--space-2); }
+.wh-save-trail { display: flex; align-items: center; gap: var(--space-1); }
+.wh-save-trail-input {
+  flex: 1;
+  min-width: 0;
+  height: 30px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-card);
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  color: var(--text-primary);
+}
+.wh-save-trail-input:focus {
+  outline: none;
+  border-color: var(--link);
+  box-shadow: 0 0 0 3px var(--link-tint);
+}
 .wh-entry-foot {
   flex: none;
   padding: var(--space-4) var(--space-6) var(--space-5);

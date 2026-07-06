@@ -46,12 +46,35 @@
             </button>
           </div>
           <div class="wh-sidebar-body" id="trail-list" role="list"></div>
-          <div class="wh-sidebar-foot">
-            <button class="wh-btn" data-variant="soft" data-size="sm" id="btn-export">
-              <span class="wh-icon" data-name="download" aria-hidden="true"></span>Export Markdown
+          <div class="wh-sidebar-foot wh-trail-foot">
+            <button class="wh-btn" data-variant="soft" data-size="sm" id="btn-save-trail" hidden>
+              <span class="wh-icon" data-name="book-marked" aria-hidden="true"></span>Save trail
             </button>
-            <span class="wh-topbar-spacer"></span>
-            <span class="wh-trail-count" id="trail-count"></span>
+            <form class="wh-save-trail" id="save-trail-form" hidden>
+              <input
+                class="wh-save-trail-input"
+                id="save-trail-input"
+                type="text"
+                maxlength="120"
+                aria-label="Name this trail"
+                placeholder="Name this trail"
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <button type="submit" class="wh-iconbtn" data-size="sm" id="btn-save-trail-confirm" aria-label="Save trail" title="Save trail">
+                <span class="wh-icon" data-name="circle-check" aria-hidden="true"></span>
+              </button>
+              <button type="button" class="wh-iconbtn" data-size="sm" id="btn-save-trail-cancel" aria-label="Cancel" title="Cancel">
+                <span class="wh-icon" data-name="x" aria-hidden="true"></span>
+              </button>
+            </form>
+            <div class="wh-trail-foot-row">
+              <button class="wh-btn" data-variant="soft" data-size="sm" id="btn-export">
+                <span class="wh-icon" data-name="download" aria-hidden="true"></span>Export Markdown
+              </button>
+              <span class="wh-topbar-spacer"></span>
+              <span class="wh-trail-count" id="trail-count"></span>
+            </div>
           </div>
         </div>
       </aside>
@@ -103,7 +126,7 @@
               <button type="button" class="wh-btn" data-variant="solid" id="btn-landing-start">Start wandering</button>
               <button type="button" class="wh-btn" data-variant="ghost" id="btn-landing-quiz">Quiz me</button>
             </div>
-            <p class="wh-landing-note">Your trivia bank, saved on every device.</p>
+            <p class="wh-landing-note">Your trivia bank and trails, saved on every device.</p>
             <button type="button" class="wh-linklike" id="btn-landing-wander">or wander without an account ↓</button>
           </div>
           <div class="wh-landing-stack" aria-hidden="true">
@@ -186,6 +209,10 @@
         <button class="wh-btn" data-variant="ghost" id="btn-random">
           <span class="wh-icon" data-name="shuffle" aria-hidden="true"></span>or fall in somewhere random ↓
         </button>
+        <section class="wh-entry-trails" id="entry-trails" aria-label="Your trails" hidden>
+          <h2 class="wh-entry-trails-head">Your trails</h2>
+          <div class="wh-entry-trails-list" id="entry-trails-list"></div>
+        </section>
       </main>
       <footer class="wh-entry-foot">
         Article text from
@@ -209,7 +236,7 @@
           <div class="wh-prose wh-about-prose">
             <p><b>Wabbit Hole</b> is a way to wander Wikipedia. Every link you follow opens a new card on top of the last one, and the stack of cards is the story of how you got here.</p>
             <p>Article text comes from Wikipedia's public APIs and is available under <a href="https://creativecommons.org/licenses/by-sa/4.0/" data-link="ext" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a> (some content under GFDL). Articles are modified: reformatted for reading, with navigation boxes, hatnotes, and similar elements omitted. Each card links to the original article, whose history page lists its authors. Images are licensed individually by their authors.</p>
-            <p>Wandering needs no account and is not tracked. The optional trivia bank needs an account so your questions can follow you between visits; it stores only your saved questions and quiz stats. This project is not endorsed by or affiliated with the Wikimedia Foundation.</p>
+            <p>Wandering needs no account and is not tracked. An account lets your trivia bank and saved trails follow you between visits; it stores only your saved questions, your saved trails, and quiz stats. This project is not endorsed by or affiliated with the Wikimedia Foundation.</p>
             <p>Trivia questions are generated from article text by a language model and can be wrong. Each question links back to its source article.</p>
           </div>
         </div>
