@@ -9,6 +9,7 @@
 
 import { normTitle } from './api';
 import pairs from './race/pairs.json';
+import overrides from './race/overrides.json';
 
 export interface Pair {
   start: string; // canonical en title, underscore form
@@ -16,6 +17,14 @@ export interface Pair {
 }
 
 const PAIRS = pairs as Pair[];
+// Date-keyed owner vetoes / interim hotfixes, consulted BEFORE the rotation.
+// Each entry pins one YYYY-MM-DD to a hand-verified far pair (link-distance >=4,
+// the 5-card floor). Any date NOT listed here falls through to the untouched
+// modulo rotation below, so every past date's pair — and thus syncAccount's
+// historical title reconstruction — stays byte-identical to before this map
+// existed. In-place edits to pairs.json would instead remap every date sharing
+// an index; the override map is surgical and touches only the dates it names.
+const OVERRIDES = overrides as Record<string, Pair>;
 const EPOCH_UTC = Date.UTC(2026, 0, 1); // day 0 of the rotation
 const STORE_KEY = 'wh-race';
 
@@ -36,19 +45,25 @@ export function dayIndex(key: string): number {
   return Math.floor((Date.UTC(y, m - 1, d) - EPOCH_UTC) / 86_400_000);
 }
 
-/** Pair for a day key: a plain days-since-2026-01-01 counter modulo the list
- *  length. The same date always maps to the same pair; consecutive days walk
- *  the list, so every pair is used once per full rotation. */
+/** Pair for a day key. A date-specific override (owner veto / interim hotfix)
+ *  wins if present; otherwise a plain days-since-2026-01-01 counter modulo the
+ *  list length. The same date always maps to the same pair; consecutive
+ *  non-override days walk the list, so every pair is used once per rotation. */
 export function pairForKey(key: string): Pair {
+  const override = OVERRIDES[key];
+  if (override) return override;
   const i = ((dayIndex(key) % PAIRS.length) + PAIRS.length) % PAIRS.length;
   return PAIRS[i];
 }
 
-/** Convenience for verification: key + index + pair for a Date. */
+/** Convenience for verification: key + rotation index + the effective pair.
+ *  `pair` routes through pairForKey so an override date reports the pair the
+ *  game actually serves; `index` stays the base rotation slot (informational —
+ *  an override has no slot of its own). */
 export function pairForDate(d: Date = new Date()): { key: string; index: number; pair: Pair } {
   const key = dayKey(d);
   const idx = ((dayIndex(key) % PAIRS.length) + PAIRS.length) % PAIRS.length;
-  return { key, index: idx, pair: PAIRS[idx] };
+  return { key, index: idx, pair: pairForKey(key) };
 }
 
 // ---- localStorage: results + streaks ---------------------------------------

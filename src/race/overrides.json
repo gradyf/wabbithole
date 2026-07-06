@@ -1,0 +1,21 @@
+{
+  "2026-07-06": { "start": "Continental_drift", "target": "Marshmallow" },
+  "2026-07-13": { "start": "Marshmallow", "target": "Etch_A_Sketch" },
+  "2026-07-14": { "start": "Quicksand", "target": "Tiddlywinks" },
+  "2026-07-16": { "start": "Osmosis", "target": "Whoopee_cushion" },
+  "2026-07-23": { "start": "Cotton_candy", "target": "Slinky" },
+  "2026-07-24": { "start": "Ice_pop", "target": "Mood_ring" },
+  "2026-07-26": { "start": "Kaleidoscope", "target": "Troll_doll" },
+  "2026-07-28": { "start": "Continental_drift", "target": "Sparkler" },
+  "2026-08-01": { "start": "Marshmallow", "target": "Pool_noodle" },
+  "2026-08-04": { "start": "Quicksand", "target": "Troll_doll" },
+  "2026-08-10": { "start": "Osmosis", "target": "Silly_String" },
+  "2026-08-16": { "start": "Cotton_candy", "target": "Pinwheel_(toy)" },
+  "2026-08-17": { "start": "Ice_pop", "target": "Fidget_spinner" },
+  "2026-09-01": { "start": "Lighthouse", "target": "Whoopee_cushion" },
+  "2026-09-16": { "start": "Continental_drift", "target": "Snow_globe" },
+  "2026-09-17": { "start": "Marshmallow", "target": "Fidget_spinner" },
+  "2026-10-05": { "start": "Quicksand", "target": "Snow_globe" },
+  "2026-10-11": { "start": "Osmosis", "target": "Etch_A_Sketch" },
+  "2026-10-29": { "start": "Cotton_candy", "target": "Whoopee_cushion" }
+}
