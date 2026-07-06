@@ -131,6 +131,34 @@ html[data-reading] .wh-card[data-state="active"] > .wh-tab .wh-tab-title {
   margin: 0 auto;
 }
 
+/* ---- wide tables break out of the reading column ---- */
+
+/* the card body is the width reference for table breakout. container-type here
+   is safe: the body is already the BFC scroll container, so this adds no
+   containment between a floated infobox and the sections flowing beside it. */
+.wh-card-body { container-type: inline-size; }
+
+/* Narrow tables fill the 960px column as before; wider ones grow to their
+   natural width, centered, capped at the body's inner width (100cqw = width
+   inside the body padding). Past that the wrap scrolls. */
+.wh-card-body .wh-tablewrap {
+  width: max-content;
+  min-width: 100%;
+  max-width: 100cqw;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+/* keep the horizontal scrollbar visible without hovering (macOS overlay
+   scrollbars hide otherwise); mirrors the .wh-card-body idiom in components.css */
+.wh-card-body .wh-tablewrap::-webkit-scrollbar { height: 10px; }
+.wh-card-body .wh-tablewrap::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 5px;
+  border: 3px solid var(--surface-card);
+}
+
 /* ---- brand logo placements ---- */
 
 .wh-logobtn {
