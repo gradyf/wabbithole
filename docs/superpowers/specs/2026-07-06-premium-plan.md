@@ -231,3 +231,20 @@ Ordered by dependency. **Phases 0 and 1 ship independently and should ship first
 | **Fail-closed entitlements** | `has({plan})` read fresh per request; errors → free | Gating | `[C5][C14]` | No stale-premium bug; a broken claim under-grants (safe), never over-grants. |
 
 **Deferred, with reason:** semantic (fuzzy) ad-hoc dedup — no embedding infra in the repo; exact-selection dedup is the honest guarantee, near-duplicate facts accepted. Infobox/caption ad-hoc highlights — unsupported v1 (belongs to the flag-image workstream). Refund proration — none; Stripe period-end handles it (D5). Admin moderation UI — SQL + auto-hide threshold suffice for a solo hobbyist.
+
+---
+
+## Decisions locked by Gray (2026-07-06, via AskUserQuestion)
+
+- **D1 billing: Clerk Billing.** Approved.
+- **D5 downgrade: keep-everything, no proration.** Approved.
+- **D4 REFRAMED by Gray: flags are NOT a "mode".** It is a settings
+  toggle that ALLOWS trivia questions to use flags (image questions
+  from flag images). Free. ROADMAP item (not v1): let users filter a
+  quiz down to flag questions only — a self-created pseudo flag mode.
+  Plan language "flag/vexillology study mode" should be read as this
+  toggle + roadmap filter.
+- **D3 tier split: no objection raised** to the premium column
+  (25 q/article, highlight-to-question, 50/week bank, 10 ad hoc/day).
+- **D7/D8 wallet guard: pending** — Gray asked for a clearer
+  explanation before deciding.
