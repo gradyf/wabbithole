@@ -1,3 +1,0 @@
-[    7810ms] [WARNING] Clerk: Clerk has been loaded with development keys. Development instances have strict usage limits and should not be used when deploying your application to production. Learn more: https://clerk.com/docs/deployments/overview @ http://localhost:3000/node_modules/.vite/deps/@clerk_clerk-js.js?v=bf0819ed:14667
-[    8007ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3000/node_modules/.vite/deps/common-HXRNEUCX.js?v=bf0819ed:20103
-[    8774ms] [VERBOSE] [DOM] Input elements should have autocomplete attributes (suggested: "current-password"): (More info: https://goo.gl/9p2vKq) %o @ http://localhost:3000/#/en/Okapi:0
