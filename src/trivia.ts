@@ -769,7 +769,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     head.append(
       statCell(String(bank.length), bank.length === 1 ? 'question' : 'questions'),
       statCell(String(answeredItems), 'answered'),
-      statCell(overall === null ? '—' : `${overall}%`, 'accuracy'),
+      statCell(overall === null ? '·' : `${overall}%`, 'accuracy'),
     );
     frag.appendChild(head);
 

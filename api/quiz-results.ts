@@ -1,7 +1,9 @@
 // /api/quiz-results — quiz round bookkeeping for a signed-in user.
-//   POST {results:[{bankItemId, correct}], questionCount, correctCount}
-//        -> bump each answered question's counters AND record one quiz_sessions
-//           row for the round (same request, no extra round-trip).
+//   POST {results:[{bankItemId, correct}], questionCount?, correctCount?}
+//        -> bump each answered question's counters AND, when the session counts
+//           are present, record one quiz_sessions row for the round (same
+//           request, no extra round-trip). Counts are optional so stale
+//           pre-deploy clients that omit them still get their counters bumped.
 //   GET  -> { sessions, totals } — the user's last 50 rounds (newest first)
 //           plus lifetime totals for the History aggregate line.
 // Ownership is enforced per row (clerk_user_id in the WHERE / on the insert).
@@ -62,8 +64,13 @@ function parseResults(body: ResultsBody): QuizResult[] {
   return results as QuizResult[];
 }
 
-function parseSession(body: ResultsBody): { questionCount: number; correctCount: number } {
+/** Session counts are OPTIONAL for rolling-deploy tolerance: a stale cached
+ *  bundle (tab opened before the deploy) POSTs results without them, and its
+ *  counter bumps must still land. Absent (both undefined) -> null, no session
+ *  row. Present but malformed -> 400, same as before. */
+function parseSession(body: ResultsBody): { questionCount: number; correctCount: number } | null {
   const { questionCount, correctCount } = body;
+  if (questionCount === undefined && correctCount === undefined) return null;
   if (
     !intInRange(questionCount, 1, MAX_QUESTIONS) ||
     !intInRange(correctCount, 0, questionCount)
@@ -82,7 +89,7 @@ function intInRange(value: unknown, min: number, max: number): value is number {
 async function record(
   userId: string,
   results: QuizResult[],
-  session: { questionCount: number; correctCount: number },
+  session: { questionCount: number; correctCount: number } | null,
 ): Promise<Response> {
   const updates = await Promise.all(
     results.map((r) =>
@@ -98,11 +105,13 @@ async function record(
     ),
   );
 
-  await db.insert(quizSessions).values({
-    clerkUserId: userId,
-    questionCount: session.questionCount,
-    correctCount: session.correctCount,
-  });
+  if (session) {
+    await db.insert(quizSessions).values({
+      clerkUserId: userId,
+      questionCount: session.questionCount,
+      correctCount: session.correctCount,
+    });
+  }
 
   return json({ recorded: updates.filter((u) => u.length > 0).length });
 }
