@@ -72,6 +72,16 @@ html[data-reading] .wh-topbar {
   opacity: 0;
 }
 
+/* entry screen: the topbar shows only always-relevant controls (logo +
+   Bank/Sign in/avatar, owned by trivia.ts). The session-only controls stay
+   hidden until a card is open. */
+.wh-topbar[data-idle] #btn-back,
+.wh-topbar[data-idle] #depth-chip,
+.wh-topbar[data-idle] #btn-trail,
+.wh-topbar[data-idle] #btn-share {
+  display: none;
+}
+
 /* the active card's tab condenses to a slim bar; carrot rule stays (DS) */
 .wh-card[data-state="active"] > .wh-tab {
   transition: height 180ms var(--ease-settle);
@@ -332,9 +342,11 @@ html[data-reading] .wh-card[data-state="active"] > .wh-tab .wh-tab-title {
 /* ---- entry screen ---- */
 
 .wh-entry {
-  position: fixed;
-  inset: 0;
-  z-index: 45;
+  /* Flows below the topbar (which now greets the entry screen) rather than
+     covering it. When shown, the app frame + landing are display:none, so the
+     entry fills the space under the topbar. */
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   background: var(--surface-app);

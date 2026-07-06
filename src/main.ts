@@ -43,6 +43,12 @@ function updateHomeScreens(): void {
   const showLanding = !inSession && !skipLanding();
   landing.hidden = !showLanding;
   entry.hidden = inSession || showLanding;
+  // Topbar greets the entry screen too (logo + Bank/Sign in/avatar); only the
+  // landing keeps it hidden, since it has its own header. The session-only
+  // controls (Back, depth, Trail, Share) stay gated behind data-idle until a
+  // card is open — CSS in app.css hides them while idle.
+  topbar.hidden = showLanding;
+  topbar.toggleAttribute('data-idle', !inSession);
   // Returning to the entry screen: refresh "Your trails" so a just-saved trail
   // (or a cleared auto trail) shows. No-op signed out.
   if (!entry.hidden) trailsUI?.onEntryShown();
@@ -84,7 +90,6 @@ const stack = new Stack(stage, {
     // the search entry rather than the landing again this session.
     if (n > 0) sessionStorage.setItem('wh-skip-landing', '1');
     updateHomeScreens();
-    topbar.hidden = n === 0;
     mainRow.hidden = n === 0;
     depthText.textContent = n === 1 ? '1 card' : `${n} deep`;
     $('btn-back').hidden = n < 2;
