@@ -78,3 +78,21 @@ The first-paint LCP element is a 152 KB PNG of what is essentially vector art (`
 4. **After the deploy, inspect one `/t/` URL** in GSC — it should report "Page with redirect," empirically confirming the X2 share-only behavior before you rely on it.
 5. **Run the live domain through the X / Facebook / Slack unfurl validators** once the card image (X1) ships, to confirm the social card renders.
 6. Ignore all paid/enterprise tooling — GSC plus the free URL inspector is the complete kit for this site.
+
+---
+
+## Decisions locked by Gray (2026-07-06, via AskUserQuestion)
+
+- X0 deploy: in motion (deploy #2, whole-batch review READY).
+- X1 APPROVED both: title becomes "Fall down the Wikipedia rabbit hole
+  · Wabbit Hole"; static og-card.png for the bare-domain share card.
+- X2 APPROVED: /t/ is share-only — keep OG cards + redirect, drop
+  self-canonical, add noindex in api/t.ts.
+- X3 APPROVED: two crawlable "How it works" blocks (Daily Race,
+  trivia bank); exact wording shown to Gray at review.
+- Extras: FEATURED TRAILS approved (curated 5-20 indexable trail pages
+  with human descriptions, listed in sitemap; implementer proposes the
+  trail list + descriptions, Gray signs off). Asset re-cut (woff2 /
+  SVG logo) DEFERRED.
+- Minors M1-M8: approved by standing agreement, implemented with this
+  task set.
