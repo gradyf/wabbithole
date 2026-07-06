@@ -79,6 +79,15 @@ export function processArticle(raw: string): ProcessedArticle {
   for (const sup of srcBody.querySelectorAll('sup.mw-ref')) sup.classList.add('wh-ref');
   for (const refs of srcBody.querySelectorAll('.mw-references-wrap')) refs.classList.add('wh-refs');
 
+  // Kartographer mapframe ships a static-map <img> that hotlinks
+  // maps.wikimedia.org, which 403s requests bearing a non-Wikimedia Referer
+  // (localhost is allowed, so dev looks fine) — in production it is a
+  // guaranteed broken frame. Drop the whole frame; text maplinks have no
+  // image and are unaffected.
+  for (const img of srcBody.querySelectorAll('img[src*="maps.wikimedia.org"]')) {
+    (img.closest('[data-mw-kartographer], .mw-kartographer-map') ?? img).remove();
+  }
+
   for (const img of srcBody.querySelectorAll('img')) {
     img.setAttribute('loading', 'lazy');
     img.setAttribute('decoding', 'async');
@@ -118,5 +127,17 @@ export function processArticle(raw: string): ProcessedArticle {
   }
 
   while (srcBody.firstChild) out.appendChild(srcBody.firstChild);
+
+  // Any image that still fails to load (deleted file, hotlink-blocked host)
+  // collapses instead of leaving a broken-image frame. Error events don't
+  // bubble but do capture, so one listener on the root covers every img.
+  out.addEventListener(
+    'error',
+    (e) => {
+      if (e.target instanceof HTMLImageElement) e.target.style.display = 'none';
+    },
+    true,
+  );
+
   return { body: out, subtitle, toc };
 }

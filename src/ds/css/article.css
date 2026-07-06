@@ -234,12 +234,23 @@
 .wh-prose table.infobox tr + tr td {
   border-top: 1px solid color-mix(in srgb, var(--border-hairline) 60%, transparent);
 }
+/* Never stretch infobox images past their intended (attribute) size: rows
+   mix tiny inline meta icons (8-20px trend arrows, map pins, route markers)
+   with real photos, so width:100% would blow the icons up to column width.
+   Large images still cap at the box; small ones keep their natural size and
+   flow inline with the row text. */
 .wh-prose .wh-infobox img,
 .wh-prose table.infobox img {
-  display: block;
-  width: 100%;
+  max-width: 100%;
   height: auto;
+  vertical-align: middle;
   border-radius: var(--radius-sm);
+}
+/* structural media cells (lead photo, flag + coat of arms, maps) */
+.wh-prose .wh-infobox .infobox-image,
+.wh-prose table.infobox .infobox-image,
+.wh-prose table.infobox .ib-settlement-cols-cell {
+  text-align: center;
 }
 /* full-width section rows inside an infobox */
 .wh-prose .wh-infobox .wh-infobox-section,
@@ -250,6 +261,28 @@
   border-radius: var(--radius-sm);
   text-align: center;
 }
+
+/* ---------- location maps ---------- */
+
+/* Wikipedia positions locator-map pins via TemplateStyles, which the
+   sanitizer strips. The pin offsets ride along as inline styles; only the
+   position property came from the stylesheet. Restore it (mirrors
+   Module:Location map/styles.css) so pins overlay the map instead of
+   dropping into normal flow below it. */
+.wh-prose .locmap .od { position: absolute; }
+.wh-prose .locmap .id { position: absolute; line-height: 0; }
+/* pin containers shrink-to-fit, which makes a percentage max-width
+   degenerate (8px pins render 4px); pins use their exact marked size */
+.wh-prose .locmap .od img { max-width: none; }
+.wh-prose .locmap .l0 { font-size: 0; position: absolute; }
+.wh-prose .locmap .pv { line-height: 110%; position: absolute; text-align: center; }
+.wh-prose .locmap .pl { line-height: 110%; position: absolute; top: -0.75em; text-align: right; }
+.wh-prose .locmap .pr { line-height: 110%; position: absolute; top: -0.75em; text-align: left; }
+.wh-prose .locmap .pv > div,
+.wh-prose .locmap .pl > div,
+.wh-prose .locmap .pr > div { display: inline; padding: 1px; }
+.wh-prose .locmap .pl > div { float: right; }
+.wh-prose .locmap .pr > div { float: left; }
 
 /* ---------- data tables ---------- */
 
