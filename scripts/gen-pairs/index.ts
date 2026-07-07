@@ -4,15 +4,21 @@
 //   npx tsx scripts/gen-pairs/index.ts                 # Phase 1: harvest+resolve (default)
 //   npx tsx scripts/gen-pairs/index.ts quirky          # Phase 2: build data/quirky.json
 //   npx tsx scripts/gen-pairs/index.ts sample --count 30 [--seed S]   # Phase 2: draw+verify pairs
+//   npx tsx scripts/gen-pairs/index.ts emit [--cutover N]             # Phase 3: flat calendar
 //
 // Outputs (committed; deterministic inputs downstream):
 //   data/annotated.json     — every Vital-L3 title, annotated  (Phase 1)
 //   data/pool.json          — the famous-tier gated subset      (Phase 1)
 //   data/quirky.json        — the quirky (≥4) tier pool          (Phase 2)
 //   data/distance-cache.json— per-pair distance verdicts (resumable checkpoint)
+//   data/legacy-pairs.json  — frozen copy of the pre-flat 120-pair rotation (Phase 3 input)
+//   ../../src/race/pairs.json      — the flat, calendar-pinned schedule       (Phase 3)
+//   ../../src/race/pairs.meta.json — provenance sidecar, NOT imported by the app (Phase 3)
 //
-// Phase 2 scope: sampling + distance verification only. No calendar emission,
-// no pairs.meta.json, no src/ changes, no full 365-pair run (Phase 3/4 own those).
+// Phase 3 scope: flat-calendar emitter + pairForKey swap. In this phase the
+// validated list is empty, so the emitted calendar is the full legacy
+// materialization (zero player-visible change; proven by emit.test.ts's sweep).
+// Phase 4 re-runs `emit` with real validated pairs + a real cutover (data only).
 
 import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -33,6 +39,7 @@ import {
 import { SAMPLER_SEED } from './rng.js';
 import { liveGraph, accepted } from './distance.js';
 import { loadCache, saveCache, getOrClassify, type CacheEntry } from './cache.js';
+import { runEmit } from './emit.js';
 
 const DATA_DIR = join(dirname(fileURLToPath(import.meta.url)), 'data');
 
@@ -451,7 +458,9 @@ const dispatch: () => Promise<void> =
     ? runQuirky
     : SUBCOMMAND === 'sample'
       ? runSample
-      : runHarvest; // default + explicit "harvest" (Phase 1, unchanged)
+      : SUBCOMMAND === 'emit'
+        ? runEmit // Phase 3: flat-calendar emitter → src/race/pairs.json + pairs.meta.json
+        : runHarvest; // default + explicit "harvest" (Phase 1, unchanged)
 
 dispatch().catch((e) => {
   console.error(e);

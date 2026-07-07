@@ -16,14 +16,20 @@ export interface Pair {
   target: string;
 }
 
-const PAIRS = pairs as Pair[];
-// Date-keyed owner vetoes / interim hotfixes, consulted BEFORE the rotation.
-// Each entry pins one YYYY-MM-DD to a hand-verified far pair (link-distance >=4,
-// the 5-card floor). Any date NOT listed here falls through to the untouched
-// modulo rotation below, so every past date's pair — and thus syncAccount's
-// historical title reconstruction — stays byte-identical to before this map
-// existed. In-place edits to pairs.json would instead remap every date sharing
-// an index; the override map is surgical and touches only the dates it names.
+// The flat, calendar-pinned schedule (spec §2.4): slot i is the pair for the
+// date at dayIndex i. Its historical prefix reproduces the old mod-120 rotation
+// byte-for-byte (CALENDAR[i] === legacy[i mod 120]) so every already-elapsed
+// date keeps the exact pair it always had — syncAccount's historical title
+// reconstruction stays correct forever. Emitted offline by scripts/gen-pairs
+// (never at build time); the runtime is the same O(1) array lookup it always was.
+const CALENDAR = pairs as Pair[];
+// Date-keyed owner vetoes / interim hotfixes, consulted BEFORE the calendar.
+// Each entry pins one YYYY-MM-DD to a hand-verified far pair. Any date NOT
+// listed here falls through to the flat calendar below, whose historical prefix
+// is byte-identical to the old rotation — so every past date's pair, and thus
+// syncAccount's historical title reconstruction, is unchanged by the switch to a
+// flat index. In-place edits to the calendar would instead remap every date
+// sharing an index; the override map is surgical and touches only the dates it names.
 const OVERRIDES = overrides as Record<string, Pair>;
 const EPOCH_UTC = Date.UTC(2026, 0, 1); // day 0 of the rotation
 const STORE_KEY = 'wh-race';
@@ -45,25 +51,52 @@ export function dayIndex(key: string): number {
   return Math.floor((Date.UTC(y, m - 1, d) - EPOCH_UTC) / 86_400_000);
 }
 
+/** xmur3 string hash → one unsigned 32-bit word. Ported from the offline
+ *  sampler's rng.ts (src/ cannot import author-plane scripts/). Strong
+ *  avalanche: a one-character change scrambles the whole word, so adjacent date
+ *  keys scatter to non-adjacent slots — the property spec §2.4 requires of the
+ *  beyond-horizon fallback (a djb2-family hash maps consecutive dates to
+ *  consecutive slots, which research measured and the spec rejected). */
+function xmur3Hash(str: string): number {
+  let h = 1779033703 ^ str.length;
+  for (let i = 0; i < str.length; i++) {
+    h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+    h = (h << 13) | (h >>> 19);
+  }
+  h = Math.imul(h ^ (h >>> 16), 2246822507);
+  h = Math.imul(h ^ (h >>> 13), 3266489909);
+  h ^= h >>> 16;
+  return h >>> 0;
+}
+
+/** The calendar slot a day key resolves to when no override applies: the pinned
+ *  flat index while it is inside the emitted horizon, else a deterministic
+ *  xmur3-scattered fallback slot. A generator assertion keeps the horizon
+ *  ≥12 months ahead, so the fallback is a genuine last resort (a deterministic
+ *  repeat, never a crash) rather than a routine path. */
+function calendarSlot(key: string): number {
+  const i = dayIndex(key);
+  if (i >= 0 && i < CALENDAR.length) return i;
+  return ((xmur3Hash(key) % CALENDAR.length) + CALENDAR.length) % CALENDAR.length;
+}
+
 /** Pair for a day key. A date-specific override (owner veto / interim hotfix)
- *  wins if present; otherwise a plain days-since-2026-01-01 counter modulo the
- *  list length. The same date always maps to the same pair; consecutive
- *  non-override days walk the list, so every pair is used once per rotation. */
+ *  wins if present; otherwise the flat calendar slot for that date. The same
+ *  date always maps to the same pair, and the calendar's historical prefix
+ *  reproduces the old mod-120 rotation exactly, so no past date's pair changes. */
 export function pairForKey(key: string): Pair {
   const override = OVERRIDES[key];
   if (override) return override;
-  const i = ((dayIndex(key) % PAIRS.length) + PAIRS.length) % PAIRS.length;
-  return PAIRS[i];
+  return CALENDAR[calendarSlot(key)];
 }
 
-/** Convenience for verification: key + rotation index + the effective pair.
+/** Convenience for verification: key + calendar slot + the effective pair.
  *  `pair` routes through pairForKey so an override date reports the pair the
- *  game actually serves; `index` stays the base rotation slot (informational —
- *  an override has no slot of its own). */
+ *  game actually serves; `index` is the calendar slot the date maps to
+ *  (informational — an override has no slot of its own). */
 export function pairForDate(d: Date = new Date()): { key: string; index: number; pair: Pair } {
   const key = dayKey(d);
-  const idx = ((dayIndex(key) % PAIRS.length) + PAIRS.length) % PAIRS.length;
-  return { key, index: idx, pair: pairForKey(key) };
+  return { key, index: calendarSlot(key), pair: pairForKey(key) };
 }
 
 // ---- localStorage: results + streaks ---------------------------------------
