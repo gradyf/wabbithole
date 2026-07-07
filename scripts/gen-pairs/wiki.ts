@@ -41,8 +41,31 @@ export function sleep(ms: number): Promise<void> {
 let active = 0;
 const waiters: Array<() => void> = [];
 
-async function withGate<T>(fn: () => Promise<T>): Promise<T> {
-  if (active >= MAX_WORKERS) {
+/** Current in-flight count — exported for the NOTE-2 gate fixture only. */
+export function activeWorkers(): number {
+  return active;
+}
+
+/**
+ * Bounded-concurrency gate. Exported so distance.ts (Phase 2, interleaved
+ * callers) shares the SAME single gate as harvest/resolve — one global
+ * politeness budget of MAX_WORKERS in-flight requests.
+ *
+ * NOTE-2 fix (task-22-review): a woken waiter must RE-CHECK the bound before
+ * taking a slot. Phase 1 used `if`, which was safe only because every caller
+ * arrived in a synchronous Promise.all burst (no fresh caller could interleave
+ * between a release's `waiters.shift()` and the woken waiter's `active++`).
+ * distance.ts introduces interleaved (non-burst) callers, where the old `if`
+ * could over-admit: release wakes waiter W (active=7); a fresh caller sees 7<8
+ * and takes the slot (active=8); W then blindly did active++ → 9. The `while`
+ * re-checks after waking, and because there is no `await` between the check
+ * failing and `active++`, the increment is atomic w.r.t. the check on JS's
+ * single thread — `active` can never exceed MAX_WORKERS. Every release shifts
+ * exactly one waiter, and every acquired slot is always released, so a waiter
+ * that re-queues is guaranteed a later wake (no starvation).
+ */
+export async function withGate<T>(fn: () => Promise<T>): Promise<T> {
+  while (active >= MAX_WORKERS) {
     await new Promise<void>((resolve) => waiters.push(resolve));
   }
   active++;
@@ -266,4 +289,131 @@ export function previousFullMonthWindow(now: Date = new Date()): {
   const mm = String(m).padStart(2, '0');
   const lastDay = String(lastOfPrevMonth.getUTCDate()).padStart(2, '0');
   return { start: `${y}${mm}01`, end: `${y}${mm}${lastDay}`, label: `${y}-${mm}` };
+}
+
+// --- distance-check link primitives (Phase 2 distance.ts) --------------------
+// All redirect-hardened per race-research-wiki.md §1.3-1.4 and Task 17's v2
+// checker: the dangerous error is UNDER-counting paths (labelling a real
+// short pair as far), so every primitive closes a redirect gap in that
+// direction. The `pltitles` filter + `redirects=1` combination lets us test
+// "does any of these ≤50 source pages link to the target (or a redirect of
+// it)?" in ONE request, independent of the target's inlink count (hubs).
+
+/** Redirect titles that resolve TO `title` (ns0), fully paginated. */
+export async function queryRedirects(title: string): Promise<string[]> {
+  const out: string[] = [];
+  let rdcontinue: string | undefined;
+  do {
+    const params: Record<string, string> = {
+      action: 'query',
+      prop: 'redirects',
+      titles: title,
+      rdlimit: 'max',
+      rdnamespace: '0',
+    };
+    if (rdcontinue) params.rdcontinue = rdcontinue;
+    const data = await actionApi(params);
+    const page = data.query.pages[0];
+    for (const r of page.redirects ?? []) out.push(r.title);
+    rdcontinue = data.continue?.rdcontinue;
+  } while (rdcontinue);
+  return out;
+}
+
+/**
+ * Every mainspace, non-redirect page that links to `title` (its inlinks),
+ * fully paginated via lhcontinue. Cost scales with the target's inlink count —
+ * cheap for the low-inlink novelty targets the quirky tier uses, expensive for
+ * hubs (so the depth-3 backward frontier is only taken on cheap targets).
+ */
+export async function queryInlinks(title: string): Promise<{ titles: string[]; requests: number }> {
+  const titles: string[] = [];
+  let requests = 0;
+  let lhcontinue: string | undefined;
+  do {
+    const params: Record<string, string> = {
+      action: 'query',
+      prop: 'linkshere',
+      titles: title,
+      lhlimit: 'max',
+      lhnamespace: '0',
+      lhshow: '!redirect',
+    };
+    if (lhcontinue) params.lhcontinue = lhcontinue;
+    const data = await actionApi(params);
+    requests++;
+    const page = data.query.pages[0];
+    for (const l of page.linkshere ?? []) titles.push(l.title);
+    lhcontinue = data.continue?.lhcontinue;
+  } while (lhcontinue);
+  return { titles, requests };
+}
+
+/**
+ * True iff ANY of `sources` (≤50 page titles) links to ANY of `targets`
+ * (≤50 titles). `redirects=1` resolves a source that is itself a redirect to
+ * its real page before reading its links (closes the A→redirect→X→B gap on the
+ * forward side); `pltitles` filters server-side so one request answers the
+ * whole batch regardless of how many links each source has.
+ */
+export async function queryLinksFiltered(
+  sources: string[],
+  targets: string[],
+): Promise<boolean> {
+  if (sources.length === 0 || targets.length === 0) return false;
+  const data = await actionApi({
+    action: 'query',
+    prop: 'links',
+    titles: sources.join('|'),
+    pltitles: targets.join('|'),
+    pllimit: 'max',
+    plnamespace: '0',
+    redirects: '1',
+  });
+  for (const page of data.query.pages ?? []) {
+    if ((page.links ?? []).length > 0) return true;
+  }
+  return false;
+}
+
+/**
+ * Union of the mainspace outlinks of every title in `sources`, batched
+ * 50/request and fully paginated. `redirects=1` canonicalises source pages
+ * that are redirects before reading their links. This is the expensive 2-hop
+ * forward-frontier expansion (race-research-wiki.md §1.4: ~110 requests for a
+ * 500-node hop-1 frontier) — reserved for pairs that already survived the
+ * cheap ≤2 check.
+ */
+export async function queryOutlinksUnion(
+  sources: string[],
+): Promise<{ titles: Set<string>; requests: number }> {
+  const union = new Set<string>();
+  let requests = 0;
+  const batches: string[][] = [];
+  for (let i = 0; i < sources.length; i += QUERY_TITLE_BATCH) {
+    batches.push(sources.slice(i, i + QUERY_TITLE_BATCH));
+  }
+  await Promise.all(
+    batches.map(async (batch) => {
+      let plcontinue: string | undefined;
+      do {
+        const params: Record<string, string> = {
+          action: 'query',
+          prop: 'links',
+          titles: batch.join('|'),
+          pllimit: 'max',
+          plnamespace: '0',
+          redirects: '1',
+        };
+        if (plcontinue) params.plcontinue = plcontinue;
+        const data = await actionApi(params);
+        requests++;
+        for (const page of data.query.pages ?? []) {
+          for (const l of page.links ?? []) union.add(l.title);
+        }
+        plcontinue = data.continue?.plcontinue;
+      } while (plcontinue);
+    }),
+  );
+  return { titles: union, requests };
 }
