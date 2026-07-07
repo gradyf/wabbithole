@@ -1,0 +1,179 @@
+{
+  "startOutlinks": {
+    "Static electricity": 242,
+    "Continental drift": 141,
+    "Quicksand": 156,
+    "Osmosis": 85,
+    "Buoyancy": 227,
+    "Surface tension": 308,
+    "Friction": 451,
+    "Sinkhole": 492,
+    "Sublimation (phase transition)": 213,
+    "Calcium oxide": 427,
+    "Mirage": 84,
+    "Whirlpool": 302,
+    "Bagpipes": 317,
+    "Accordion": 401,
+    "Geyser": 472,
+    "Mbira": 147,
+    "Ukulele": 173,
+    "Bioluminescence": 621,
+    "Harmonica": 241,
+    "Origami": 591
+  },
+  "targetInlinks": {
+    "Troll doll": {
+      "count": 70,
+      "capped": false
+    },
+    "Whoopee cushion": {
+      "count": 38,
+      "capped": false
+    },
+    "Slinky": {
+      "count": 102,
+      "capped": false
+    },
+    "Marshmallow": {
+      "count": 261,
+      "capped": false
+    },
+    "Cotton candy": {
+      "count": 267,
+      "capped": false
+    },
+    "Fidget spinner": {
+      "count": 52,
+      "capped": false
+    },
+    "Etch A Sketch": {
+      "count": 41,
+      "capped": false
+    },
+    "Ice pop": {
+      "count": 187,
+      "capped": false
+    },
+    "Pool noodle": {
+      "count": 62,
+      "capped": false
+    },
+    "Sparkler": {
+      "count": 63,
+      "capped": false
+    },
+    "Silly String": {
+      "count": 22,
+      "capped": false
+    },
+    "Tiddlywinks": {
+      "count": 63,
+      "capped": false
+    },
+    "Snow globe": {
+      "count": 86,
+      "capped": false
+    },
+    "Mood ring": {
+      "count": 32,
+      "capped": false
+    },
+    "Kaleidoscope": {
+      "count": 398,
+      "capped": false
+    },
+    "Pinwheel (toy)": {
+      "count": 44,
+      "capped": false
+    },
+    "Play-Doh": {
+      "count": 298,
+      "capped": false
+    },
+    "Yo-yo": {
+      "count": 302,
+      "capped": false
+    },
+    "Lollipop": {
+      "count": 303,
+      "capped": false
+    },
+    "Zipper": {
+      "count": 401,
+      "capped": false
+    },
+    "Waffle": {
+      "count": 240,
+      "capped": false
+    },
+    "Velcro": {
+      "count": 322,
+      "capped": false
+    },
+    "Segway": {
+      "count": 104,
+      "capped": false
+    },
+    "Walkie-talkie": {
+      "count": 413,
+      "capped": false
+    },
+    "Teddy bear": {
+      "count": 777,
+      "capped": false
+    },
+    "Flashlight": {
+      "count": 500,
+      "capped": false
+    },
+    "Piñata": {
+      "count": 752,
+      "capped": false
+    },
+    "Rubik's Cube": {
+      "count": 521,
+      "capped": false
+    },
+    "Doughnut": {
+      "count": 919,
+      "capped": false
+    },
+    "Chewing gum": {
+      "count": 664,
+      "capped": false
+    },
+    "Popcorn": {
+      "count": 521,
+      "capped": false
+    },
+    "Pretzel": {
+      "count": 713,
+      "capped": false
+    },
+    "Boomerang": {
+      "count": 1449,
+      "capped": false
+    },
+    "Umbrella": {
+      "count": 872,
+      "capped": false
+    },
+    "Lighthouse": {
+      "count": 2500,
+      "capped": true
+    }
+  },
+  "provenance": {
+    "generatedAt": "2026-07-07T22:28:04.826Z",
+    "generator": "scripts/gen-pairs (Task 25: quirky link-count measurement)",
+    "measureCap": 2000,
+    "thresholds": {
+      "startMaxOutlinks": 650,
+      "targetMaxInlinks": 450
+    },
+    "run": {
+      "httpRequests": 71,
+      "wallTimeMs": 1639
+    }
+  }
+}

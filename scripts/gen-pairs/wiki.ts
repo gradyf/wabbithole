@@ -17,7 +17,11 @@ const ACTION_API = 'https://en.wikipedia.org/w/api.php';
 const PAGEVIEWS_API =
   'https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user';
 
-export const MAX_WORKERS = 8; // bounded concurrency, spec 2.2 says 8-10
+// Bounded concurrency (spec 2.2 says 8-10). Overridable via GEN_WORKERS so an
+// operator can HALVE concurrency on sustained Wikipedia distress (maxlag/429)
+// without a code edit mid-run — set GEN_WORKERS=4 and resume (the checkpoint
+// makes the run restartable with zero lost verdicts). Defaults to 8.
+export const MAX_WORKERS = Math.max(1, Number(process.env.GEN_WORKERS ?? 8));
 export const QUERY_TITLE_BATCH = 50; // hard API cap for normal callers (measured: toomanyvalues at 60)
 const MAX_ATTEMPTS = 5;
 const MAX_MAXLAG_WAITS = 8; // maxlag waits are server-requested, not failures
@@ -347,6 +351,42 @@ export async function queryInlinks(title: string): Promise<{ titles: string[]; r
     lhcontinue = data.continue?.lhcontinue;
   } while (lhcontinue);
   return { titles, requests };
+}
+
+/**
+ * Inlink COUNT for `title`, paginated but stopped as soon as the running total
+ * exceeds `cap` — so a hub target costs at most ⌈(cap+1)/500⌉ requests instead
+ * of fully paginating tens of thousands of inlinks. Used ONLY by the offline
+ * quirky link-count measurement pre-pass (Task 25): the narrowed quirky draw
+ * space keeps only LOW-inlink targets, and to decide low-vs-high we need a
+ * bounded count, not the exact hub figure. `capped: true` means "> cap" (the
+ * exact count is not material to the low-inlink decision, only the ceiling is).
+ */
+export async function queryInlinksCount(
+  title: string,
+  cap: number,
+): Promise<{ count: number; capped: boolean; requests: number }> {
+  let count = 0;
+  let requests = 0;
+  let lhcontinue: string | undefined;
+  do {
+    const params: Record<string, string> = {
+      action: 'query',
+      prop: 'linkshere',
+      titles: title,
+      lhlimit: 'max',
+      lhnamespace: '0',
+      lhshow: '!redirect',
+    };
+    if (lhcontinue) params.lhcontinue = lhcontinue;
+    const data = await actionApi(params);
+    requests++;
+    const page = data.query.pages[0];
+    count += (page.linkshere ?? []).length;
+    if (count > cap) return { count, capped: true, requests };
+    lhcontinue = data.continue?.lhcontinue;
+  } while (lhcontinue);
+  return { count, capped: false, requests };
 }
 
 /**

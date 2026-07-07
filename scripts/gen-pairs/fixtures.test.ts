@@ -14,7 +14,11 @@ import {
   tierForSlot,
   QUIRKY_SHARE,
   MAX_TITLE_APPEARANCES,
+  narrowQuirky,
+  QUIRKY_START_MAX_OUTLINKS,
+  QUIRKY_TARGET_MAX_INLINKS,
   type PoolTitle,
+  type QuirkyLinkCounts,
 } from './sample.js';
 import { classifyPair, type LinkGraph, type Tier, MAX_HOP1_FRONTIER } from './distance.js';
 import { getOrClassify, type DistanceCache } from './cache.js';
@@ -178,6 +182,112 @@ function samplerTests(): void {
     'sampler: reject() does not consume frequency budget',
     s3.frequencies().size === 0,
   );
+}
+
+// =========================== sample.ts narrowing (Task 25) ===================
+
+function narrowTests(): void {
+  // A mock quirky pool spanning both thresholds, plus one UNMEASURED candidate
+  // on each axis. Titles encode their intended fate for readability.
+  const starts: PoolTitle[] = [
+    { title: 'InsularA', bucket: 'Science' }, // 120 outlinks → keep
+    { title: 'InsularB', bucket: 'Science' }, // 640 → keep (just under 650)
+    { title: 'BroadHub', bucket: 'Science' }, // 900 → drop (too broad)
+    { title: 'ArtInsular', bucket: 'Arts' }, // 300 → keep
+    { title: 'UnmeasuredStart', bucket: 'Arts' }, // absent from counts → unmeasured
+  ];
+  const targets: PoolTitle[] = [
+    { title: 'LowInlinkA', bucket: 'Everyday life' }, // 40 inlinks → keep
+    { title: 'LowInlinkB', bucket: 'Everyday life' }, // 440 → keep (under 450)
+    { title: 'MidInlink', bucket: 'Everyday life' }, // 500 → drop (mid-inlink)
+    { title: 'HubTarget', bucket: 'Technology' }, // capped → drop (hub)
+    { title: 'LowInlinkC', bucket: 'Technology' }, // 100 → keep
+    { title: 'UnmeasuredTarget', bucket: 'Technology' }, // absent → unmeasured
+  ];
+  const counts: QuirkyLinkCounts = {
+    startOutlinks: { InsularA: 120, InsularB: 640, BroadHub: 900, ArtInsular: 300 },
+    targetInlinks: {
+      LowInlinkA: { count: 40, capped: false },
+      LowInlinkB: { count: 440, capped: false },
+      MidInlink: { count: 500, capped: false },
+      HubTarget: { count: 2000, capped: true },
+      LowInlinkC: { count: 100, capped: false },
+    },
+  };
+
+  const n = narrowQuirky(starts, targets, counts);
+
+  check(
+    'narrow: keeps insular starts (≤ outlink threshold)',
+    n.starts.map((s) => s.title).sort().join(',') === 'ArtInsular,InsularA,InsularB',
+    n.starts.map((s) => s.title).join(','),
+  );
+  check(
+    'narrow: drops the broad start (> outlink threshold)',
+    n.droppedStarts.length === 1 &&
+      n.droppedStarts[0].title === 'BroadHub' &&
+      n.droppedStarts[0].outlinks === 900,
+  );
+  check(
+    'narrow: keeps low-inlink targets (≤ inlink threshold)',
+    n.targets.map((t) => t.title).sort().join(',') === 'LowInlinkA,LowInlinkB,LowInlinkC',
+    n.targets.map((t) => t.title).join(','),
+  );
+  check(
+    'narrow: drops mid-inlink AND capped targets',
+    n.droppedTargets.map((d) => d.title).sort().join(',') === 'HubTarget,MidInlink' &&
+      n.droppedTargets.some((d) => d.title === 'HubTarget' && d.capped) &&
+      n.droppedTargets.some((d) => d.title === 'MidInlink' && !d.capped && d.inlinks === 500),
+  );
+  check(
+    'narrow: unmeasured candidates are NOT silently kept (fail-loud path)',
+    n.unmeasuredStarts.length === 1 &&
+      n.unmeasuredStarts[0] === 'UnmeasuredStart' &&
+      n.unmeasuredTargets.length === 1 &&
+      n.unmeasuredTargets[0] === 'UnmeasuredTarget' &&
+      !n.starts.some((s) => s.title === 'UnmeasuredStart') &&
+      !n.targets.some((t) => t.title === 'UnmeasuredTarget'),
+  );
+
+  // Thresholds are inclusive (≤): a candidate exactly AT the max is kept.
+  const edge = narrowQuirky(
+    [{ title: 'Edge', bucket: 'Science' }],
+    [{ title: 'Edge', bucket: 'Everyday life' }],
+    {
+      startOutlinks: { Edge: QUIRKY_START_MAX_OUTLINKS },
+      targetInlinks: { Edge: { count: QUIRKY_TARGET_MAX_INLINKS, capped: false } },
+    },
+  );
+  check('narrow: threshold inclusive (title exactly at max is kept)', edge.starts.length === 1 && edge.targets.length === 1);
+
+  // THE load-bearing property (brief item 1): a sampler built from the NARROWED
+  // pools never emits a quirky pair touching a dropped or unmeasured title.
+  const forbiddenStarts = new Set([...n.droppedStarts.map((d) => d.title), ...n.unmeasuredStarts]);
+  const forbiddenTargets = new Set([...n.droppedTargets.map((d) => d.title), ...n.unmeasuredTargets]);
+  const keptStarts = new Set(n.starts.map((s) => s.title));
+  const keptTargets = new Set(n.targets.map((t) => t.title));
+  const backbone = mockPool().backbone; // 40 famous titles, ample to not exhaust
+  const s = new PairSampler(SAMPLER_SEED, backbone, n.starts, n.targets);
+  let quirkyDrawn = 0;
+  let leak = false;
+  for (let i = 0; i < 30; i++) {
+    const c = s.next();
+    if (!c) break;
+    if (c.tier === 'quirky') {
+      quirkyDrawn++;
+      if (
+        forbiddenStarts.has(c.start.title) ||
+        forbiddenTargets.has(c.target.title) ||
+        !keptStarts.has(c.start.title) ||
+        !keptTargets.has(c.target.title)
+      ) {
+        leak = true;
+      }
+    }
+    s.accept(c);
+  }
+  check('narrow: sampler over narrowed pools actually drew quirky pairs (exercised)', quirkyDrawn > 0, `${quirkyDrawn} quirky`);
+  check('narrow: NO quirky draw leaves the narrowed space', !leak);
 }
 
 // =========================== distance.ts =====================================
@@ -351,6 +461,7 @@ async function gateTests(): Promise<void> {
 async function main(): Promise<void> {
   rngTests();
   samplerTests();
+  narrowTests();
   await distanceTests();
   await cacheTests();
   await gateTests();

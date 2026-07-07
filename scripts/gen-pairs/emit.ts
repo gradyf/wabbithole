@@ -246,12 +246,18 @@ export async function runEmit(): Promise<void> {
         ? emitDayIndex(now) + 1
         : HORIZON;
 
+  // Phase 4 (Task 25 decision 5): HORIZON = cutover + validatedCount, so the
+  // calendar reaches exactly cutover+N-1 and the ≥12-month freshness assert in
+  // buildCalendar guards it. With an EMPTY validated list (Phase 3 shape) fall
+  // back to the fixed HORIZON so the all-legacy materialization is unchanged.
+  const horizon = validated.length > 0 ? cutover + validated.length : HORIZON;
+
   console.log(
-    `gen-pairs Phase 3 emit — legacy ${legacy.length}, validated ${validated.length}, ` +
-      `cutover ${cutover}, horizon ${HORIZON}, emit-day ${emitDayIndex(now)}`,
+    `gen-pairs emit — legacy ${legacy.length}, validated ${validated.length}, ` +
+      `cutover ${cutover}, horizon ${horizon}, emit-day ${emitDayIndex(now)}`,
   );
 
-  const { calendar, meta } = buildCalendar({ legacy, validated, cutover, horizon: HORIZON, now });
+  const { calendar, meta } = buildCalendar({ legacy, validated, cutover, horizon, now });
 
   mkdirSync(SRC_RACE_DIR, { recursive: true });
   const pairsPath = join(SRC_RACE_DIR, 'pairs.json');
@@ -266,7 +272,7 @@ export async function runEmit(): Promise<void> {
   console.log(`  ${pairsPath}`);
   console.log(`  ${metaPath}`);
   console.log(
-    `horizon reaches dayIndex ${HORIZON - 1} (${meta.counts.validatedSlots === 0 ? 'all-legacy' : 'mixed'}); ` +
-      `${HORIZON - 1 - emitDayIndex(now)} days ahead of emit date`,
+    `horizon reaches dayIndex ${horizon - 1} (${meta.counts.validatedSlots === 0 ? 'all-legacy' : 'mixed'}); ` +
+      `${horizon - 1 - emitDayIndex(now)} days ahead of emit date`,
   );
 }
