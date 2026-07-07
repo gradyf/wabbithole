@@ -181,11 +181,16 @@ async function runQuirky(): Promise<void> {
       granularity: 'monthly',
       window: q.pageviewWindow,
     },
-    gate: { minMonthlyViews: QUIRKY_MIN_MONTHLY_VIEWS },
+    gate: {
+      minMonthlyViews: QUIRKY_MIN_MONTHLY_VIEWS,
+      note: 'floor gates the curated list; Task 17 proven titles admitted below it (provenExempt)',
+    },
     counts: {
       candidates: q.candidateCount,
       annotated: q.annotated.length,
       pool: q.pool.length,
+      floorCleared: q.floorCleared,
+      provenExempted: q.provenExempted,
       belowThreshold: below.length,
       missing: missing.length,
       mergedCanonicalDuplicates: q.merged.length,
@@ -201,7 +206,8 @@ async function runQuirky(): Promise<void> {
 
   console.log(
     `\ncandidates ${q.candidateCount}; annotated ${q.annotated.length}; ` +
-      `quirky pool (>=${QUIRKY_MIN_MONTHLY_VIEWS} views/mo): ${q.pool.length}`,
+      `quirky pool: ${q.pool.length} (${q.floorCleared} cleared >=${QUIRKY_MIN_MONTHLY_VIEWS} views/mo, ` +
+      `${q.provenExempted} proven Task 17 titles admitted below floor)`,
   );
   console.log(`per-bucket pool: ${JSON.stringify(perBucketCounts(q.pool))}`);
   if (below.length > 0) {

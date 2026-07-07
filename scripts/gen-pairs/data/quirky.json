@@ -1,0 +1,112 @@
+{
+  "provenance": {
+    "generatedAt": "2026-07-07T18:11:50.435Z",
+    "generator": "scripts/gen-pairs (Phase 2: quirky pool)",
+    "source": {
+      "curated": "scripts/gen-pairs/quirky.ts CURATED_QUIRKY (hand-curated novelty list)",
+      "overrides": "src/race/overrides.json (Task 17 proven ≥4 titles, read-only)",
+      "unusualArticlesRejected": "Wikipedia:Unusual_articles probed and rejected: 500+ ns0 links/page dominated by album titles, TLDs, punctuation/meme titles"
+    },
+    "pageviews": {
+      "project": "en.wikipedia",
+      "access": "all-access",
+      "agent": "user",
+      "granularity": "monthly",
+      "window": {
+        "start": "20260601",
+        "end": "20260630",
+        "label": "2026-06"
+      }
+    },
+    "gate": {
+      "minMonthlyViews": 8000,
+      "note": "floor gates the curated list; Task 17 proven titles admitted below it (provenExempt)"
+    },
+    "counts": {
+      "candidates": 97,
+      "annotated": 97,
+      "pool": 55,
+      "floorCleared": 45,
+      "provenExempted": 10,
+      "belowThreshold": 42,
+      "missing": 0,
+      "mergedCanonicalDuplicates": 0,
+      "annotatedPerBucket": {
+        "Science": 23,
+        "Everyday life": 58,
+        "Arts": 10,
+        "Technology": 6
+      },
+      "poolPerBucket": {
+        "Science": 14,
+        "Everyday life": 32,
+        "Arts": 6,
+        "Technology": 3
+      }
+    },
+    "reconciliation": {
+      "merged": []
+    },
+    "run": {
+      "httpRequests": 99,
+      "wallTimeMs": 756
+    }
+  },
+  "entries": [
+    {"title":"Continental drift","bucket":"Science","monthlyViews":8772,"status":"ok"},
+    {"title":"Osmosis","bucket":"Science","monthlyViews":10204,"status":"ok"},
+    {"title":"Quicksand","bucket":"Science","monthlyViews":13192,"status":"ok"},
+    {"title":"Static electricity","bucket":"Science","monthlyViews":9246,"status":"ok"},
+    {"title":"Buoyancy","bucket":"Science","monthlyViews":9958,"status":"ok"},
+    {"title":"Surface tension","bucket":"Science","monthlyViews":9051,"status":"ok"},
+    {"title":"Friction","bucket":"Science","monthlyViews":10948,"status":"ok"},
+    {"title":"Sinkhole","bucket":"Science","monthlyViews":11023,"status":"ok"},
+    {"title":"Geyser","bucket":"Science","monthlyViews":8233,"status":"ok"},
+    {"title":"Whirlpool","bucket":"Science","monthlyViews":12869,"status":"ok"},
+    {"title":"Mirage","bucket":"Science","monthlyViews":11169,"status":"ok"},
+    {"title":"Sublimation (phase transition)","bucket":"Science","monthlyViews":14334,"status":"ok"},
+    {"title":"Bioluminescence","bucket":"Science","monthlyViews":12981,"status":"ok"},
+    {"title":"Calcium oxide","bucket":"Science","monthlyViews":13120,"status":"resolved-from-redirect","redirectedFrom":"Quicklime"},
+    {"title":"Marshmallow","bucket":"Everyday life","monthlyViews":22765,"status":"ok"},
+    {"title":"Cotton candy","bucket":"Everyday life","monthlyViews":8920,"status":"ok"},
+    {"title":"Ice pop","bucket":"Everyday life","monthlyViews":10668,"status":"ok"},
+    {"title":"Whoopee cushion","bucket":"Everyday life","monthlyViews":2563,"status":"ok","provenExempt":true},
+    {"title":"Etch A Sketch","bucket":"Everyday life","monthlyViews":5612,"status":"ok","provenExempt":true},
+    {"title":"Slinky","bucket":"Everyday life","monthlyViews":9705,"status":"ok"},
+    {"title":"Fidget spinner","bucket":"Everyday life","monthlyViews":9674,"status":"ok"},
+    {"title":"Troll doll","bucket":"Everyday life","monthlyViews":7218,"status":"ok","provenExempt":true},
+    {"title":"Snow globe","bucket":"Everyday life","monthlyViews":2208,"status":"ok","provenExempt":true},
+    {"title":"Silly String","bucket":"Everyday life","monthlyViews":2408,"status":"ok","provenExempt":true},
+    {"title":"Sparkler","bucket":"Everyday life","monthlyViews":2290,"status":"ok","provenExempt":true},
+    {"title":"Pool noodle","bucket":"Everyday life","monthlyViews":2356,"status":"ok","provenExempt":true},
+    {"title":"Kaleidoscope","bucket":"Everyday life","monthlyViews":10606,"status":"ok"},
+    {"title":"Tiddlywinks","bucket":"Everyday life","monthlyViews":4500,"status":"ok","provenExempt":true},
+    {"title":"Mood ring","bucket":"Everyday life","monthlyViews":4537,"status":"ok","provenExempt":true},
+    {"title":"Pinwheel (toy)","bucket":"Everyday life","monthlyViews":1460,"status":"ok","provenExempt":true},
+    {"title":"Yo-yo","bucket":"Everyday life","monthlyViews":10517,"status":"ok"},
+    {"title":"Rubik's Cube","bucket":"Everyday life","monthlyViews":34678,"status":"ok"},
+    {"title":"Teddy bear","bucket":"Everyday life","monthlyViews":15925,"status":"ok"},
+    {"title":"Play-Doh","bucket":"Everyday life","monthlyViews":9968,"status":"ok"},
+    {"title":"Boomerang","bucket":"Everyday life","monthlyViews":13497,"status":"ok"},
+    {"title":"Piñata","bucket":"Everyday life","monthlyViews":8284,"status":"ok"},
+    {"title":"Popcorn","bucket":"Everyday life","monthlyViews":23080,"status":"ok"},
+    {"title":"Pretzel","bucket":"Everyday life","monthlyViews":22430,"status":"ok"},
+    {"title":"Doughnut","bucket":"Everyday life","monthlyViews":23119,"status":"ok"},
+    {"title":"Waffle","bucket":"Everyday life","monthlyViews":15423,"status":"ok"},
+    {"title":"Lollipop","bucket":"Everyday life","monthlyViews":12661,"status":"ok"},
+    {"title":"Chewing gum","bucket":"Everyday life","monthlyViews":13652,"status":"ok"},
+    {"title":"Umbrella","bucket":"Everyday life","monthlyViews":10909,"status":"ok"},
+    {"title":"Zipper","bucket":"Everyday life","monthlyViews":8076,"status":"ok"},
+    {"title":"Velcro","bucket":"Everyday life","monthlyViews":9891,"status":"ok"},
+    {"title":"Flashlight","bucket":"Everyday life","monthlyViews":8073,"status":"ok"},
+    {"title":"Bagpipes","bucket":"Arts","monthlyViews":21684,"status":"ok"},
+    {"title":"Accordion","bucket":"Arts","monthlyViews":16753,"status":"ok"},
+    {"title":"Harmonica","bucket":"Arts","monthlyViews":11833,"status":"ok"},
+    {"title":"Ukulele","bucket":"Arts","monthlyViews":17884,"status":"ok"},
+    {"title":"Origami","bucket":"Arts","monthlyViews":10627,"status":"ok"},
+    {"title":"Mbira","bucket":"Arts","monthlyViews":10640,"status":"resolved-from-redirect","redirectedFrom":"Kalimba"},
+    {"title":"Lighthouse","bucket":"Technology","monthlyViews":15450,"status":"ok"},
+    {"title":"Walkie-talkie","bucket":"Technology","monthlyViews":9115,"status":"ok"},
+    {"title":"Segway","bucket":"Technology","monthlyViews":12901,"status":"ok"}
+  ]
+}

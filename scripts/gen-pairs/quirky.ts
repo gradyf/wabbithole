@@ -190,14 +190,22 @@ export function quirkyCandidates(): HarvestEntry[] {
   return out;
 }
 
+/** A quirky entry, plus a marker when it is in the pool by proven provenance
+ *  (Task 17 override) rather than by clearing the pageview floor. */
+export type QuirkyEntry = AnnotatedEntry & { provenExempt?: true };
+
 export interface QuirkyResult {
   /** Every candidate, annotated with measured pageviews (superset). */
-  annotated: AnnotatedEntry[];
-  /** Quirky pool: exists and >= QUIRKY_MIN_MONTHLY_VIEWS. */
-  pool: AnnotatedEntry[];
+  annotated: QuirkyEntry[];
+  /** Quirky pool: (>= QUIRKY_MIN_MONTHLY_VIEWS) OR a proven Task 17 title. */
+  pool: QuirkyEntry[];
   merged: Array<{ canonical: string; kept: string; dropped: string }>;
   pageviewWindow: { start: string; end: string; label: string };
   candidateCount: number;
+  /** Curated titles admitted by clearing the floor. */
+  floorCleared: number;
+  /** Proven Task 17 titles admitted below the floor (recognizable, not high-traffic). */
+  provenExempted: number;
 }
 
 /** Quirky-relative status (the 8k floor), keeping resolve's missing verdict. */
@@ -208,21 +216,42 @@ function quirkyStatus(e: AnnotatedEntry): EntryStatus {
 }
 
 /**
- * Assemble + annotate the quirky pool through resolve.ts, then apply the quirky
- * floor. resolve() annotates against the 20k famous gate; we recompute status
- * against QUIRKY_MIN_MONTHLY_VIEWS but reuse its measured monthlyViews.
+ * Assemble + annotate the quirky pool through resolve.ts, then decide pool
+ * membership.
+ *
+ * The QUIRKY_MIN_MONTHLY_VIEWS floor gates the UNVETTED curated novelty list.
+ * The Task 17 override titles (source a — "the proven class") are admitted
+ * regardless of views: they are Gray-approved live ≥4 pair members, and the
+ * quirky TARGETS among them (Whoopee cushion, Snow globe, Tiddlywinks…) are
+ * recognizable-but-low-traffic BY DESIGN — their low inlink counts are exactly
+ * what lets them sit ≥4 from an insular start. Pageviews measure traffic, not
+ * recognizability, so an 8k floor would perversely drop the best-proven ≥4
+ * targets (measured: most sit at 1.4k–7.2k/mo). This exemption is recorded in
+ * provenance (provenExempt) so the reviewer sees exactly which titles bypassed
+ * the floor and why.
  */
 export async function buildQuirkyPool(): Promise<QuirkyResult> {
   const candidates = quirkyCandidates();
+  const proven = new Set(overrideQuirkyTitles().map((e) => e.title));
   const r = await resolve(candidates);
-  const annotated = r.annotated.map((e) => ({ ...e, status: quirkyStatus(e) }));
+  const annotated: QuirkyEntry[] = r.annotated.map((e) => {
+    const status = quirkyStatus(e);
+    const belowFloor = status === 'below-threshold';
+    if (belowFloor && proven.has(e.title)) {
+      return { ...e, status: 'ok', provenExempt: true };
+    }
+    return { ...e, status };
+  });
+  const pool = annotated.filter(
+    (e) => e.status === 'ok' || e.status === 'resolved-from-redirect',
+  );
   return {
     annotated,
-    pool: annotated.filter(
-      (e) => e.status === 'ok' || e.status === 'resolved-from-redirect',
-    ),
+    pool,
     merged: r.merged,
     pageviewWindow: r.pageviewWindow,
     candidateCount: candidates.length,
+    floorCleared: pool.filter((e) => e.provenExempt !== true).length,
+    provenExempted: pool.filter((e) => e.provenExempt === true).length,
   };
 }
