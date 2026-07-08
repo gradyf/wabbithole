@@ -1,36 +1,39 @@
 // Orchestrator. Author-plane only (spec 2.1): runs on a laptop, never in
-// `vercel build`. Subcommands:
+// `vercel build`. Subcommands (2026-07-08 major-topics design):
 //
 //   npx tsx scripts/gen-pairs/index.ts                 # Phase 1: harvest+resolve (default)
-//   npx tsx scripts/gen-pairs/index.ts quirky          # Phase 2: build data/quirky.json
-//   npx tsx scripts/gen-pairs/index.ts sample --count 30 [--seed S]   # Phase 2: draw+verify pairs
-//   npx tsx scripts/gen-pairs/index.ts emit [--cutover N]             # Phase 3: flat calendar
+//   npx tsx scripts/gen-pairs/index.ts topics          # resolve the authored topics pool
+//   npx tsx scripts/gen-pairs/index.ts sample --count 365 [--seed S]  # draw+verify pairs (≤2 check only)
+//   npx tsx scripts/gen-pairs/index.ts emit [--cutover N]             # flat calendar
+//
+//   RETIRED by the 2026-07-08 supersession (fail loudly, kept for audit):
+//   quirky, quirky-links — the dead two-tier design's pool/measurement passes.
 //
 // Outputs (committed; deterministic inputs downstream):
-//   data/annotated.json     — every Vital-L3 title, annotated  (Phase 1)
-//   data/pool.json          — the famous-tier gated subset      (Phase 1)
-//   data/quirky.json        — the quirky (≥4) tier pool          (Phase 2)
+//   data/annotated.json     — every Vital-L3 title, annotated  (Phase 1, historical)
+//   data/pool.json          — the famous-tier gated subset      (Phase 1, historical)
+//   data/topics.json        — the AUTHORED major-topics list ({title, bucket} × ~420)
+//   data/topics-annotated.json — the resolve pass over topics.json; in-pool
+//                             survivors are THE sampling pool (all of them —
+//                             deliberate deviation from the synthesis's "first
+//                             365": a larger pool gives more variety under the
+//                             ≤3 frequency cap)
 //   data/distance-cache.json— per-pair distance verdicts (resumable checkpoint)
-//   data/legacy-pairs.json  — frozen copy of the pre-flat 120-pair rotation (Phase 3 input)
-//   ../../src/race/pairs.json      — the flat, calendar-pinned schedule       (Phase 3)
-//   ../../src/race/pairs.meta.json — provenance sidecar, NOT imported by the app (Phase 3)
-//
-// Phase 3 scope: flat-calendar emitter + pairForKey swap. In this phase the
-// validated list is empty, so the emitted calendar is the full legacy
-// materialization (zero player-visible change; proven by emit.test.ts's sweep).
-// Phase 4 re-runs `emit` with real validated pairs + a real cutover (data only).
+//   data/validated.json     — the arranged, verified 365-pair list (emit input)
+//   data/legacy-pairs.json  — frozen copy of the pre-flat 120-pair rotation (emit input)
+//   ../../src/race/pairs.json      — the flat, calendar-pinned schedule
+//   ../../src/race/pairs.meta.json — provenance sidecar, NOT imported by the app
 
 import { writeFileSync, mkdirSync, readFileSync, existsSync, renameSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { harvest } from './harvest.js';
-import { resolve, FAMOUS_MIN_MONTHLY_VIEWS, type AnnotatedEntry } from './resolve.js';
+import { harvest, type HarvestEntry } from './harvest.js';
+import { resolve, FAMOUS_MIN_MONTHLY_VIEWS, inPool, type AnnotatedEntry } from './resolve.js';
 import { requestCount, GEN_AGENT, queryAllLinks, queryInlinksCount } from './wiki.js';
 import { buildQuirkyPool, QUIRKY_MIN_MONTHLY_VIEWS } from './quirky.js';
 import {
   PairSampler,
-  QUIRKY_SHARE,
   OVERSAMPLE,
   MAX_TITLE_APPEARANCES,
   QUIRKY_START_BUCKETS,
@@ -38,6 +41,7 @@ import {
   QUIRKY_START_MAX_OUTLINKS,
   QUIRKY_TARGET_MAX_INLINKS,
   narrowQuirky,
+  arrangeCalendar,
   type PoolTitle,
   type QuirkyLinkCounts,
 } from './sample.js';
@@ -167,9 +171,12 @@ async function runHarvest(): Promise<void> {
   console.log(`wrote ${join(DATA_DIR, 'pool.json')}`);
 }
 
-// --- Phase 2: quirky pool -----------------------------------------------------
+// --- Phase 2: quirky pool — RETIRED (2026-07-08 supersession) ------------------
+// Kept compiling for the audit trail; the `quirky` subcommand now fails loudly
+// instead of dispatching here. Exported so noUnusedLocals tolerates the
+// retired-in-place function. Delete in the blessed-calendar follow-up.
 
-async function runQuirky(): Promise<void> {
+export async function runQuirky(): Promise<void> {
   const t0 = Date.now();
   console.log(`gen-pairs Phase 2 quirky pool — agent: ${GEN_AGENT}`);
   const q = await buildQuirkyPool();
@@ -244,14 +251,16 @@ function loadPool(name: string): PoolTitle[] {
   return raw.entries.map((e) => ({ title: e.title, bucket: e.bucket }));
 }
 
-// --- Task 25: quirky link-count measurement (narrowed draw space) -------------
-// Offline pre-pass that measures each quirky START's outlink count and each
+// --- Task 25: quirky link-count measurement — RETIRED (2026-07-08 supersession)
+// Served the dead narrowed-quirky-draw design (Task 25 decision 2). Kept
+// compiling for the audit trail (data/quirky-linkcounts.json remains the
+// committed evidence for the superseded thresholds); the `quirky-links`
+// subcommand now fails loudly instead of dispatching here. Original notes:
+// offline pre-pass that measures each quirky START's outlink count and each
 // quirky TARGET's inlink count, so the sampler can narrow the quirky tier to
-// {insular starts} × {low-inlink targets} (Gray decision 2). The result is a
-// committed, resumable cache — a re-run skips already-measured titles, and it
-// is the audit evidence for the two narrowing thresholds. Cap inlink counting
-// at INLINK_MEASURE_CAP so a hub target costs a bounded few requests (we only
-// need to know it exceeds the threshold, not its exact hub figure).
+// {insular starts} × {low-inlink targets}. The result is a committed, resumable
+// cache — a re-run skips already-measured titles. Cap inlink counting at
+// INLINK_MEASURE_CAP so a hub target costs a bounded few requests.
 
 const QUIRKY_LINKCOUNTS_FILE = 'quirky-linkcounts.json';
 const INLINK_MEASURE_CAP = 2_000;
@@ -292,7 +301,7 @@ function loadLinkCounts(path: string): QuirkyLinkCountsFile {
   return JSON.parse(readFileSync(path, 'utf8')) as QuirkyLinkCountsFile;
 }
 
-async function runQuirkyLinks(): Promise<void> {
+export async function runQuirkyLinks(): Promise<void> {
   const t0 = Date.now();
   console.log(`gen-pairs Task 25 quirky link-count measurement — agent: ${GEN_AGENT}`);
   const quirky = loadPool('quirky.json');
@@ -370,6 +379,114 @@ async function runQuirkyLinks(): Promise<void> {
   console.log(`wrote ${path}`);
 }
 
+// --- 2026-07-08 major-topics design: authored topics + resolve pass -----------
+
+/** The AUTHORED major-topics list (data/topics.json), loaded into the
+ *  harvest-output shape so resolve.ts consumes it unchanged. */
+function loadTopics(): HarvestEntry[] {
+  const raw = JSON.parse(readFileSync(join(DATA_DIR, 'topics.json'), 'utf8')) as {
+    entries?: Array<{ title?: unknown; bucket?: unknown }>;
+  };
+  const entries = raw.entries ?? [];
+  if (entries.length === 0) throw new Error('topics.json has no entries');
+  return entries.map((e, i) => {
+    if (typeof e.title !== 'string' || typeof e.bucket !== 'string') {
+      throw new Error(`topics.json entry ${i} is malformed (need {title, bucket} strings)`);
+    }
+    return { title: e.title, bucket: e.bucket };
+  });
+}
+
+/** The sampling pool = ALL in-pool survivors of the topics resolve pass.
+ *  Deliberate deviation from the synthesis's "first 365" (documented in the
+ *  Task 25 report): a larger pool gives more variety under the ≤3 cap. */
+function loadTopicsPool(): PoolTitle[] {
+  const raw = JSON.parse(readFileSync(join(DATA_DIR, 'topics-annotated.json'), 'utf8')) as {
+    entries: AnnotatedEntry[];
+  };
+  return raw.entries
+    .filter((e) => inPool(e.status))
+    .map((e) => ({ title: e.title, bucket: e.bucket }));
+}
+
+/** Resolve pass over the authored topics: canonicalize via &redirects, drop
+ *  404s, apply the 20k views/month recognizability gate, dedupe
+ *  post-canonicalization. Writes data/topics-annotated.json (every authored
+ *  title annotated — the audit evidence for what flunked and why). */
+async function runTopics(): Promise<void> {
+  const t0 = Date.now();
+  console.log(`gen-pairs topics resolve (major-topics design) — agent: ${GEN_AGENT}`);
+  const authored = loadTopics();
+  const domains = [...new Set(authored.map((e) => e.bucket))];
+  console.log(`authored topics: ${authored.length} across ${domains.length} domains`);
+
+  const r = await resolve(authored);
+  const wallTimeMs = Date.now() - t0;
+
+  const missing = r.annotated.filter((e) => e.status === 'missing');
+  const below = r.annotated.filter((e) => e.status === 'below-threshold');
+  const redirected = r.annotated.filter((e) => e.redirectedFrom !== undefined);
+
+  const provenance = {
+    generatedAt: new Date().toISOString(),
+    generator: 'scripts/gen-pairs (2026-07-08 major-topics design: topics resolve)',
+    source: {
+      authored: 'scripts/gen-pairs/data/topics.json (hand-authored fun-register list, see its provenance)',
+    },
+    pageviews: {
+      project: 'en.wikipedia',
+      access: 'all-access',
+      agent: 'user',
+      granularity: 'monthly',
+      window: r.pageviewWindow,
+    },
+    gate: { minMonthlyViews: FAMOUS_MIN_MONTHLY_VIEWS },
+    counts: {
+      authored: authored.length,
+      annotated: r.annotated.length,
+      pool: r.pool.length,
+      missing: missing.length,
+      belowThreshold: below.length,
+      resolvedFromRedirect: redirected.length,
+      mergedCanonicalDuplicates: r.merged.length,
+      annotatedPerBucket: perBucketCounts(r.annotated),
+      poolPerBucket: perBucketCounts(r.pool),
+    },
+    reconciliation: { merged: r.merged },
+    run: { httpRequests: requestCount(), wallTimeMs },
+  };
+
+  mkdirSync(DATA_DIR, { recursive: true });
+  writeFileSync(join(DATA_DIR, 'topics-annotated.json'), serialize(provenance, r.annotated));
+
+  console.log(`\nannotated ${r.annotated.length}; pool (>=${FAMOUS_MIN_MONTHLY_VIEWS} views/mo): ${r.pool.length}`);
+  console.log(`per-domain pool: ${JSON.stringify(perBucketCounts(r.pool))}`);
+  if (missing.length > 0) {
+    console.log(`MISSING (${missing.length}): ${missing.map((e) => e.title).join(' | ')}`);
+  }
+  if (below.length > 0) {
+    console.log(
+      `below-threshold (${below.length}): ` +
+        below
+          .sort((a, b) => a.monthlyViews - b.monthlyViews)
+          .map((e) => `${e.title} ${e.monthlyViews}`)
+          .join(' | '),
+    );
+  }
+  if (redirected.length > 0) {
+    console.log(`redirects: ${redirected.map((e) => `${e.redirectedFrom} -> ${e.title}`).join(' | ')}`);
+  }
+  if (r.merged.length > 0) {
+    console.log(`merged: ${r.merged.map((m) => `${m.dropped} == ${m.canonical}`).join(' | ')}`);
+  }
+  if (r.pool.length < 300) {
+    console.log(`\n*** POOL TOO SMALL: ${r.pool.length} survivors < 300 — author replacements and re-run ***`);
+    process.exitCode = 2;
+  }
+  console.log(`\nHTTP requests: ${requestCount()}; wall time: ${(wallTimeMs / 1000).toFixed(1)}s`);
+  console.log(`wrote ${join(DATA_DIR, 'topics-annotated.json')}`);
+}
+
 function parseArg(flag: string): string | undefined {
   const i = process.argv.indexOf(flag);
   return i >= 0 ? process.argv[i + 1] : undefined;
@@ -389,14 +506,16 @@ interface SampleRow {
   cached: boolean;
 }
 
-/** The Phase 3 handoff shape (emit.ts `ValidatedPair`): canonical SPACE-form
- *  titles + the verified distance, tier, and buckets the emitter carries into
- *  pairs.meta.json. The emitter converts space→underscore. */
+/** The emitter handoff shape (emit.ts `ValidatedPair`): canonical SPACE-form
+ *  titles + the verified distance and domains the emitter carries into
+ *  pairs.meta.json. NO tier field (2026-07-08 supersession: single tier). The
+ *  emitter converts space→underscore. Entry order in validated.json IS the
+ *  calendar order: emit splices validated[i - cutover] sequentially, so the
+ *  arrangeCalendar() ordering must be applied before writing. */
 interface ValidatedEntry {
   start: string;
   target: string;
   distance: string;
-  tier: string;
   startBucket: string;
   targetBucket: string;
 }
@@ -409,110 +528,83 @@ function serializeValidated(provenance: object, entries: ValidatedEntry[]): stri
   return `{\n  "provenance": ${head.replace(/\n/g, '\n  ')},\n  "entries": [\n${lines.join(',\n')}\n  ]\n}\n`;
 }
 
-/** Write the accepted pairs (in accepted order) to data/validated.json — the
- *  Phase 3 emitter input. Written once at the end; the per-pair distance cache
- *  is the resumable checkpoint, so a killed run re-derives the same list on
- *  replay (all cached → zero re-fetch) before this file is (re)written. */
+/** Arrange the accepted pairs (adjacent days never share a start- or
+ *  target-domain) and write data/validated.json — the emitter input. Written
+ *  once at the end; the per-pair distance cache is the resumable checkpoint, so
+ *  a killed run re-derives the same list on replay (all cached → zero re-fetch)
+ *  before this file is (re)written. Returns the arrangement evidence. */
 function writeValidated(
   rows: SampleRow[],
   seed: string,
   count: number,
   terminated: string,
   wallMs: number,
-): void {
-  const entries: ValidatedEntry[] = rows.map((r) => ({
+): { violations: number[]; passes: number } {
+  const accepted: ValidatedEntry[] = rows.map((r) => ({
     start: r.start,
     target: r.target,
     distance: r.distance,
-    tier: r.tier,
     startBucket: r.startBucket,
     targetBucket: r.targetBucket,
   }));
+  const arranged = arrangeCalendar(accepted, seed);
   const provenance = {
     generatedAt: new Date().toISOString(),
-    generator: 'scripts/gen-pairs (Phase 4: validated pair run)',
+    generator: 'scripts/gen-pairs (2026-07-08 major-topics design: validated pair run)',
     seed,
     requested: count,
-    accepted: entries.length,
+    accepted: accepted.length,
     terminated,
-    tierMix: {
-      backbone: rows.filter((r) => r.tier === 'backbone').length,
-      quirky: rows.filter((r) => r.tier === 'quirky').length,
-    },
-    narrowing: {
-      startMaxOutlinks: QUIRKY_START_MAX_OUTLINKS,
-      targetMaxInlinks: QUIRKY_TARGET_MAX_INLINKS,
-      linkcounts: QUIRKY_LINKCOUNTS_FILE,
+    pool: 'data/topics-annotated.json in-pool survivors (authored major topics)',
+    distanceCheck: '≤2-click rejection only (guaranteed dist ≥3 / 4-card floor; depth-3 retired)',
+    arrangement: {
+      method: 'arrangeCalendar: seeded shuffle + bounded greedy repair (sample.ts)',
+      adjacencyViolations: arranged.violations,
+      passes: arranged.passes,
     },
     distanceCache: 'data/distance-cache.json (per-pair verified verdicts, audit evidence)',
     run: { httpRequests: requestCount(), wallTimeMs: wallMs },
   };
   const path = join(DATA_DIR, 'validated.json');
-  writeFileSync(path, serializeValidated(provenance, entries));
-  console.log(`wrote ${path} (${entries.length} validated pairs)`);
+  writeFileSync(path, serializeValidated(provenance, arranged.calendar));
+  console.log(
+    `wrote ${path} (${arranged.calendar.length} validated pairs, arranged; ` +
+      `adjacency violations ${arranged.violations.length}, passes ${arranged.passes})`,
+  );
+  return { violations: arranged.violations, passes: arranged.passes };
 }
 
 /** Generous per-run attempt ceiling — a bad-seed / graph-anomaly tripwire, NOT
- *  the expected budget. At the measured ~9% backbone yield a 365-pair run needs
- *  ~3.5k checks; count·(1+OVERSAMPLE)·25 ≈ 11k sits well above that so a healthy
- *  run always completes, while a pathological all-reject seed still halts
- *  politely instead of hammering Wikipedia unbounded. */
+ *  the expected budget. Even at the Vital pool's worst measured ~9% ≥3 yield a
+ *  365-pair run needs ~4k checks; count·(1+OVERSAMPLE)·25 ≈ 11k sits well above
+ *  that so a healthy run always completes, while a pathological all-reject seed
+ *  still halts politely instead of hammering Wikipedia unbounded. */
 const MAX_CHECKS_PER_TARGET = 25;
 
+/** The 2026-07-08 major-topics run: single tier, authored topics pool, the
+ *  ≤2-click rejection as the ONLY distance check (every accept is verified
+ *  dist ≥3 — the 4-card floor Gray locked). Ends with the deterministic
+ *  arrangeCalendar() pass and writes data/validated.json in calendar order. */
 async function runSample(): Promise<void> {
   const t0 = Date.now();
-  const count = Number(parseArg('--count') ?? 30);
+  const count = Number(parseArg('--count') ?? 365);
   const seed = parseArg('--seed') ?? SAMPLER_SEED;
-  console.log(`gen-pairs Phase 4 sample+verify — count ${count}, seed "${seed}", agent ${GEN_AGENT}`);
-
-  const backbone = loadPool('pool.json');
-  const quirky = loadPool('quirky.json');
-  const allStarts = quirky.filter((q) => (QUIRKY_START_BUCKETS as readonly string[]).includes(q.bucket));
-  const allTargets = quirky.filter((q) => (QUIRKY_TARGET_BUCKETS as readonly string[]).includes(q.bucket));
-
-  // Narrow the quirky draw space to {insular starts} × {low-inlink targets}
-  // (Task 25 decision 2) BEFORE any distance check runs. The link counts are the
-  // committed offline measurement; an UNMEASURED candidate is a hard error —
-  // an incomplete measurement must never silently shrink the draw space.
-  const counts = loadLinkCounts(join(DATA_DIR, QUIRKY_LINKCOUNTS_FILE));
-  const narrowed = narrowQuirky(allStarts, allTargets, counts);
-  if (narrowed.unmeasuredStarts.length > 0 || narrowed.unmeasuredTargets.length > 0) {
-    throw new Error(
-      `quirky narrowing aborted — unmeasured candidates (run \`quirky-links\` first): ` +
-        `starts=[${narrowed.unmeasuredStarts.join(', ')}] targets=[${narrowed.unmeasuredTargets.join(', ')}]`,
-    );
-  }
-  const quirkyStarts = narrowed.starts;
-  const quirkyTargets = narrowed.targets;
-  const quirkyCeiling = Math.min(quirkyStarts.length, quirkyTargets.length) * MAX_TITLE_APPEARANCES;
-  const quirkyNeeded = Math.floor(count * QUIRKY_SHARE); // Bresenham telescopes to floor(count·share)
-
   console.log(
-    `pools: backbone ${backbone.length}; quirky starts ${quirkyStarts.length}/${allStarts.length} ` +
-      `(${QUIRKY_START_BUCKETS.join('/')}); quirky targets ${quirkyTargets.length}/${allTargets.length} ` +
-      `(${QUIRKY_TARGET_BUCKETS.join('/')})`,
+    `gen-pairs sample+verify (major-topics, single tier) — count ${count}, seed "${seed}", agent ${GEN_AGENT}`,
   );
-  console.log(
-    `narrowing (start outlinks ≤ ${QUIRKY_START_MAX_OUTLINKS}, target inlinks ≤ ${QUIRKY_TARGET_MAX_INLINKS}): ` +
-      `dropped ${narrowed.droppedStarts.length} starts, ${narrowed.droppedTargets.length} targets; ` +
-      `quirky ceiling ${quirkyCeiling} vs ${quirkyNeeded} needed`,
-  );
-  if (narrowed.droppedTargets.length > 0) {
-    console.log(
-      `  dropped targets: ` +
-        narrowed.droppedTargets
-          .map((d) => `${d.title}(${d.capped ? '>' : ''}${d.inlinks})`)
-          .join(', '),
-    );
-  }
-  // Cheap upfront feasibility guard (necessary condition). The 4+ yield
-  // distribution can still fall short — the real BLOCKED-PARTIAL detection is at
-  // the end of the run — but if even the ceiling can't hold the demand, stop now
-  // rather than burn tens of thousands of requests on a doomed run.
-  if (quirkyNeeded > quirkyCeiling) {
+
+  const pool = loadTopicsPool();
+  const domains = perBucketCounts(pool.map((p) => ({ ...p, monthlyViews: 0, status: 'ok' as const })));
+  console.log(`topics pool: ${pool.length} titles across ${Object.keys(domains).length} domains`);
+  console.log(`per-domain: ${JSON.stringify(domains)}`);
+
+  // Feasibility: each accepted pair consumes 2 endpoint slots; the pool offers
+  // pool×cap slots. Necessary condition only — the ≤2 yield is the real gate.
+  const pairCeiling = Math.floor((pool.length * MAX_TITLE_APPEARANCES) / 2);
+  if (count > pairCeiling) {
     throw new Error(
-      `BLOCKED: narrowed quirky ceiling ${quirkyCeiling} < ${quirkyNeeded} quirky pairs needed ` +
-        `(share ${QUIRKY_SHARE} × ${count}). Do NOT relax constraints silently — report BLOCKED-PARTIAL.`,
+      `BLOCKED: pool ceiling ${pairCeiling} pairs (${pool.length} titles × cap ${MAX_TITLE_APPEARANCES} / 2) ` +
+        `< ${count} requested. Do NOT relax constraints silently — report BLOCKED-PARTIAL.`,
     );
   }
 
@@ -521,7 +613,9 @@ async function runSample(): Promise<void> {
   const cacheHitsAtStart = Object.keys(cache).length;
   console.log(`distance cache: ${cacheHitsAtStart} verdicts already on disk (skip-on-rerun / resume)`);
 
-  const sampler = new PairSampler(seed, backbone, quirkyStarts, quirkyTargets);
+  // Single tier: quirky pools empty, QUIRKY_SHARE=0 → tierForSlot never picks
+  // 'quirky', every candidate goes through the ≤2-only backbone verdict path.
+  const sampler = new PairSampler(seed, pool, [], []);
   const rows: SampleRow[] = [];
   const distanceRejects: SampleRow[] = [];
   const maxChecks = Math.ceil(count * (1 + OVERSAMPLE) * MAX_CHECKS_PER_TARGET) + 50;
@@ -571,39 +665,34 @@ async function runSample(): Promise<void> {
       row.idx = sampler.accepted;
       rows.push(row);
       console.log(
-        `  [${row.idx}/${count}] ${c.tier} ACCEPT ${c.start.title} → ${c.target.title} ` +
+        `  [${row.idx}/${count}] ACCEPT ${c.start.title} → ${c.target.title} ` +
           `(${entry.distance}) ${computed ? entry.requests + ' req' : 'cached'}`,
       );
     } else {
       sampler.reject(c);
       distanceRejects.push(row);
       console.log(
-        `        ${c.tier} reject ${c.start.title} → ${c.target.title} ` +
+        `        reject ${c.start.title} → ${c.target.title} ` +
           `[${entry.verdict}] ${computed ? entry.requests + ' req' : 'cached'}`,
       );
     }
   }
 
-  writeValidated(rows, seed, count, terminated, Date.now() - t0);
-  reportSample(rows, distanceRejects, sampler, count, cache, Date.now() - t0, cacheHitsAtStart);
+  const arrangement = writeValidated(rows, seed, count, terminated, Date.now() - t0);
+  reportRun(rows, distanceRejects, sampler, count, cache, Date.now() - t0, cacheHitsAtStart, arrangement);
 
-  const acceptedQuirky = rows.filter((r) => r.tier === 'quirky').length;
-  if (sampler.accepted < count || acceptedQuirky < quirkyNeeded) {
+  if (sampler.accepted < count) {
     console.log(
-      `\n*** BLOCKED-PARTIAL: reached ${sampler.accepted}/${count} accepted ` +
-        `(quirky ${acceptedQuirky}/${quirkyNeeded}); terminated=${terminated}. ` +
-        `data/validated.json holds the partial evidence; NOT ready to emit. ***`,
+      `\n*** BLOCKED-PARTIAL: reached ${sampler.accepted}/${count} accepted; ` +
+        `terminated=${terminated}. data/validated.json holds the partial evidence; NOT ready to emit. ***`,
     );
     process.exitCode = 2;
   } else {
-    console.log(
-      `\nRUN COMPLETE: ${sampler.accepted}/${count} accepted ` +
-        `(backbone ${sampler.accepted - acceptedQuirky}, quirky ${acceptedQuirky}); ready to emit.`,
-    );
+    console.log(`\nRUN COMPLETE: ${sampler.accepted}/${count} accepted, arranged; ready to emit.`);
   }
 }
 
-function reportSample(
+function reportRun(
   rows: SampleRow[],
   distanceRejects: SampleRow[],
   sampler: PairSampler,
@@ -611,117 +700,93 @@ function reportSample(
   cache: Record<string, CacheEntry>,
   wallMs: number,
   cacheHitsAtStart: number,
+  arrangement: { violations: number[]; passes: number },
 ): void {
   const line = (r: SampleRow): string =>
     [
-      String(r.idx).padStart(2),
-      r.tier.padEnd(8),
-      `${r.start} [${r.startBucket}]`.padEnd(42),
-      `${r.target} [${r.targetBucket}]`.padEnd(42),
+      String(r.idx).padStart(3),
+      `${r.start} [${r.startBucket}]`.padEnd(46),
+      `${r.target} [${r.targetBucket}]`.padEnd(46),
       r.distance.padEnd(4),
-      r.verdict.padEnd(18),
+      r.verdict.padEnd(14),
       `h1=${r.hop1}`.padEnd(9),
       r.cached ? 'cached' : `${r.requests}req`,
     ].join(' ');
 
-  console.log('\n=== ACCEPTED PAIRS (evidence table) ===');
+  console.log('\n=== ACCEPTED PAIRS (accept order; validated.json holds the ARRANGED order) ===');
   for (const r of rows) console.log(line(r));
 
-  console.log('\n=== DISTANCE REJECTIONS ===');
+  console.log('\n=== DISTANCE REJECTIONS (≤2-click: the defect this pipeline exists to kill) ===');
   for (const r of distanceRejects) console.log(line(r));
 
-  // sampler-level rejections by reason
   const byReason: Record<string, number> = {};
   for (const rej of sampler.rejects) byReason[rej.reason] = (byReason[rej.reason] ?? 0) + 1;
 
   const freshRows = [...rows, ...distanceRejects].filter((r) => !r.cached);
   const freshReq = freshRows.reduce((s, r) => s + r.requests, 0);
-  const backboneFresh = freshRows.filter((r) => r.tier === 'backbone');
-  const quirkyFresh = freshRows.filter((r) => r.tier === 'quirky');
   const avg = (rs: SampleRow[]): number =>
     rs.length ? Math.round(rs.reduce((s, r) => s + r.requests, 0) / rs.length) : 0;
+  const tried = rows.length + distanceRejects.length;
+  const acceptRate = tried ? rows.length / tried : 1;
 
-  const acceptedBackbone = rows.filter((r) => r.tier === 'backbone').length;
-  const acceptedQuirky = rows.filter((r) => r.tier === 'quirky').length;
-  const rejClose = distanceRejects.filter((r) => r.verdict === 'reject-close').length;
-  const rejNot4 = distanceRejects.filter((r) => r.verdict === 'reject-not4plus').length;
-  const distChecks = freshRows.length; // distinct pairs distance-checked this run
-  const totalDistanceTried = rows.length + distanceRejects.length;
-
-  console.log('\n=== STATS ===');
-  console.log(`accepted: ${rows.length}/${count}  (backbone ${acceptedBackbone}, quirky ${acceptedQuirky})`);
+  console.log('\n=== STATS (single tier, ≤2-only) ===');
+  console.log(`accepted: ${rows.length}/${count}`);
   console.log(
-    `distance-checked pairs: ${totalDistanceTried} (${distChecks} fresh, ${totalDistanceTried - distChecks} from cache)`,
+    `distance-checked pairs: ${tried} (${freshRows.length} fresh, ${tried - freshRows.length} from cache); ` +
+      `accept rate ${(acceptRate * 100).toFixed(0)}%`,
   );
-  console.log(
-    `distance rejections: ${distanceRejects.length} ` +
-      `(≤2 too-close ${rejClose}, quirky-only-3 ${rejNot4})`,
-  );
-  const backboneTried = rows.filter((r) => r.tier === 'backbone').length +
-    distanceRejects.filter((r) => r.tier === 'backbone').length;
-  const quirkyTried = rows.filter((r) => r.tier === 'quirky').length +
-    distanceRejects.filter((r) => r.tier === 'quirky').length;
-  console.log(
-    `backbone: ${acceptedBackbone}/${backboneTried} accepted ` +
-      `(rejection ${backboneTried ? Math.round((100 * (backboneTried - acceptedBackbone)) / backboneTried) : 0}%), ` +
-      `avg ${avg(backboneFresh)} req/pair fresh`,
-  );
-  console.log(
-    `quirky: ${acceptedQuirky}/${quirkyTried} accepted ` +
-      `(rejection ${quirkyTried ? Math.round((100 * (quirkyTried - acceptedQuirky)) / quirkyTried) : 0}%), ` +
-      `avg ${avg(quirkyFresh)} req/pair fresh`,
-  );
-  console.log(`sampler-level rejections (pre-distance): ${JSON.stringify(byReason)}`);
-  console.log(`fresh HTTP requests this run: ${freshReq} (total incl. cache: ${requestCount()})`);
+  console.log(`avg fresh req/check: ${avg(freshRows)}; fresh HTTP requests this run: ${freshReq}`);
+  console.log(`sampler-level rejections (pre-distance, free): ${JSON.stringify(byReason)}`);
   console.log(`cache size: ${Object.keys(cache).length} verdicts (was ${cacheHitsAtStart})`);
 
-  // frequency cap audit
-  const overCap = [...sampler.frequencies().entries()].filter(([, n]) => n > 3);
-  console.log(`frequency-cap audit: ${overCap.length === 0 ? 'OK (no title > 3×)' : JSON.stringify(overCap)}`);
+  // domain mix over accepted pairs (both endpoints)
+  const domainUse: Record<string, number> = {};
+  for (const r of rows) {
+    domainUse[r.startBucket] = (domainUse[r.startBucket] ?? 0) + 1;
+    domainUse[r.targetBucket] = (domainUse[r.targetBucket] ?? 0) + 1;
+  }
+  console.log(`domain endpoint usage: ${JSON.stringify(domainUse)}`);
 
-  // --- full-run projection (Phase 4 planning input) ---------------------------
-  const backboneShare = 1 - QUIRKY_SHARE;
-  const full = 365;
-  const bbAcceptRate = backboneTried ? acceptedBackbone / backboneTried : 1;
-  const qkAcceptRate = quirkyTried ? acceptedQuirky / quirkyTried : 1;
-  const bbAvgReq = avg(backboneFresh) || 20;
-  const qkAvgReq = avg(quirkyFresh) || 120;
-  const bbTargets = Math.round(full * backboneShare);
-  const qkTargets = full - bbTargets;
-  const bbAttempts = bbAcceptRate ? bbTargets / bbAcceptRate : bbTargets;
-  const qkAttempts = qkAcceptRate ? qkTargets / qkAcceptRate : qkTargets;
-  const projReq = Math.round(bbAttempts * bbAvgReq + qkAttempts * qkAvgReq);
-  const wallPerReq = freshReq > 0 ? wallMs / freshReq : 200; // ms/req observed
-  const projWallMin = Math.round((projReq * wallPerReq) / 1000 / 60);
-
-  console.log('\n=== FULL-RUN PROJECTION (365 pairs, Phase 4) ===');
+  const overCap = [...sampler.frequencies().entries()].filter(([, n]) => n > MAX_TITLE_APPEARANCES);
   console.log(
-    `backbone: ~${bbTargets} pairs / accept-rate ${(bbAcceptRate * 100).toFixed(0)}% ` +
-      `→ ~${Math.round(bbAttempts)} attempts × ~${bbAvgReq} req`,
+    `frequency-cap audit: ${overCap.length === 0 ? `OK (no title > ${MAX_TITLE_APPEARANCES}×)` : JSON.stringify(overCap)}`,
   );
   console.log(
-    `quirky: ~${qkTargets} pairs / accept-rate ${(qkAcceptRate * 100).toFixed(0)}% ` +
-      `→ ~${Math.round(qkAttempts)} attempts × ~${qkAvgReq} req`,
+    `arrangement: ${arrangement.violations.length === 0 ? 'OK (0 adjacency violations)' : `VIOLATIONS at days ${arrangement.violations.join(', ')}`} ` +
+      `in ${arrangement.passes} pass(es)`,
   );
-  console.log(
-    `projected requests: ~${projReq}; wall @ observed ${Math.round(wallPerReq)}ms/req: ~${projWallMin} min`,
-  );
-  console.log(`(observed this run: ${(wallMs / 1000).toFixed(0)}s wall, ${freshReq} fresh req)`);
+  console.log(`wall time: ${(wallMs / 1000 / 60).toFixed(1)} min (${(wallMs / 1000).toFixed(0)}s)`);
 }
 
 // --- dispatch -----------------------------------------------------------------
 
 const SUBCOMMAND = process.argv[2];
+
+/** Retired subcommands fail LOUDLY (they must not fall through to the default
+ *  harvest, which would fire ~1.3k live requests by accident). The functions
+ *  they used to dispatch to are retired in place above (exported, compiled,
+ *  never called) per the no-deletions rule of the supersession pass. */
+function retired(name: string): () => Promise<void> {
+  return async () => {
+    throw new Error(
+      `gen-pairs: subcommand "${name}" was RETIRED by the 2026-07-08 major-topics ` +
+        `supersession (the two-tier quirky design is dead). Use: topics | sample | emit | harvest.`,
+    );
+  };
+}
+
 const dispatch: () => Promise<void> =
-  SUBCOMMAND === 'quirky'
-    ? runQuirky
-    : SUBCOMMAND === 'quirky-links'
-      ? runQuirkyLinks // Task 25: measure quirky link counts for the narrowed draw space
-      : SUBCOMMAND === 'sample'
-        ? runSample
-        : SUBCOMMAND === 'emit'
-          ? runEmit // Phase 3: flat-calendar emitter → src/race/pairs.json + pairs.meta.json
-          : runHarvest; // default + explicit "harvest" (Phase 1, unchanged)
+  SUBCOMMAND === 'topics'
+    ? runTopics // 2026-07-08: resolve the authored major-topics pool
+    : SUBCOMMAND === 'sample'
+      ? runSample // single-tier draw + ≤2-only verify + arrangeCalendar
+      : SUBCOMMAND === 'emit'
+        ? runEmit // flat-calendar emitter → src/race/pairs.json + pairs.meta.json
+        : SUBCOMMAND === 'quirky' || SUBCOMMAND === 'quirky-links'
+          ? retired(SUBCOMMAND)
+          : SUBCOMMAND === undefined || SUBCOMMAND === 'harvest'
+            ? runHarvest // default + explicit "harvest" (Phase 1, unchanged)
+            : retired(SUBCOMMAND); // unknown subcommand: fail loudly, never harvest by accident
 
 dispatch().catch((e) => {
   console.error(e);

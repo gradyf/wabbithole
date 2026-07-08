@@ -1,12 +1,19 @@
-// Deterministic fixture suite for the Phase 2 machinery. Author-plane only,
+// Deterministic fixture suite for the generator machinery. Author-plane only,
 // NOT wired into any npm script (run manually):
 //
 //   npx tsx scripts/gen-pairs/fixtures.test.ts
 //
 // Follows the house pattern (Tasks 9/10/17/22): import the REAL exports and
 // drive them against fixed fixtures / injected mocks — zero network. Covers:
-// rng determinism + avalanche, sampler constraint enforcement, distance verdict
-// logic (redirect-hardened), the NOTE-2 gate, and checkpoint skip-on-rerun.
+// rng determinism + avalanche, sampler constraint enforcement (single-tier +
+// rekeyed deny-list per the 2026-07-08 supersession), arrangeCalendar
+// (adjacency + determinism + bounded relaxation), the authored topics.json
+// integrity, distance verdict logic (redirect-hardened; the depth-3 branches
+// stay covered though retired), the NOTE-2 gate, and checkpoint skip-on-rerun.
+
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import { makeRng, xmur3, SAMPLER_SEED } from './rng.js';
 import {
@@ -14,15 +21,21 @@ import {
   tierForSlot,
   QUIRKY_SHARE,
   MAX_TITLE_APPEARANCES,
+  BUCKET_DENY_LIST,
   narrowQuirky,
+  arrangeCalendar,
+  MAX_ARRANGE_PASSES,
   QUIRKY_START_MAX_OUTLINKS,
   QUIRKY_TARGET_MAX_INLINKS,
   type PoolTitle,
   type QuirkyLinkCounts,
+  type ArrangeItem,
 } from './sample.js';
 import { classifyPair, type LinkGraph, type Tier, MAX_HOP1_FRONTIER } from './distance.js';
 import { getOrClassify, type DistanceCache } from './cache.js';
 import { withGate, activeWorkers, MAX_WORKERS, sleep } from './wiki.js';
+
+const DATA = join(dirname(fileURLToPath(import.meta.url)), 'data');
 
 let passed = 0;
 let failed = 0;
@@ -91,9 +104,11 @@ function popcount(x: number): number {
 
 function mockPool(): { backbone: PoolTitle[]; qStart: PoolTitle[]; qTarget: PoolTitle[] } {
   const backbone: PoolTitle[] = [];
-  // 4 buckets, 10 titles each = 40 famous titles
-  for (const bucket of ['People', 'Geography', 'Science', 'Mathematics']) {
-    for (let i = 0; i < 10; i++) backbone.push({ title: `${bucket}-${i}`, bucket });
+  // 5 fun domains (2026-07-08 rekey), 8 titles each = 40 topics. Includes the
+  // denied adjacency 'History & War' ↔ 'Ancient World' so the deny-list check
+  // exercises the REAL rekeyed constant, not a stale bucket name.
+  for (const bucket of ['Music', 'Sport', 'History & War', 'Ancient World', 'Space']) {
+    for (let i = 0; i < 8; i++) backbone.push({ title: `${bucket}-${i}`, bucket });
   }
   const qStart: PoolTitle[] = [];
   for (let i = 0; i < 8; i++) qStart.push({ title: `Sci-${i}`, bucket: 'Science' });
@@ -105,10 +120,12 @@ function mockPool(): { backbone: PoolTitle[]; qStart: PoolTitle[]; qTarget: Pool
 }
 
 function samplerTests(): void {
-  // tier composition: ~QUIRKY_SHARE of slots are quirky, evenly spread
+  // tier composition: at the retired QUIRKY_SHARE=0 this telescopes to ZERO
+  // quirky slots — the single-tier invariant of the 2026-07-08 supersession.
   let quirky = 0;
   for (let i = 0; i < 100; i++) if (tierForSlot(i) === 'quirky') quirky++;
   check('sampler: tier composition ≈ QUIRKY_SHARE', quirky === Math.round(100 * QUIRKY_SHARE), `${quirky}/100`);
+  check('sampler: single tier — QUIRKY_SHARE is 0, no slot is ever quirky', QUIRKY_SHARE === 0 && quirky === 0);
 
   // drive 40 accepts (accept everything, as if all passed distance) and audit
   const { backbone, qStart, qTarget } = mockPool();
@@ -122,16 +139,26 @@ function samplerTests(): void {
   }
   check('sampler: reached target count', accepted.length === 40, `${accepted.length}`);
   check(
+    'sampler: single tier — every candidate is tier backbone (no quirky draws possible)',
+    accepted.every((c) => c.tier === 'backbone'),
+  );
+  check(
     'sampler: every accepted pair is cross-bucket',
     accepted.every((c) => c.start.bucket !== c.target.bucket),
   );
   check(
-    'sampler: no denied bucket pair (Science↔Mathematics)',
+    'sampler: rekeyed deny-list enforced (History & War ↔ Ancient World never pairs)',
     !accepted.some(
       (c) =>
-        (c.start.bucket === 'Science' && c.target.bucket === 'Mathematics') ||
-        (c.start.bucket === 'Mathematics' && c.target.bucket === 'Science'),
+        (c.start.bucket === 'History & War' && c.target.bucket === 'Ancient World') ||
+        (c.start.bucket === 'Ancient World' && c.target.bucket === 'History & War'),
     ),
+  );
+  // the deny-check must be doing real work: the two domains DO appear separately
+  check(
+    'sampler: denied domains still used against other domains (check not vacuous)',
+    accepted.some((c) => c.start.bucket === 'History & War' || c.target.bucket === 'History & War') &&
+      accepted.some((c) => c.start.bucket === 'Ancient World' || c.target.bucket === 'Ancient World'),
   );
   const freq = new Map<string, number>();
   for (const c of accepted) {
@@ -145,18 +172,6 @@ function samplerTests(): void {
   );
   const dupes = new Set(accepted.map((c) => [c.start.title, c.target.title].sort().join('|')));
   check('sampler: no duplicate pair', dupes.size === accepted.length);
-  const quirkyAccepted = accepted.filter((c) => c.tier === 'quirky').length;
-  check(
-    'sampler: quirky pairs use start∈{Science,Arts} target∈{Everyday life,Technology}',
-    accepted
-      .filter((c) => c.tier === 'quirky')
-      .every(
-        (c) =>
-          ['Science', 'Arts'].includes(c.start.bucket) &&
-          ['Everyday life', 'Technology'].includes(c.target.bucket),
-      ),
-    `${quirkyAccepted} quirky`,
-  );
 
   // determinism: two samplers, same seed, same accept pattern → same draws
   const s1 = new PairSampler('det-seed', backbone, qStart, qTarget);
@@ -260,14 +275,17 @@ function narrowTests(): void {
   );
   check('narrow: threshold inclusive (title exactly at max is kept)', edge.starts.length === 1 && edge.targets.length === 1);
 
-  // THE load-bearing property (brief item 1): a sampler built from the NARROWED
-  // pools never emits a quirky pair touching a dropped or unmeasured title.
+  // RETIRED-MECHANISM property (kept passing-but-inert per the 2026-07-08
+  // supersession): a sampler built from the NARROWED pools never emits a quirky
+  // pair touching a dropped or unmeasured title. The live QUIRKY_SHARE is 0, so
+  // an explicit nonzero share (the superseded 0.15) is injected to exercise the
+  // retired quirky draw path at all.
   const forbiddenStarts = new Set([...n.droppedStarts.map((d) => d.title), ...n.unmeasuredStarts]);
   const forbiddenTargets = new Set([...n.droppedTargets.map((d) => d.title), ...n.unmeasuredTargets]);
   const keptStarts = new Set(n.starts.map((s) => s.title));
   const keptTargets = new Set(n.targets.map((t) => t.title));
-  const backbone = mockPool().backbone; // 40 famous titles, ample to not exhaust
-  const s = new PairSampler(SAMPLER_SEED, backbone, n.starts, n.targets);
+  const backbone = mockPool().backbone; // 40 topic titles, ample to not exhaust
+  const s = new PairSampler(SAMPLER_SEED, backbone, n.starts, n.targets, 0.15);
   let quirkyDrawn = 0;
   let leak = false;
   for (let i = 0; i < 30; i++) {
@@ -288,6 +306,105 @@ function narrowTests(): void {
   }
   check('narrow: sampler over narrowed pools actually drew quirky pairs (exercised)', quirkyDrawn > 0, `${quirkyDrawn} quirky`);
   check('narrow: NO quirky draw leaves the narrowed space', !leak);
+}
+
+// ============== arrangeCalendar (2026-07-08 major-topics design) ==============
+
+function arrangeTests(): void {
+  // A feasible accept-set: 12 domains × ~30 pairs, plenty of adjacent-diverse
+  // orderings. Deterministically generated (no rng) so the fixture is stable.
+  const domains = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
+  const feasible: Array<ArrangeItem & { id: number }> = [];
+  for (let i = 0; i < 360; i++) {
+    feasible.push({
+      id: i,
+      startBucket: domains[i % 12],
+      targetBucket: domains[(i + 5) % 12],
+    });
+  }
+
+  const r1 = arrangeCalendar(feasible, SAMPLER_SEED);
+  check('arrange: zero adjacency violations on a feasible set', r1.violations.length === 0, `${r1.violations.length}`);
+  check(
+    'arrange: adjacency property holds (no adjacent start- or target-domain repeat)',
+    r1.calendar.every(
+      (p, i) =>
+        i === 0 ||
+        (p.startBucket !== r1.calendar[i - 1].startBucket &&
+          p.targetBucket !== r1.calendar[i - 1].targetBucket),
+    ),
+  );
+  check(
+    'arrange: same multiset out as in (no pair dropped or duplicated)',
+    r1.calendar.length === feasible.length &&
+      [...r1.calendar.map((p) => p.id)].sort((a, b) => a - b).every((id, i) => id === i),
+  );
+
+  // determinism: same input + seed → identical order; different seed → different
+  const r2 = arrangeCalendar(feasible, SAMPLER_SEED);
+  check(
+    'arrange: deterministic (same input + seed → identical order)',
+    JSON.stringify(r1.calendar.map((p) => p.id)) === JSON.stringify(r2.calendar.map((p) => p.id)),
+  );
+  const r3 = arrangeCalendar(feasible, 'a-different-seed');
+  check(
+    'arrange: seed actually drives the order (different seed → different order)',
+    JSON.stringify(r1.calendar.map((p) => p.id)) !== JSON.stringify(r3.calendar.map((p) => p.id)),
+  );
+
+  // INFEASIBLE set (documented relaxation rule): every pair shares one start
+  // domain, so every adjacency is a violation. Must terminate within the pass
+  // bound and REPORT the violations rather than loop or drop pairs.
+  const infeasible: Array<ArrangeItem & { id: number }> = [];
+  for (let i = 0; i < 40; i++) infeasible.push({ id: i, startBucket: 'SAME', targetBucket: `T${i}` });
+  const r4 = arrangeCalendar(infeasible, SAMPLER_SEED);
+  check(
+    'arrange: infeasible set terminates, keeps all pairs, and reports violations',
+    r4.calendar.length === 40 && r4.violations.length === 39 && r4.passes <= MAX_ARRANGE_PASSES,
+    `violations ${r4.violations.length}, passes ${r4.passes}`,
+  );
+
+  // empty and single-element inputs are valid no-ops
+  const r5 = arrangeCalendar([], SAMPLER_SEED);
+  const r6 = arrangeCalendar([{ startBucket: 'A', targetBucket: 'B' }], SAMPLER_SEED);
+  check(
+    'arrange: empty and singleton inputs are no-op safe',
+    r5.calendar.length === 0 && r5.violations.length === 0 && r6.calendar.length === 1 && r6.violations.length === 0,
+  );
+}
+
+// ============== authored topics.json integrity + deny-list coherence ==========
+
+function topicsTests(): void {
+  const raw = JSON.parse(readFileSync(join(DATA, 'topics.json'), 'utf8')) as {
+    entries: Array<{ title: string; bucket: string }>;
+  };
+  const entries = raw.entries;
+  const domains = new Set(entries.map((e) => e.bucket));
+
+  check('topics: authored size ≈ 420 across ≈ 20 domains', entries.length >= 400 && domains.size >= 18, `${entries.length} titles, ${domains.size} domains`);
+  const perDomain = new Map<string, number>();
+  for (const e of entries) perDomain.set(e.bucket, (perDomain.get(e.bucket) ?? 0) + 1);
+  check(
+    'topics: domains reasonably balanced (15-30 authored per domain)',
+    [...perDomain.values()].every((n) => n >= 15 && n <= 30),
+    JSON.stringify([...perDomain.entries()].filter(([, n]) => n < 15 || n > 30)),
+  );
+  const titles = entries.map((e) => e.title);
+  check('topics: no duplicate titles', new Set(titles).size === titles.length);
+  check(
+    'topics: every entry has non-empty string title + bucket',
+    entries.every((e) => typeof e.title === 'string' && e.title.length > 0 && typeof e.bucket === 'string' && e.bucket.length > 0),
+  );
+
+  // THE deny-list coherence check (the "silently inert" trap the addendum
+  // flags): every domain named in BUCKET_DENY_LIST must exist in the authored
+  // topics domains, or the deny-list is dead letter against stale bucket names.
+  check(
+    'topics: every BUCKET_DENY_LIST domain exists in the authored topics domains',
+    BUCKET_DENY_LIST.every(([a, b]) => domains.has(a) && domains.has(b)),
+    JSON.stringify(BUCKET_DENY_LIST.filter(([a, b]) => !domains.has(a) || !domains.has(b))),
+  );
 }
 
 // =========================== distance.ts =====================================
@@ -462,6 +579,8 @@ async function main(): Promise<void> {
   rngTests();
   samplerTests();
   narrowTests();
+  arrangeTests();
+  topicsTests();
   await distanceTests();
   await cacheTests();
   await gateTests();

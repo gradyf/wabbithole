@@ -1,7 +1,16 @@
 // Seeded cross-domain pair sampler. Author-plane only. Draws candidate pairs
-// deterministically from the famous pool (backbone) and quirky pool, enforcing
-// the spec 2.3(c) constraints BEFORE the expensive distance check runs, so the
-// only pairs that reach Wikipedia are ones that already look unrelated.
+// deterministically from the sampling pool, enforcing the spec 2.3(c)
+// constraints BEFORE the expensive distance check runs, so the only pairs that
+// reach Wikipedia are ones that already look unrelated.
+//
+// 2026-07-08 SUPERSESSION (major-topics design): the calendar is now a SINGLE
+// TIER drawn from the authored fun-register topics pool (data/topics.json →
+// resolve → data/topics-annotated.json survivors), with the ≤2-click rejection
+// as the ONLY distance check (guaranteed dist ≥3 / 4-card floor). The old
+// two-tier machinery (quirky 4+ pools, narrowing) is QUIRKY_SHARE=0 /
+// retired-in-place below, kept compiling for the audit trail. New in this
+// design: arrangeCalendar(), a deterministic post-pass that orders the
+// accepted pairs so adjacent days never share a start- or target-domain.
 //
 // DETERMINISM CONTRACT. The draw sequence is a pure function of the seed and
 // the sequence of accept()/reject() calls fed back by the verifier. Therefore,
@@ -10,37 +19,39 @@
 // every machine. A cold cache re-derives verdicts from the live graph, which
 // can differ ONLY if Wikipedia's link graph changed between runs — the cache is
 // the boundary between deterministic sampling and live-graph facts.
-//
-// TWO TIERS (spec §2.3 + Decision 1 AMENDED):
-//   backbone — famous × famous from pool.json; distance ≥3 (4-card floor).
-//   quirky   — an insular START (Science/Arts phenomenon) → a low-inlink
-//              novelty TARGET (Everyday life/Technology) from quirky.json;
-//              distance ≥4 (5-card floor). The directional shape is Task 17's
-//              measured recipe for reaching ≥4 (hub×hub can't, so quirky never
-//              draws two hubs); the START/TARGET bucket sets are disjoint, which
-//              also satisfies cross-bucket disjointness by construction.
+// arrangeCalendar() is seeded and pure, so the ARRANGED order inherits the
+// same contract.
 //
 // BUCKET WEIGHTING — the simpler scheme, justified with math. Endpoints are
 // drawn UNIFORMLY OVER TITLES (not over buckets), so a bucket of size N is
-// touched in proportion N/|pool|. Task 22's smallest pool buckets (Arts 12,
-// Math 16, Health 17) therefore appear ~N/579 of the ~2·count endpoint draws —
-// e.g. Arts ≈ 12/579·(2·365) ≈ 15 appearances, far under its 3·12 = 36 cap — so
-// small buckets are used proportionally and NEVER exhaust under the ≤3×
-// frequency cap. Weighting by bucket (uniform over buckets) is what would
-// exhaust them; uniform-over-titles is both simpler and safe.
+// touched in proportion N/|pool|. The topics pool is ~20 domains × ~15-21
+// survivors; the 2·365 endpoint draws touch each domain ~N/|pool|·730 ≈ 30-40
+// times, well under its 3·N ≥ 45 cap — domains are used proportionally and
+// NEVER exhaust under the ≤3× frequency cap. Weighting by bucket (uniform over
+// buckets) is what would exhaust them; uniform-over-titles is simpler and safe.
 
 import { makeRng, type Rng } from './rng.js';
 import type { Tier } from './distance.js';
 
-/** Share of the calendar that is quirky (≥4). Gray LOCKED this to 0.15 at the
- *  Phase 4 gate (was 0.25). Rationale (task-23-review MINOR-1): the quirky START
- *  pool is Science∪Arts = 20 titles, so under MAX_TITLE_APPEARANCES=3 the hard
- *  ceiling is 20×3 = 60 accepted quirky pairs. 0.25×365 ≈ 91 quirky is
- *  structurally unreachable (the run halts at 243). 0.15×365 ≈ 54 quirky fits
- *  under the 60 ceiling. No pool expansion, no cap raise (Gray decision). */
-export const QUIRKY_SHARE = 0.15;
+/** RETIRED to 0 by the 2026-07-08 SUPERSESSION (major-topics design). The
+ *  two-tier model is dead: live Phase-4 evidence measured the verified-4+
+ *  quirky space at ~5% yield even after narrowing, and Gray pivoted to a single
+ *  authored major-topics pool with the ≤2-click rejection as the ONLY distance
+ *  check (guaranteed dist ≥3 / 4-card floor; the 5-card guarantee is formally
+ *  retired). At share 0, tierForSlot never selects 'quirky', so the quirky draw
+ *  path is unreachable — kept compiling for the audit trail (deletion deferred
+ *  until Gray blesses the one-tier calendar).
+ *  History: 0.25 (Phase 2) → 0.15 (2026-07-07 Gray gate) → 0 (supersession). */
+export const QUIRKY_SHARE = 0;
 
-// --- narrowed quirky draw space (Task 25, Gray decision 2) -------------------
+// --- narrowed quirky draw space — RETIRED IN PLACE (2026-07-08 supersession) --
+// Everything from here through narrowQuirky served the dead 4+ quirky tier
+// (Task 25 decision 2, itself superseded hours later by the major-topics
+// design). With QUIRKY_SHARE = 0 none of it is reachable from the live sampler
+// flow; narrowQuirky stays exercised by fixtures (passing-but-inert) and by the
+// retired quirky-links audit path. Do not extend; delete in the
+// blessed-calendar follow-up. Original rationale kept below for the record.
+// ------------------------------------------------------------------------------
 // BEFORE the real run we restrict the quirky tier to {insular STARTS} ×
 // {low-inlink TARGETS} — the measured lever from task-23-report.md. Task 17's
 // ~100%-4+ override space was exactly insular-phenomenon → low-inlink-novelty;
@@ -156,20 +167,29 @@ export const OVERSAMPLE = 0.2;
 export const MAX_TITLE_APPEARANCES = 3;
 
 /**
- * Hand-tuned bucket-adjacency deny-list (unordered pairs) — buckets close
- * enough that a cross-bucket pair would still FEEL related, which the distance
- * check cannot catch (spec §2.3c, the Biology↔Health example). Kept small and
- * defensible; the PR-diff human gate is the real unrelatedness backstop.
+ * Hand-tuned bucket-adjacency deny-list (unordered pairs) — domains close
+ * enough that a cross-domain pair would still FEEL related, which the distance
+ * check cannot catch (spec §2.3c). REKEYED 2026-07-08 to the authored
+ * fun-domain names of the major-topics design (the old Vital-bucket keys —
+ * Science↔Health etc. — matched nothing in the topics pool and would have been
+ * silently inert). Rationale per pair:
+ *   History & War ↔ Ancient World      (Gladiator vs Colosseum reads related)
+ *   Myth & Legend ↔ Ancient World      (Trojan Horse vs Troy, Zeus vs Parthenon)
+ *   Film, TV & Books ↔ Comics & Pop Culture  (same franchise register)
+ *   Games & Toys ↔ Comics & Pop Culture      (Barbie vs Hello Kitty register)
+ * Kept small and defensible; the PR-diff human gate is the real backstop.
  */
 export const BUCKET_DENY_LIST: ReadonlyArray<readonly [string, string]> = [
-  ['Science', 'Health, medicine and disease'],
-  ['Science', 'Mathematics'],
-  ['Philosophy and religion', 'Society and social sciences'],
+  ['History & War', 'Ancient World'],
+  ['Myth & Legend', 'Ancient World'],
+  ['Film, TV & Books', 'Comics & Pop Culture'],
+  ['Games & Toys', 'Comics & Pop Culture'],
 ];
 
-/** Quirky START buckets: topically-insular phenomena that can reach ≥4. */
+/** RETIRED (2026-07-08 supersession): quirky tier bucket routing for the dead
+ *  two-tier design. Unreachable at QUIRKY_SHARE = 0; referenced only by the
+ *  retired quirky-links audit path and passing-but-inert fixtures. */
 export const QUIRKY_START_BUCKETS = ['Science', 'Arts'] as const;
-/** Quirky TARGET buckets: low-inlink everyday novelties. */
 export const QUIRKY_TARGET_BUCKETS = ['Everyday life', 'Technology'] as const;
 
 export interface PoolTitle {
@@ -299,4 +319,86 @@ export class PairSampler {
   frequencies(): Map<string, number> {
     return new Map(this.freq);
   }
+}
+
+// --- arrangeCalendar (2026-07-08 major-topics design) --------------------------
+
+/** The domain fields arrangeCalendar cares about; the element type is generic
+ *  so validated entries ride through unchanged. */
+export interface ArrangeItem {
+  startBucket: string;
+  targetBucket: string;
+}
+
+export interface ArrangeResult<T extends ArrangeItem> {
+  calendar: T[];
+  /** Indices i (>0) where calendar[i] still conflicts with calendar[i-1] after
+   *  repair — the documented relaxation: leave in place and REPORT, never loop.
+   *  Expected 0 for any realistic accept-set (~20 domains, 365 pairs). */
+  violations: number[];
+  /** Repair sweeps actually used (bounded by MAX_ARRANGE_PASSES). */
+  passes: number;
+}
+
+/** Hard bound on repair sweeps — the never-an-infinite-loop guarantee. Each
+ *  sweep is O(n²) worst case; 12 sweeps of 365 items is still trivial. */
+export const MAX_ARRANGE_PASSES = 12;
+
+/** Two adjacent days conflict when they share a start-domain OR a target-domain. */
+function adjacentConflict(a: ArrangeItem, b: ArrangeItem): boolean {
+  return a.startBucket === b.startBucket || a.targetBucket === b.targetBucket;
+}
+
+/**
+ * Deterministic calendar arrangement: order the accepted pairs so no two
+ * adjacent days share a start-domain or a target-domain. Pure post-processing —
+ * zero API requests, same multiset out as in, seeded and stable (same input +
+ * seed → same order on every machine).
+ *
+ * Method: seeded Fisher-Yates shuffle, then bounded greedy repair sweeps — for
+ * each position i that conflicts with i-1, swap in the first later element
+ * that resolves the conflict without creating one at any seam it touches
+ * (i-1/i, i/i+1, j-1/j, j/j+1). If a sweep completes with zero conflicts, done.
+ * RELAXATION RULE (documented, applied only if repair cannot converge within
+ * MAX_ARRANGE_PASSES): leave the residual conflicts in place and report their
+ * indices in `violations` — never an infinite loop, never a dropped pair.
+ */
+export function arrangeCalendar<T extends ArrangeItem>(
+  pairs: readonly T[],
+  seed: string,
+): ArrangeResult<T> {
+  const rng = makeRng(`${seed}:arrange`);
+  const arr = [...pairs];
+
+  // Seeded Fisher-Yates: uniform deterministic starting order.
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = rng.int(i + 1);
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+
+  const conflictAt = (i: number): boolean =>
+    i > 0 && i < arr.length && adjacentConflict(arr[i - 1], arr[i]);
+
+  let passes = 0;
+  for (; passes < MAX_ARRANGE_PASSES; passes++) {
+    let conflicts = 0;
+    for (let i = 1; i < arr.length; i++) {
+      if (!conflictAt(i)) continue;
+      let fixed = false;
+      for (let j = i + 1; j < arr.length; j++) {
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+        if (!conflictAt(i) && !conflictAt(i + 1) && !conflictAt(j) && !conflictAt(j + 1)) {
+          fixed = true;
+          break;
+        }
+        [arr[i], arr[j]] = [arr[j], arr[i]]; // undo and keep searching
+      }
+      if (!fixed) conflicts++;
+    }
+    if (conflicts === 0 && ![...arr.keys()].some((i) => conflictAt(i))) break;
+  }
+
+  const violations: number[] = [];
+  for (let i = 1; i < arr.length; i++) if (conflictAt(i)) violations.push(i);
+  return { calendar: arr, violations, passes: Math.min(passes + 1, MAX_ARRANGE_PASSES) };
 }

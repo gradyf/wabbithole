@@ -1,5 +1,15 @@
 // Link-distance verification for a candidate pair (A → B). Author-plane only.
 //
+// 2026-07-08 SUPERSESSION (major-topics design): the ≤2 REJECTION (stage 1) is
+// now the ONLY distance check — Gray locked the guaranteed dist ≥3 / 4-card
+// floor and formally retired the 5-card (4+) guarantee. The single-tier run
+// classifies every pair as tier 'backbone', so stage 2 (the depth-3
+// classification: isExactlyDist3, expandOutlinks usage, MAX_HOP1_FRONTIER and
+// the quirky branch of classifyPair) is UNREACHABLE from the live flow. It is
+// comment-deprecated IN PLACE — no deletions this pass (audit trail; deletion
+// is a blessed-calendar follow-up). The 383-verdict distance cache retains
+// historical quirky verdicts; they remain valid audit evidence.
+//
 // Two stages, per spec 2.3 / race-research-wiki.md §1.3-1.4:
 //
 //   1. ≤2 REJECTION (cheap, sound, redirect-hardened). Reject any pair with a
@@ -41,10 +51,9 @@ export interface LinkGraph {
 }
 
 /**
- * Cap on A's hop-1 frontier for the depth-3 expansion. Above this a quirky
- * start is a hub whose 2-hop frontier is prohibitively large to expand (and,
- * per Task 17, cannot be 4+ anyway), so we decline to prove ≥4 rather than burn
- * thousands of requests. Named so Gray can retune at the Phase 4 gate.
+ * RETIRED (2026-07-08 supersession): cap on A's hop-1 frontier for the depth-3
+ * expansion — unreachable now that the quirky tier is dead (single-tier runs
+ * never take the depth-3 branch). Kept for the audit trail + inert fixtures.
  */
 export const MAX_HOP1_FRONTIER = 1_500;
 
@@ -105,6 +114,12 @@ async function reachableLeq2(
 }
 
 /**
+ * RETIRED (2026-07-08 supersession): depth-3 refinement for the dead quirky
+ * tier. Unreachable from the live single-tier flow (classifyPair only reaches
+ * it for tier 'quirky', which the sampler never emits at QUIRKY_SHARE = 0).
+ * Kept in place for the audit trail + inert fixtures; delete in the
+ * blessed-calendar follow-up.
+ *
  * Given a pair that survived the ≤2 check (so dist ≥3), is it EXACTLY 3?
  * dist 3 ⟺ some node in A's 2-hop forward frontier links to B ⟺
  * expandOutlinks(F1) ∩ [inlinks(B) ∪ inlinks(redirects(B))] ≠ ∅.
@@ -153,12 +168,15 @@ export async function classifyPair(
 
   // Survived ≤2 ⇒ dist ≥3.
   if (tier === 'backbone') {
-    // Backbone only requires ≥3 (4-card floor). Both dist-3 and dist-4+ satisfy
-    // it, so we record "≥3" and skip the expensive depth-3 refinement (which,
-    // for hub starts, would be thousands of requests).
+    // The single-tier flow (2026-07-08 supersession) always lands here:
+    // surviving the ≤2 rejection IS the guaranteed dist ≥3 / 4-card floor.
+    // Record ">=3" and stop — no depth-3 refinement.
     return { verdict: 'accept-min3', distance: '>=3', detail: 'survived ≤2 (dist ≥3)', hop1 };
   }
 
+  // RETIRED PATH (2026-07-08 supersession): everything below served the dead
+  // quirky 4+ tier and is unreachable from the live flow (the sampler never
+  // emits tier 'quirky' at QUIRKY_SHARE = 0). Exercised only by inert fixtures.
   // Quirky tier must prove ≥4 (5-card floor). Run the depth-3 check.
   if (hop1 > MAX_HOP1_FRONTIER) {
     return {
