@@ -163,3 +163,36 @@ verified distance recorded in pairs.meta.json provenance; famous-feeling
 The human review gate (PR diff eyeball) remains the unrelatedness
 backstop. Decisions 2-4 unchanged (365 pairs / static / hotfix shipped
 as 964c111).
+
+---
+
+## 2026-07-08 SUPERSESSION by Gray: the major-topics design
+
+Live Phase-4 evidence (383-verdict run) killed the two-tier design: verified
+dist>=4 yields ~5% even in a hand-narrowed insular space (~250 req/attempt;
+Task-17 "proven 4+" pairs re-measure as 3 under the stricter checker). Gray
+pivoted (verbatim): "maybe just generate a list of 365 Major topics (Roses,
+WWII, Coffee, Baseball, Paul McCartney, etc.) and then inter-connect these".
+A 6-agent design workflow (3 designers, 2 judges, synthesizer; all Opus)
+converged unanimously on:
+
+- **Topic list is AUTHORED, not harvested** (~420 topics in Gray's register;
+  rubric: a nine-year-old and a grandparent both know the word; a thing you'd
+  chat about, not an encyclopedia heading; mid-connectivity nouns, no
+  mega-hubs), tagged with ~20 fun domains, piped unchanged through resolve.ts
+  (canonicalize / 404-drop / 20k views-month gate / dedupe) into committed
+  data/topics.json.
+- **Interconnection**: seeded uniform cross-domain draws, freq cap <=3,
+  deny-list rekeyed to fun domains, **<=2-click rejection kept as the ONLY
+  distance check** (Gray locked "Every day a real race": guaranteed dist>=3 /
+  4-card floor; the 5-card guarantee is formally retired). Strict derangement
+  rejected (strands under 91% forbidden edges). A deterministic
+  arrangeCalendar() pass spreads domains so adjacent days differ.
+- **Tiers are DEAD**: QUIRKY_SHARE=0, quirky pools empty, depth-3 code
+  comment-deprecated in place this pass (deletion deferred until Gray blesses
+  the one-tier calendar).
+- Runtime plane (race.ts, overrides-as-permanent-veto, flat calendar, legacy
+  history prefix, cutover mechanics) UNCHANGED.
+- Decisions superseded: Decision 1 (both versions), 2026-07-07 QUIRKY_SHARE
+  =0.15 + narrowed-draw decisions. Decisions 2-4 (365 / static / hotfix)
+  stand. The human review gate now covers topics.json + all 365 pairs.
