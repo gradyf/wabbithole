@@ -248,6 +248,8 @@ html[data-reading] .wh-card[data-state="active"] > .wh-tab .wh-tab-title {
   }
   .wh-card[data-state="active"] > .wh-tab::after { transition: none; }
   .wh-toc-pop { animation: none; }
+  .wh-clamp-btn,
+  .wh-clamp-btn .wh-icon { transition: none; }
   /* the cascade snaps between states instead of animating */
   .wh-cardpos,
   .wh-cardpos[data-peek] { transition: none; }
@@ -365,6 +367,60 @@ html[data-reading] .wh-card[data-state="active"] > .wh-tab .wh-tab-title {
   border-radius: 5px;
   border: 3px solid var(--surface-card);
 }
+
+/* ---- oversized template clamp (stack.ts scanOversized) ---- */
+
+/* Any in-flow prose block taller than ~60% of the window gets .wh-clamp:
+   capped at 48vh with a bottom fade, followed by a .wh-clamp-btn toggle.
+   Content stays in the accessibility tree (plain overflow, no inert); the
+   control carries aria-expanded/aria-controls. */
+.wh-clamp {
+  position: relative;
+  max-height: 48vh;
+  overflow-y: hidden;
+}
+.wh-clamp::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 72px;
+  background: linear-gradient(to bottom, transparent, var(--surface-card));
+  pointer-events: none;
+}
+.wh-clamp[data-clamp-open] {
+  max-height: none;
+  overflow-y: visible;
+}
+.wh-clamp[data-clamp-open]::after { display: none; }
+
+.wh-clamp-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: min(960px, 100%);
+  margin: var(--space-2) auto 1.6em;
+  padding: 8px var(--space-4);
+  background: var(--surface-app);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: var(--text-ui);
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-swift), color var(--dur-fast) var(--ease-swift);
+}
+.wh-clamp-btn:hover { background: var(--surface-sunken); color: var(--text-primary); }
+.wh-clamp-btn .wh-icon {
+  width: 14px;
+  height: 14px;
+  transition: transform var(--dur-fast) var(--ease-swift);
+}
+.wh-clamp-btn[aria-expanded="true"] .wh-icon { transform: rotate(180deg); }
 
 /* ---- brand logo placements ---- */
 

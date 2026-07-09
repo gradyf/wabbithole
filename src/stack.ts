@@ -81,6 +81,27 @@ const CASCADE_INSET_MAX = 28;
 const CHROME_TOP_FOLD = 96; // within this many px of the card top, chrome always shows
 const CHROME_TRAVEL = 120; // sustained one-direction travel (px) before the topbar toggles
 
+// Oversized template taming (Task 26 Item A, the Charles River repro). Two
+// layers, applied at render time (content.ts owns sanitize-time stripping;
+// these need the rendered card, so they live here):
+// 1. Navigation chrome that survives the sanitizer is dropped outright:
+//    .navbar is the v-t-e template link cluster (pure inter-article chrome,
+//    rendered as a giant blue block without TemplateStyles) and .selfreference
+//    marks Wikipedia self-links like a route diagram's "Legend" pointer at
+//    Template:Waterways_legend. Informative blocks are never deleted.
+// 2. Any remaining in-flow block (route diagram table, packed gallery, long
+//    reference list) taller than OVERSIZE_FRACTION of the window is clamped
+//    to 48vh (CSS .wh-clamp: bottom fade + a "Show full table" style toggle).
+//    A ResizeObserver sizes each candidate, so late-loading images still trip
+//    the clamp. Floated elements (desktop infobox, thumbs) are exempt — they
+//    sit beside the text, not on top of it; the mobile infobox is in-flow and
+//    does get clamped. The 48vh clamp vs 60% threshold leaves a dead band so
+//    borderline blocks never flicker between states.
+const OVERSIZE_FRACTION = 0.6; // of window.innerHeight; clamp target is 48vh in CSS
+const NAV_CHROME_SELECTOR = '.navbar, .selfreference';
+const CLAMP_CANDIDATES = 'table, div, figure, ul, ol, dl, blockquote';
+let clampSeq = 0;
+
 export class Stack {
   lang = 'en';
   private nodes = new Map<number, CardNode>();
@@ -391,6 +412,9 @@ export class Stack {
 
       const processed = processArticle(html);
       if (!this.views.includes(view)) return;
+      // Render-layer strip: template navigation chrome (see NAV_CHROME_SELECTOR
+      // note above). Done on the detached body, before anything hits the DOM.
+      for (const chrome of processed.body.querySelectorAll(NAV_CHROME_SELECTOR)) chrome.remove();
       view.node.subtitle = processed.subtitle;
       view.tabSubEl.textContent = processed.subtitle ?? '';
 
@@ -414,6 +438,9 @@ export class Stack {
       // Real content now has its true scrollHeight — reseed the fold state, so
       // the progress underline reads correctly instead of the skeleton's ~1.
       this.markDeep(view, view.bodyEl.scrollTop);
+      // Oversized-block backstop: start observing candidates now that the
+      // content is connected and has real layout.
+      this.scanOversized(view);
       this.focusTop();
     } catch (err) {
       view.loading = false;
@@ -705,6 +732,110 @@ export class Stack {
     const url = hash === ' ' ? location.pathname : hash;
     if (push) history.pushState(state, '', url);
     else history.replaceState(state, '', url);
+  }
+
+  // ---- oversized template clamp -------------------------------------------------
+
+  // One observer for every candidate across all cards; targets that leave the
+  // DOM (hibernation, card removal) are unobserved on their next delivery.
+  private clampRO = new ResizeObserver((entries) => {
+    for (const e of entries) this.evaluateClamp(e.target as HTMLElement);
+  });
+
+  /** Register every top-level prose block as a clamp candidate. observe() fires
+   *  an initial delivery, so evaluateClamp sizes everything once up front and
+   *  again whenever images/late content resize a block. */
+  private scanOversized(view: CardView): void {
+    const prose = view.bodyEl.querySelector('.wh-prose');
+    if (!prose) return;
+    const sel = `:scope > :is(${CLAMP_CANDIDATES}), :scope > section > :is(${CLAMP_CANDIDATES})`;
+    for (let el of prose.querySelectorAll(sel) as NodeListOf<HTMLElement>) {
+      const cs = getComputedStyle(el);
+      // Floats (desktop infobox, thumb figures) ride beside the text and are
+      // capped in width by the DS — clamping them mid-column would look broken.
+      if (cs.float !== 'none') continue;
+      // Multi-column blocks (the reference list) don't shrink under a height
+      // cap — they reflow into more columns sideways, so a clamp hides nothing
+      // and the box height stops tracking the content. Leave them full height.
+      if (cs.columnCount !== 'auto' || cs.columnWidth !== 'auto') continue;
+      // max-height does not apply to table boxes (CSS 2.1 §17.5.2), so a bare
+      // table — in practice the mobile in-flow infobox; every other table is
+      // already inside a .wh-tablewrap div — gets a neutral wrapper, and the
+      // wrapper is what clamps.
+      if (el.tagName === 'TABLE') {
+        const wrap = document.createElement('div');
+        wrap.className = 'wh-tableclamp';
+        el.replaceWith(wrap);
+        wrap.appendChild(el);
+        el = wrap;
+      }
+      this.clampRO.observe(el);
+    }
+  }
+
+  private evaluateClamp(el: HTMLElement): void {
+    if (!el.isConnected) {
+      this.clampRO.unobserve(el);
+      return;
+    }
+    if (el.hasAttribute('data-clamp-open')) return; // reader expanded it — theirs now
+    // A viewport crossing the 720px breakpoint can float the table inside a
+    // mobile-era wrapper; a clamp on a float wrapper is meaningless — release it.
+    if (el.classList.contains('wh-tableclamp')) {
+      const t = el.firstElementChild;
+      if (t && getComputedStyle(t).float !== 'none') {
+        this.removeClamp(el);
+        return;
+      }
+    }
+    const clamped = el.classList.contains('wh-clamp');
+    // A clamped element reports the clamp height; its natural height is scrollHeight.
+    const natural = clamped ? el.scrollHeight : el.offsetHeight;
+    const limit = window.innerHeight * OVERSIZE_FRACTION;
+    // Hysteretic unclamp (70% of the clamp threshold): only genuinely shrunken
+    // content (failed images) releases; a block hovering near the boundary, or
+    // one whose clamped box under-reports (48vh < 0.6 window), never oscillates.
+    if (!clamped && natural > limit) this.applyClamp(el);
+    else if (clamped && natural < limit * 0.7) this.removeClamp(el);
+  }
+
+  private clampLabel(el: HTMLElement): string {
+    if (el.matches('.wh-refs, .mw-references-wrap')) return 'Show all references';
+    if (el.matches('ul.gallery') || el.querySelector(':scope > ul.gallery')) return 'Show full gallery';
+    if (el.matches('.wh-tablewrap, .wh-tableclamp, table')) return 'Show full table';
+    return 'Show more';
+  }
+
+  private applyClamp(el: HTMLElement): void {
+    el.classList.add('wh-clamp');
+    if (!el.id) el.id = `wh-clamp-${++clampSeq}`;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'wh-clamp-btn';
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-controls', el.id);
+    const icon = document.createElement('span');
+    icon.className = 'wh-icon';
+    icon.dataset.name = 'arrow-down';
+    icon.setAttribute('aria-hidden', 'true');
+    const label = document.createElement('span');
+    label.textContent = this.clampLabel(el);
+    btn.append(icon, label);
+    btn.addEventListener('click', () => {
+      const open = el.toggleAttribute('data-clamp-open');
+      btn.setAttribute('aria-expanded', String(open));
+      label.textContent = open ? 'Collapse' : this.clampLabel(el);
+      // Collapsing from the far end of a huge block would leave the reader
+      // stranded below it; keep the control in view.
+      if (!open) btn.scrollIntoView({ block: 'nearest' });
+    });
+    el.insertAdjacentElement('afterend', btn);
+  }
+
+  private removeClamp(el: HTMLElement): void {
+    el.classList.remove('wh-clamp');
+    const btn = el.nextElementSibling;
+    if (btn?.classList.contains('wh-clamp-btn')) btn.remove();
   }
 
   // ---- little DOM factories -----------------------------------------------------
