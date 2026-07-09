@@ -3,9 +3,16 @@ import './app.css';
 
 import { articleUrl, getRandomTitle, normTitle, searchTitles } from './api';
 import { Stack, type CardNode } from './stack';
-import { initTrails } from './trails';
+import { initTrails, type TrailNode } from './trails';
 import { initTrivia } from './trivia';
 import { initRace, type RaceUI } from './race';
+
+// Trail persistence node: title plus the random-jump flag, so a restored trail
+// keeps its plum markers. The flag is omitted when false to keep payloads lean
+// (and older trails without it read the same as false).
+function trailNode(node: CardNode): TrailNode {
+  return { lang: node.lang, title: node.title, ...(node.random ? { random: true } : {}) };
+}
 
 // A trail's crawlable /t/ share URL. Caps at 12 titles (the share route's
 // limit); race params add the daily-race badge to the unfurl + og image.
@@ -119,7 +126,7 @@ const stack = new Stack(stage, {
     document.title = n > 0 ? `${path[n - 1].title} · wabbit hole` : 'Wabbit Hole · a Wikipedia wander';
     renderTrail(path);
     // Persist the current path for signed-in users (debounced; empty clears it).
-    trailsUI.autosave(path.map((node) => ({ lang: node.lang, title: node.title })));
+    trailsUI.autosave(path.map(trailNode));
     // Race layer: win detection + live card count (races are trails too, so the
     // autosave above still runs during a race).
     race?.onPathChange(path);
@@ -170,13 +177,23 @@ const trailsUI = initTrails({
   announce(msg) {
     announcer.textContent = msg;
   },
-  openTrail(lang, titles) {
+  openTrail(lang, nodes) {
     sessionStorage.setItem('wh-skip-landing', '1');
     setSidebar(false);
-    void stack.applyTrail(lang, titles, true);
+    // Saved trails carry the random-jump flag per node; seed the stack's
+    // marker memory first so applyTrail's rebuilt cards re-derive it.
+    stack.markRandomTitles(
+      lang,
+      nodes.filter((n) => n.random).map((n) => n.title),
+    );
+    void stack.applyTrail(
+      lang,
+      nodes.map((n) => n.title),
+      true,
+    );
   },
   currentPath() {
-    return stack.path.map((node) => ({ lang: node.lang, title: node.title }));
+    return stack.path.map(trailNode);
   },
 });
 

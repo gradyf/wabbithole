@@ -7,6 +7,9 @@
 export interface TrailNode {
   lang: string;
   title: string;
+  /** The card was opened via the Random button (plum trail marker). Omitted
+   *  when false; older saved trails have no flag at all. */
+  random?: boolean;
 }
 
 interface Trail {
@@ -22,8 +25,9 @@ interface TrailsDeps {
   api<T>(path: string, init?: RequestInit): Promise<T>;
   onToast(msg: string): void;
   announce(msg: string): void;
-  /** Restore a saved trail onto the stack (main.ts owns applyTrail). */
-  openTrail(lang: string, titles: string[]): void;
+  /** Restore a saved trail onto the stack (main.ts owns applyTrail). Full
+   *  nodes, not bare titles, so per-node flags (random) survive the restore. */
+  openTrail(lang: string, nodes: TrailNode[]): void;
   /** The current linear path, for autosave and Save trail. */
   currentPath(): TrailNode[];
 }
@@ -82,7 +86,7 @@ export function initTrails(deps: TrailsDeps): TrailsUI {
     open.className = 'wh-trailcard-open';
     open.setAttribute('aria-label', `Open trail ${trail.title}`);
     open.addEventListener('click', () => {
-      deps.openTrail(trail.nodes[0]?.lang ?? 'en', trail.nodes.map((n) => n.title));
+      deps.openTrail(trail.nodes[0]?.lang ?? 'en', trail.nodes);
     });
     return open;
   }

@@ -81,24 +81,18 @@ const CASCADE_INSET_MAX = 28;
 const CHROME_TOP_FOLD = 96; // within this many px of the card top, chrome always shows
 const CHROME_TRAVEL = 120; // sustained one-direction travel (px) before the topbar toggles
 
-// Oversized template taming (Task 26 Item A, the Charles River repro). Two
-// layers, applied at render time (content.ts owns sanitize-time stripping;
-// these need the rendered card, so they live here):
-// 1. Navigation chrome that survives the sanitizer is dropped outright:
-//    .navbar is the v-t-e template link cluster (pure inter-article chrome,
-//    rendered as a giant blue block without TemplateStyles) and .selfreference
-//    marks Wikipedia self-links like a route diagram's "Legend" pointer at
-//    Template:Waterways_legend. Informative blocks are never deleted.
-// 2. Any remaining in-flow block (route diagram table, packed gallery, long
-//    reference list) taller than OVERSIZE_FRACTION of the window is clamped
-//    to 48vh (CSS .wh-clamp: bottom fade + a "Show full table" style toggle).
-//    A ResizeObserver sizes each candidate, so late-loading images still trip
-//    the clamp. Floated elements (desktop infobox, thumbs) are exempt — they
-//    sit beside the text, not on top of it; the mobile infobox is in-flow and
-//    does get clamped. The 48vh clamp vs 60% threshold leaves a dead band so
-//    borderline blocks never flicker between states.
+// Oversized template taming (Task 26 Item A, the Charles River repro).
+// Navigation chrome (.navbar v-t-e clusters, .selfreference) is stripped at
+// sanitize time in content.ts's STRIP_SELECTORS; the render-time backstop here
+// clamps what legitimately remains: any in-flow block (route diagram table,
+// packed gallery, long list) taller than OVERSIZE_FRACTION of the window is
+// capped at 48vh (CSS .wh-clamp: bottom fade + a "Show full table" style
+// toggle). A ResizeObserver sizes each candidate, so late-loading images still
+// trip the clamp. Floated elements (desktop infobox, thumbs) are exempt — they
+// sit beside the text, not on top of it; the mobile infobox is in-flow and
+// does get clamped. The 48vh clamp vs 60% threshold leaves a dead band so
+// borderline blocks never flicker between states.
 const OVERSIZE_FRACTION = 0.6; // of window.innerHeight; clamp target is 48vh in CSS
-const NAV_CHROME_SELECTOR = '.navbar, .selfreference';
 const CLAMP_CANDIDATES = 'table, div, figure, ul, ol, dl, blockquote';
 let clampSeq = 0;
 
@@ -147,6 +141,14 @@ export class Stack {
     return `${lang}:${normTitle(title).toLowerCase()}`;
   }
 
+  private persistRandomKeys(): void {
+    try {
+      sessionStorage.setItem('wh-random', JSON.stringify([...this.randomKeys]));
+    } catch {
+      /* ignore */
+    }
+  }
+
   /** Flag a node as a random jump and remember it for this session, so the
    *  marker returns after a reload rebuilds the trail from titles alone. */
   private rememberRandom(node: CardNode): void {
@@ -154,12 +156,18 @@ export class Stack {
     const key = this.randomKey(node.lang, node.title);
     if (!this.randomKeys.has(key)) {
       this.randomKeys.add(key);
-      try {
-        sessionStorage.setItem('wh-random', JSON.stringify([...this.randomKeys]));
-      } catch {
-        /* ignore */
-      }
+      this.persistRandomKeys();
     }
+  }
+
+  /** Seed random-jump markers ahead of a trail restore — saved trails persist
+   *  the flag per node (trails.ts), and makeNode re-derives it from these keys
+   *  when applyTrail rebuilds the cards. Older saved trails have no flags and
+   *  simply seed nothing. */
+  markRandomTitles(lang: string, titles: string[]): void {
+    if (titles.length === 0) return;
+    for (const t of titles) this.randomKeys.add(this.randomKey(lang, t));
+    this.persistRandomKeys();
   }
 
   get path(): CardNode[] {
@@ -412,9 +420,6 @@ export class Stack {
 
       const processed = processArticle(html);
       if (!this.views.includes(view)) return;
-      // Render-layer strip: template navigation chrome (see NAV_CHROME_SELECTOR
-      // note above). Done on the detached body, before anything hits the DOM.
-      for (const chrome of processed.body.querySelectorAll(NAV_CHROME_SELECTOR)) chrome.remove();
       view.node.subtitle = processed.subtitle;
       view.tabSubEl.textContent = processed.subtitle ?? '';
 

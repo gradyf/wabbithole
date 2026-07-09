@@ -24,6 +24,8 @@ const STRIP_SELECTORS = [
   '.hatnote', '[role="note"]',
   '.side-box', '.sistersitebox',
   '.ambox', '.mbox-small', // maintenance banners
+  '.navbar', // v-t-e template link clusters (a giant unstyled block without TemplateStyles)
+  '.selfreference', // Wikipedia self-links, e.g. a route diagram's "Legend" -> Template:Waterways_legend
   '.mw-empty-elt',
   'link', 'meta',
 ].join(',');

@@ -21,6 +21,9 @@ const MAX_NODE_TITLE = 300;
 interface TrailNode {
   lang: string;
   title: string;
+  /** The card was opened via the client's Random button (trail marker).
+   *  Stored only when true; absent on older trails. */
+  random?: boolean;
 }
 
 interface TrailsPost {
@@ -63,16 +66,19 @@ function parseNodes(value: unknown, allowEmpty: boolean): TrailNode[] {
   }
   return value.map((n) => {
     if (n === null || typeof n !== 'object') throw new HttpError(400, 'bad_request');
-    const { lang, title } = n as Record<string, unknown>;
+    const { lang, title, random } = n as Record<string, unknown>;
     if (
       !validLang(lang) ||
       typeof title !== 'string' ||
       title.length === 0 ||
-      title.length > MAX_NODE_TITLE
+      title.length > MAX_NODE_TITLE ||
+      (random !== undefined && typeof random !== 'boolean')
     ) {
       throw new HttpError(400, 'bad_request');
     }
-    return { lang, title };
+    // random is stored only when true; everything else is still rebuilt from
+    // scratch, so unknown client fields keep getting dropped.
+    return random === true ? { lang, title, random: true } : { lang, title };
   });
 }
 
