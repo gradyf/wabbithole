@@ -1,16 +1,16 @@
 {
-  "generatedAt": "2026-07-07T18:59:35.224Z",
+  "generatedAt": "2026-07-09T01:51:26.607Z",
   "generator": "scripts/gen-pairs (Phase 3: flat-calendar emitter)",
   "epoch": "2026-01-01",
-  "horizon": 555,
-  "cutover": 555,
+  "horizon": 554,
+  "cutover": 189,
   "legacySource": "scripts/gen-pairs/data/legacy-pairs.json",
   "legacyLength": 120,
   "seed": "wabbit-hole-race-pairs-2026-v1",
-  "note": "Phase 3: validated list empty — entire horizon is the legacy materialization (CALENDAR[i] === legacy[i mod 120]); behaviorally identical to the pre-flat rotation for every date.",
+  "note": "365 validated slots spliced from cutover 189; slots below cutover reproduce the legacy rotation exactly (history-preservation, spec §2.4).",
   "counts": {
-    "legacySlots": 555,
-    "validatedSlots": 0
+    "legacySlots": 189,
+    "validatedSlots": 365
   },
   "slots": [
     {
@@ -960,1833 +960,2923 @@
     },
     {
       "i": 189,
-      "origin": "legacy",
-      "ref": 69
+      "origin": "validated",
+      "ref": 0,
+      "distance": ">=3",
+      "startBucket": "Earth & Weather",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 190,
-      "origin": "legacy",
-      "ref": 70
+      "origin": "validated",
+      "ref": 1,
+      "distance": ">=3",
+      "startBucket": "Comics & Pop Culture",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 191,
-      "origin": "legacy",
-      "ref": 71
+      "origin": "validated",
+      "ref": 2,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "Sport"
     },
     {
       "i": 192,
-      "origin": "legacy",
-      "ref": 72
+      "origin": "validated",
+      "ref": 3,
+      "distance": ">=3",
+      "startBucket": "Art & Design",
+      "targetBucket": "Vehicles"
     },
     {
       "i": 193,
-      "origin": "legacy",
-      "ref": 73
+      "origin": "validated",
+      "ref": 4,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Sport"
     },
     {
       "i": 194,
-      "origin": "legacy",
-      "ref": 74
+      "origin": "validated",
+      "ref": 5,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "Ancient World"
     },
     {
       "i": 195,
-      "origin": "legacy",
-      "ref": 75
+      "origin": "validated",
+      "ref": 6,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 196,
-      "origin": "legacy",
-      "ref": 76
+      "origin": "validated",
+      "ref": 7,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 197,
-      "origin": "legacy",
-      "ref": 77
+      "origin": "validated",
+      "ref": 8,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 198,
-      "origin": "legacy",
-      "ref": 78
+      "origin": "validated",
+      "ref": 9,
+      "distance": ">=3",
+      "startBucket": "Plants & Gardens",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 199,
-      "origin": "legacy",
-      "ref": 79
+      "origin": "validated",
+      "ref": 10,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 200,
-      "origin": "legacy",
-      "ref": 80
+      "origin": "validated",
+      "ref": 11,
+      "distance": ">=3",
+      "startBucket": "Film, TV & Books",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 201,
-      "origin": "legacy",
-      "ref": 81
+      "origin": "validated",
+      "ref": 12,
+      "distance": ">=3",
+      "startBucket": "History & War",
+      "targetBucket": "Sport"
     },
     {
       "i": 202,
-      "origin": "legacy",
-      "ref": 82
+      "origin": "validated",
+      "ref": 13,
+      "distance": ">=3",
+      "startBucket": "Film, TV & Books",
+      "targetBucket": "Earth & Weather"
     },
     {
       "i": 203,
-      "origin": "legacy",
-      "ref": 83
+      "origin": "validated",
+      "ref": 14,
+      "distance": ">=3",
+      "startBucket": "Science in Everyday Life",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 204,
-      "origin": "legacy",
-      "ref": 84
+      "origin": "validated",
+      "ref": 15,
+      "distance": ">=3",
+      "startBucket": "Space",
+      "targetBucket": "Animals"
     },
     {
       "i": 205,
-      "origin": "legacy",
-      "ref": 85
+      "origin": "validated",
+      "ref": 16,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "History & War"
     },
     {
       "i": 206,
-      "origin": "legacy",
-      "ref": 86
+      "origin": "validated",
+      "ref": 17,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Earth & Weather"
     },
     {
       "i": 207,
-      "origin": "legacy",
-      "ref": 87
+      "origin": "validated",
+      "ref": 18,
+      "distance": ">=3",
+      "startBucket": "Film, TV & Books",
+      "targetBucket": "Holidays"
     },
     {
       "i": 208,
-      "origin": "legacy",
-      "ref": 88
+      "origin": "validated",
+      "ref": 19,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "History & War"
     },
     {
       "i": 209,
-      "origin": "legacy",
-      "ref": 89
+      "origin": "validated",
+      "ref": 20,
+      "distance": ">=3",
+      "startBucket": "Plants & Gardens",
+      "targetBucket": "Holidays"
     },
     {
       "i": 210,
-      "origin": "legacy",
-      "ref": 90
+      "origin": "validated",
+      "ref": 21,
+      "distance": ">=3",
+      "startBucket": "Space",
+      "targetBucket": "Sport"
     },
     {
       "i": 211,
-      "origin": "legacy",
-      "ref": 91
+      "origin": "validated",
+      "ref": 22,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 212,
-      "origin": "legacy",
-      "ref": 92
+      "origin": "validated",
+      "ref": 23,
+      "distance": ">=3",
+      "startBucket": "Film, TV & Books",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 213,
-      "origin": "legacy",
-      "ref": 93
+      "origin": "validated",
+      "ref": 24,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Science in Everyday Life"
     },
     {
       "i": 214,
-      "origin": "legacy",
-      "ref": 94
+      "origin": "validated",
+      "ref": 25,
+      "distance": ">=3",
+      "startBucket": "History & War",
+      "targetBucket": "Art & Design"
     },
     {
       "i": 215,
-      "origin": "legacy",
-      "ref": 95
+      "origin": "validated",
+      "ref": 26,
+      "distance": ">=3",
+      "startBucket": "Plants & Gardens",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 216,
-      "origin": "legacy",
-      "ref": 96
+      "origin": "validated",
+      "ref": 27,
+      "distance": ">=3",
+      "startBucket": "Sport",
+      "targetBucket": "Wellness"
     },
     {
       "i": 217,
-      "origin": "legacy",
-      "ref": 97
+      "origin": "validated",
+      "ref": 28,
+      "distance": ">=3",
+      "startBucket": "Science in Everyday Life",
+      "targetBucket": "Holidays"
     },
     {
       "i": 218,
-      "origin": "legacy",
-      "ref": 98
+      "origin": "validated",
+      "ref": 29,
+      "distance": ">=3",
+      "startBucket": "Film, TV & Books",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 219,
-      "origin": "legacy",
-      "ref": 99
+      "origin": "validated",
+      "ref": 30,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Film, TV & Books"
     },
     {
       "i": 220,
-      "origin": "legacy",
-      "ref": 100
+      "origin": "validated",
+      "ref": 31,
+      "distance": ">=3",
+      "startBucket": "History & War",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 221,
-      "origin": "legacy",
-      "ref": 101
+      "origin": "validated",
+      "ref": 32,
+      "distance": ">=3",
+      "startBucket": "Sport",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 222,
-      "origin": "legacy",
-      "ref": 102
+      "origin": "validated",
+      "ref": 33,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 223,
-      "origin": "legacy",
-      "ref": 103
+      "origin": "validated",
+      "ref": 34,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 224,
-      "origin": "legacy",
-      "ref": 104
+      "origin": "validated",
+      "ref": 35,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 225,
-      "origin": "legacy",
-      "ref": 105
+      "origin": "validated",
+      "ref": 36,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Vehicles"
     },
     {
       "i": 226,
-      "origin": "legacy",
-      "ref": 106
+      "origin": "validated",
+      "ref": 37,
+      "distance": ">=3",
+      "startBucket": "Film, TV & Books",
+      "targetBucket": "Holidays"
     },
     {
       "i": 227,
-      "origin": "legacy",
-      "ref": 107
+      "origin": "validated",
+      "ref": 38,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 228,
-      "origin": "legacy",
-      "ref": 108
+      "origin": "validated",
+      "ref": 39,
+      "distance": ">=3",
+      "startBucket": "Wellness",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 229,
-      "origin": "legacy",
-      "ref": 109
+      "origin": "validated",
+      "ref": 40,
+      "distance": ">=3",
+      "startBucket": "Music",
+      "targetBucket": "Space"
     },
     {
       "i": 230,
-      "origin": "legacy",
-      "ref": 110
+      "origin": "validated",
+      "ref": 41,
+      "distance": ">=3",
+      "startBucket": "Comics & Pop Culture",
+      "targetBucket": "Animals"
     },
     {
       "i": 231,
-      "origin": "legacy",
-      "ref": 111
+      "origin": "validated",
+      "ref": 42,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "Holidays"
     },
     {
       "i": 232,
-      "origin": "legacy",
-      "ref": 112
+      "origin": "validated",
+      "ref": 43,
+      "distance": ">=3",
+      "startBucket": "Space",
+      "targetBucket": "Animals"
     },
     {
       "i": 233,
-      "origin": "legacy",
-      "ref": 113
+      "origin": "validated",
+      "ref": 44,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 234,
-      "origin": "legacy",
-      "ref": 114
+      "origin": "validated",
+      "ref": 45,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 235,
-      "origin": "legacy",
-      "ref": 115
+      "origin": "validated",
+      "ref": 46,
+      "distance": ">=3",
+      "startBucket": "Earth & Weather",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 236,
-      "origin": "legacy",
-      "ref": 116
+      "origin": "validated",
+      "ref": 47,
+      "distance": ">=3",
+      "startBucket": "Wellness",
+      "targetBucket": "Vehicles"
     },
     {
       "i": 237,
-      "origin": "legacy",
-      "ref": 117
+      "origin": "validated",
+      "ref": 48,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "Science in Everyday Life"
     },
     {
       "i": 238,
-      "origin": "legacy",
-      "ref": 118
+      "origin": "validated",
+      "ref": 49,
+      "distance": ">=3",
+      "startBucket": "Art & Design",
+      "targetBucket": "Ancient World"
     },
     {
       "i": 239,
-      "origin": "legacy",
-      "ref": 119
+      "origin": "validated",
+      "ref": 50,
+      "distance": ">=3",
+      "startBucket": "Plants & Gardens",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 240,
-      "origin": "legacy",
-      "ref": 0
+      "origin": "validated",
+      "ref": 51,
+      "distance": ">=3",
+      "startBucket": "Space",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 241,
-      "origin": "legacy",
-      "ref": 1
+      "origin": "validated",
+      "ref": 52,
+      "distance": ">=3",
+      "startBucket": "Plants & Gardens",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 242,
-      "origin": "legacy",
-      "ref": 2
+      "origin": "validated",
+      "ref": 53,
+      "distance": ">=3",
+      "startBucket": "Games & Toys",
+      "targetBucket": "Earth & Weather"
     },
     {
       "i": 243,
-      "origin": "legacy",
-      "ref": 3
+      "origin": "validated",
+      "ref": 54,
+      "distance": ">=3",
+      "startBucket": "Science in Everyday Life",
+      "targetBucket": "Animals"
     },
     {
       "i": 244,
-      "origin": "legacy",
-      "ref": 4
+      "origin": "validated",
+      "ref": 55,
+      "distance": ">=3",
+      "startBucket": "Plants & Gardens",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 245,
-      "origin": "legacy",
-      "ref": 5
+      "origin": "validated",
+      "ref": 56,
+      "distance": ">=3",
+      "startBucket": "History & War",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 246,
-      "origin": "legacy",
-      "ref": 6
+      "origin": "validated",
+      "ref": 57,
+      "distance": ">=3",
+      "startBucket": "Earth & Weather",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 247,
-      "origin": "legacy",
-      "ref": 7
+      "origin": "validated",
+      "ref": 58,
+      "distance": ">=3",
+      "startBucket": "History & War",
+      "targetBucket": "Fashion"
     },
     {
       "i": 248,
-      "origin": "legacy",
-      "ref": 8
+      "origin": "validated",
+      "ref": 59,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Vehicles"
     },
     {
       "i": 249,
-      "origin": "legacy",
-      "ref": 9
+      "origin": "validated",
+      "ref": 60,
+      "distance": ">=3",
+      "startBucket": "History & War",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 250,
-      "origin": "legacy",
-      "ref": 10
+      "origin": "validated",
+      "ref": 61,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 251,
-      "origin": "legacy",
-      "ref": 11
+      "origin": "validated",
+      "ref": 62,
+      "distance": ">=3",
+      "startBucket": "Music",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 252,
-      "origin": "legacy",
-      "ref": 12
+      "origin": "validated",
+      "ref": 63,
+      "distance": ">=3",
+      "startBucket": "Space",
+      "targetBucket": "Animals"
     },
     {
       "i": 253,
-      "origin": "legacy",
-      "ref": 13
+      "origin": "validated",
+      "ref": 64,
+      "distance": ">=3",
+      "startBucket": "History & War",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 254,
-      "origin": "legacy",
-      "ref": 14
+      "origin": "validated",
+      "ref": 65,
+      "distance": ">=3",
+      "startBucket": "Science in Everyday Life",
+      "targetBucket": "Film, TV & Books"
     },
     {
       "i": 255,
-      "origin": "legacy",
-      "ref": 15
+      "origin": "validated",
+      "ref": 66,
+      "distance": ">=3",
+      "startBucket": "History & War",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 256,
-      "origin": "legacy",
-      "ref": 16
+      "origin": "validated",
+      "ref": 67,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Fashion"
     },
     {
       "i": 257,
-      "origin": "legacy",
-      "ref": 17
+      "origin": "validated",
+      "ref": 68,
+      "distance": ">=3",
+      "startBucket": "History & War",
+      "targetBucket": "Film, TV & Books"
     },
     {
       "i": 258,
-      "origin": "legacy",
-      "ref": 18
+      "origin": "validated",
+      "ref": 69,
+      "distance": ">=3",
+      "startBucket": "Plants & Gardens",
+      "targetBucket": "Vehicles"
     },
     {
       "i": 259,
-      "origin": "legacy",
-      "ref": 19
+      "origin": "validated",
+      "ref": 70,
+      "distance": ">=3",
+      "startBucket": "History & War",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 260,
-      "origin": "legacy",
-      "ref": 20
+      "origin": "validated",
+      "ref": 71,
+      "distance": ">=3",
+      "startBucket": "Film, TV & Books",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 261,
-      "origin": "legacy",
-      "ref": 21
+      "origin": "validated",
+      "ref": 72,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 262,
-      "origin": "legacy",
-      "ref": 22
+      "origin": "validated",
+      "ref": 73,
+      "distance": ">=3",
+      "startBucket": "Space",
+      "targetBucket": "Film, TV & Books"
     },
     {
       "i": 263,
-      "origin": "legacy",
-      "ref": 23
+      "origin": "validated",
+      "ref": 74,
+      "distance": ">=3",
+      "startBucket": "Plants & Gardens",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 264,
-      "origin": "legacy",
-      "ref": 24
+      "origin": "validated",
+      "ref": 75,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Music"
     },
     {
       "i": 265,
-      "origin": "legacy",
-      "ref": 25
+      "origin": "validated",
+      "ref": 76,
+      "distance": ">=3",
+      "startBucket": "Vehicles",
+      "targetBucket": "Space"
     },
     {
       "i": 266,
-      "origin": "legacy",
-      "ref": 26
+      "origin": "validated",
+      "ref": 77,
+      "distance": ">=3",
+      "startBucket": "Earth & Weather",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 267,
-      "origin": "legacy",
-      "ref": 27
+      "origin": "validated",
+      "ref": 78,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 268,
-      "origin": "legacy",
-      "ref": 28
+      "origin": "validated",
+      "ref": 79,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "History & War"
     },
     {
       "i": 269,
-      "origin": "legacy",
-      "ref": 29
+      "origin": "validated",
+      "ref": 80,
+      "distance": ">=3",
+      "startBucket": "Science in Everyday Life",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 270,
-      "origin": "legacy",
-      "ref": 30
+      "origin": "validated",
+      "ref": 81,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 271,
-      "origin": "legacy",
-      "ref": 31
+      "origin": "validated",
+      "ref": 82,
+      "distance": ">=3",
+      "startBucket": "Film, TV & Books",
+      "targetBucket": "Science in Everyday Life"
     },
     {
       "i": 272,
-      "origin": "legacy",
-      "ref": 32
+      "origin": "validated",
+      "ref": 83,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "Wellness"
     },
     {
       "i": 273,
-      "origin": "legacy",
-      "ref": 33
+      "origin": "validated",
+      "ref": 84,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Ancient World"
     },
     {
       "i": 274,
-      "origin": "legacy",
-      "ref": 34
+      "origin": "validated",
+      "ref": 85,
+      "distance": ">=3",
+      "startBucket": "Comics & Pop Culture",
+      "targetBucket": "Animals"
     },
     {
       "i": 275,
-      "origin": "legacy",
-      "ref": 35
+      "origin": "validated",
+      "ref": 86,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 276,
-      "origin": "legacy",
-      "ref": 36
+      "origin": "validated",
+      "ref": 87,
+      "distance": ">=3",
+      "startBucket": "Art & Design",
+      "targetBucket": "Earth & Weather"
     },
     {
       "i": 277,
-      "origin": "legacy",
-      "ref": 37
+      "origin": "validated",
+      "ref": 88,
+      "distance": ">=3",
+      "startBucket": "Comics & Pop Culture",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 278,
-      "origin": "legacy",
-      "ref": 38
+      "origin": "validated",
+      "ref": 89,
+      "distance": ">=3",
+      "startBucket": "Space",
+      "targetBucket": "Animals"
     },
     {
       "i": 279,
-      "origin": "legacy",
-      "ref": 39
+      "origin": "validated",
+      "ref": 90,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Film, TV & Books"
     },
     {
       "i": 280,
-      "origin": "legacy",
-      "ref": 40
+      "origin": "validated",
+      "ref": 91,
+      "distance": ">=3",
+      "startBucket": "Earth & Weather",
+      "targetBucket": "Fashion"
     },
     {
       "i": 281,
-      "origin": "legacy",
-      "ref": 41
+      "origin": "validated",
+      "ref": 92,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "Ancient World"
     },
     {
       "i": 282,
-      "origin": "legacy",
-      "ref": 42
+      "origin": "validated",
+      "ref": 93,
+      "distance": ">=3",
+      "startBucket": "Art & Design",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 283,
-      "origin": "legacy",
-      "ref": 43
+      "origin": "validated",
+      "ref": 94,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Vehicles"
     },
     {
       "i": 284,
-      "origin": "legacy",
-      "ref": 44
+      "origin": "validated",
+      "ref": 95,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 285,
-      "origin": "legacy",
-      "ref": 45
+      "origin": "validated",
+      "ref": 96,
+      "distance": ">=3",
+      "startBucket": "Science in Everyday Life",
+      "targetBucket": "Film, TV & Books"
     },
     {
       "i": 286,
-      "origin": "legacy",
-      "ref": 46
+      "origin": "validated",
+      "ref": 97,
+      "distance": ">=3",
+      "startBucket": "History & War",
+      "targetBucket": "Art & Design"
     },
     {
       "i": 287,
-      "origin": "legacy",
-      "ref": 47
+      "origin": "validated",
+      "ref": 98,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Film, TV & Books"
     },
     {
       "i": 288,
-      "origin": "legacy",
-      "ref": 48
+      "origin": "validated",
+      "ref": 99,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 289,
-      "origin": "legacy",
-      "ref": 49
+      "origin": "validated",
+      "ref": 100,
+      "distance": ">=3",
+      "startBucket": "Space",
+      "targetBucket": "Animals"
     },
     {
       "i": 290,
-      "origin": "legacy",
-      "ref": 50
+      "origin": "validated",
+      "ref": 101,
+      "distance": ">=3",
+      "startBucket": "Art & Design",
+      "targetBucket": "Wellness"
     },
     {
       "i": 291,
-      "origin": "legacy",
-      "ref": 51
+      "origin": "validated",
+      "ref": 102,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "History & War"
     },
     {
       "i": 292,
-      "origin": "legacy",
-      "ref": 52
+      "origin": "validated",
+      "ref": 103,
+      "distance": ">=3",
+      "startBucket": "Wellness",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 293,
-      "origin": "legacy",
-      "ref": 53
+      "origin": "validated",
+      "ref": 104,
+      "distance": ">=3",
+      "startBucket": "Holidays",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 294,
-      "origin": "legacy",
-      "ref": 54
+      "origin": "validated",
+      "ref": 105,
+      "distance": ">=3",
+      "startBucket": "Comics & Pop Culture",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 295,
-      "origin": "legacy",
-      "ref": 55
+      "origin": "validated",
+      "ref": 106,
+      "distance": ">=3",
+      "startBucket": "Art & Design",
+      "targetBucket": "Music"
     },
     {
       "i": 296,
-      "origin": "legacy",
-      "ref": 56
+      "origin": "validated",
+      "ref": 107,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Space"
     },
     {
       "i": 297,
-      "origin": "legacy",
-      "ref": 57
+      "origin": "validated",
+      "ref": 108,
+      "distance": ">=3",
+      "startBucket": "Holidays",
+      "targetBucket": "Art & Design"
     },
     {
       "i": 298,
-      "origin": "legacy",
-      "ref": 58
+      "origin": "validated",
+      "ref": 109,
+      "distance": ">=3",
+      "startBucket": "Vehicles",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 299,
-      "origin": "legacy",
-      "ref": 59
+      "origin": "validated",
+      "ref": 110,
+      "distance": ">=3",
+      "startBucket": "Fashion",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 300,
-      "origin": "legacy",
-      "ref": 60
+      "origin": "validated",
+      "ref": 111,
+      "distance": ">=3",
+      "startBucket": "Film, TV & Books",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 301,
-      "origin": "legacy",
-      "ref": 61
+      "origin": "validated",
+      "ref": 112,
+      "distance": ">=3",
+      "startBucket": "Art & Design",
+      "targetBucket": "History & War"
     },
     {
       "i": 302,
-      "origin": "legacy",
-      "ref": 62
+      "origin": "validated",
+      "ref": 113,
+      "distance": ">=3",
+      "startBucket": "Holidays",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 303,
-      "origin": "legacy",
-      "ref": 63
+      "origin": "validated",
+      "ref": 114,
+      "distance": ">=3",
+      "startBucket": "Wellness",
+      "targetBucket": "Animals"
     },
     {
       "i": 304,
-      "origin": "legacy",
-      "ref": 64
+      "origin": "validated",
+      "ref": 115,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Fashion"
     },
     {
       "i": 305,
-      "origin": "legacy",
-      "ref": 65
+      "origin": "validated",
+      "ref": 116,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 306,
-      "origin": "legacy",
-      "ref": 66
+      "origin": "validated",
+      "ref": 117,
+      "distance": ">=3",
+      "startBucket": "Sport",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 307,
-      "origin": "legacy",
-      "ref": 67
+      "origin": "validated",
+      "ref": 118,
+      "distance": ">=3",
+      "startBucket": "Art & Design",
+      "targetBucket": "Space"
     },
     {
       "i": 308,
-      "origin": "legacy",
-      "ref": 68
+      "origin": "validated",
+      "ref": 119,
+      "distance": ">=3",
+      "startBucket": "Fashion",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 309,
-      "origin": "legacy",
-      "ref": 69
+      "origin": "validated",
+      "ref": 120,
+      "distance": ">=3",
+      "startBucket": "Sport",
+      "targetBucket": "Ancient World"
     },
     {
       "i": 310,
-      "origin": "legacy",
-      "ref": 70
+      "origin": "validated",
+      "ref": 121,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 311,
-      "origin": "legacy",
-      "ref": 71
+      "origin": "validated",
+      "ref": 122,
+      "distance": ">=3",
+      "startBucket": "Science in Everyday Life",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 312,
-      "origin": "legacy",
-      "ref": 72
+      "origin": "validated",
+      "ref": 123,
+      "distance": ">=3",
+      "startBucket": "Games & Toys",
+      "targetBucket": "Fashion"
     },
     {
       "i": 313,
-      "origin": "legacy",
-      "ref": 73
+      "origin": "validated",
+      "ref": 124,
+      "distance": ">=3",
+      "startBucket": "Film, TV & Books",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 314,
-      "origin": "legacy",
-      "ref": 74
+      "origin": "validated",
+      "ref": 125,
+      "distance": ">=3",
+      "startBucket": "Sport",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 315,
-      "origin": "legacy",
-      "ref": 75
+      "origin": "validated",
+      "ref": 126,
+      "distance": ">=3",
+      "startBucket": "Vehicles",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 316,
-      "origin": "legacy",
-      "ref": 76
+      "origin": "validated",
+      "ref": 127,
+      "distance": ">=3",
+      "startBucket": "Film, TV & Books",
+      "targetBucket": "Vehicles"
     },
     {
       "i": 317,
-      "origin": "legacy",
-      "ref": 77
+      "origin": "validated",
+      "ref": 128,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Music"
     },
     {
       "i": 318,
-      "origin": "legacy",
-      "ref": 78
+      "origin": "validated",
+      "ref": 129,
+      "distance": ">=3",
+      "startBucket": "Earth & Weather",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 319,
-      "origin": "legacy",
-      "ref": 79
+      "origin": "validated",
+      "ref": 130,
+      "distance": ">=3",
+      "startBucket": "Film, TV & Books",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 320,
-      "origin": "legacy",
-      "ref": 80
+      "origin": "validated",
+      "ref": 131,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 321,
-      "origin": "legacy",
-      "ref": 81
+      "origin": "validated",
+      "ref": 132,
+      "distance": ">=3",
+      "startBucket": "Wellness",
+      "targetBucket": "Ancient World"
     },
     {
       "i": 322,
-      "origin": "legacy",
-      "ref": 82
+      "origin": "validated",
+      "ref": 133,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 323,
-      "origin": "legacy",
-      "ref": 83
+      "origin": "validated",
+      "ref": 134,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Film, TV & Books"
     },
     {
       "i": 324,
-      "origin": "legacy",
-      "ref": 84
+      "origin": "validated",
+      "ref": 135,
+      "distance": ">=3",
+      "startBucket": "Plants & Gardens",
+      "targetBucket": "Holidays"
     },
     {
       "i": 325,
-      "origin": "legacy",
-      "ref": 85
+      "origin": "validated",
+      "ref": 136,
+      "distance": ">=3",
+      "startBucket": "Earth & Weather",
+      "targetBucket": "Film, TV & Books"
     },
     {
       "i": 326,
-      "origin": "legacy",
-      "ref": 86
+      "origin": "validated",
+      "ref": 137,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 327,
-      "origin": "legacy",
-      "ref": 87
+      "origin": "validated",
+      "ref": 138,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "Music"
     },
     {
       "i": 328,
-      "origin": "legacy",
-      "ref": 88
+      "origin": "validated",
+      "ref": 139,
+      "distance": ">=3",
+      "startBucket": "Space",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 329,
-      "origin": "legacy",
-      "ref": 89
+      "origin": "validated",
+      "ref": 140,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Animals"
     },
     {
       "i": 330,
-      "origin": "legacy",
-      "ref": 90
+      "origin": "validated",
+      "ref": 141,
+      "distance": ">=3",
+      "startBucket": "Vehicles",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 331,
-      "origin": "legacy",
-      "ref": 91
+      "origin": "validated",
+      "ref": 142,
+      "distance": ">=3",
+      "startBucket": "Games & Toys",
+      "targetBucket": "Earth & Weather"
     },
     {
       "i": 332,
-      "origin": "legacy",
-      "ref": 92
+      "origin": "validated",
+      "ref": 143,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "Art & Design"
     },
     {
       "i": 333,
-      "origin": "legacy",
-      "ref": 93
+      "origin": "validated",
+      "ref": 144,
+      "distance": ">=3",
+      "startBucket": "Space",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 334,
-      "origin": "legacy",
-      "ref": 94
+      "origin": "validated",
+      "ref": 145,
+      "distance": ">=3",
+      "startBucket": "Earth & Weather",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 335,
-      "origin": "legacy",
-      "ref": 95
+      "origin": "validated",
+      "ref": 146,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 336,
-      "origin": "legacy",
-      "ref": 96
+      "origin": "validated",
+      "ref": 147,
+      "distance": ">=3",
+      "startBucket": "Music",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 337,
-      "origin": "legacy",
-      "ref": 97
+      "origin": "validated",
+      "ref": 148,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "Sport"
     },
     {
       "i": 338,
-      "origin": "legacy",
-      "ref": 98
+      "origin": "validated",
+      "ref": 149,
+      "distance": ">=3",
+      "startBucket": "Fashion",
+      "targetBucket": "Earth & Weather"
     },
     {
       "i": 339,
-      "origin": "legacy",
-      "ref": 99
+      "origin": "validated",
+      "ref": 150,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 340,
-      "origin": "legacy",
-      "ref": 100
+      "origin": "validated",
+      "ref": 151,
+      "distance": ">=3",
+      "startBucket": "Science in Everyday Life",
+      "targetBucket": "Music"
     },
     {
       "i": 341,
-      "origin": "legacy",
-      "ref": 101
+      "origin": "validated",
+      "ref": 152,
+      "distance": ">=3",
+      "startBucket": "Space",
+      "targetBucket": "History & War"
     },
     {
       "i": 342,
-      "origin": "legacy",
-      "ref": 102
+      "origin": "validated",
+      "ref": 153,
+      "distance": ">=3",
+      "startBucket": "Science in Everyday Life",
+      "targetBucket": "Space"
     },
     {
       "i": 343,
-      "origin": "legacy",
-      "ref": 103
+      "origin": "validated",
+      "ref": 154,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Music"
     },
     {
       "i": 344,
-      "origin": "legacy",
-      "ref": 104
+      "origin": "validated",
+      "ref": 155,
+      "distance": ">=3",
+      "startBucket": "Film, TV & Books",
+      "targetBucket": "Ancient World"
     },
     {
       "i": 345,
-      "origin": "legacy",
-      "ref": 105
+      "origin": "validated",
+      "ref": 156,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Vehicles"
     },
     {
       "i": 346,
-      "origin": "legacy",
-      "ref": 106
+      "origin": "validated",
+      "ref": 157,
+      "distance": ">=3",
+      "startBucket": "Vehicles",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 347,
-      "origin": "legacy",
-      "ref": 107
+      "origin": "validated",
+      "ref": 158,
+      "distance": ">=3",
+      "startBucket": "Wellness",
+      "targetBucket": "Animals"
     },
     {
       "i": 348,
-      "origin": "legacy",
-      "ref": 108
+      "origin": "validated",
+      "ref": 159,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 349,
-      "origin": "legacy",
-      "ref": 109
+      "origin": "validated",
+      "ref": 160,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Vehicles"
     },
     {
       "i": 350,
-      "origin": "legacy",
-      "ref": 110
+      "origin": "validated",
+      "ref": 161,
+      "distance": ">=3",
+      "startBucket": "Music",
+      "targetBucket": "Art & Design"
     },
     {
       "i": 351,
-      "origin": "legacy",
-      "ref": 111
+      "origin": "validated",
+      "ref": 162,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Vehicles"
     },
     {
       "i": 352,
-      "origin": "legacy",
-      "ref": 112
+      "origin": "validated",
+      "ref": 163,
+      "distance": ">=3",
+      "startBucket": "History & War",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 353,
-      "origin": "legacy",
-      "ref": 113
+      "origin": "validated",
+      "ref": 164,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Vehicles"
     },
     {
       "i": 354,
-      "origin": "legacy",
-      "ref": 114
+      "origin": "validated",
+      "ref": 165,
+      "distance": ">=3",
+      "startBucket": "Space",
+      "targetBucket": "Music"
     },
     {
       "i": 355,
-      "origin": "legacy",
-      "ref": 115
+      "origin": "validated",
+      "ref": 166,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 356,
-      "origin": "legacy",
-      "ref": 116
+      "origin": "validated",
+      "ref": 167,
+      "distance": ">=3",
+      "startBucket": "Art & Design",
+      "targetBucket": "Holidays"
     },
     {
       "i": 357,
-      "origin": "legacy",
-      "ref": 117
+      "origin": "validated",
+      "ref": 168,
+      "distance": ">=3",
+      "startBucket": "Plants & Gardens",
+      "targetBucket": "Film, TV & Books"
     },
     {
       "i": 358,
-      "origin": "legacy",
-      "ref": 118
+      "origin": "validated",
+      "ref": 169,
+      "distance": ">=3",
+      "startBucket": "Holidays",
+      "targetBucket": "Vehicles"
     },
     {
       "i": 359,
-      "origin": "legacy",
-      "ref": 119
+      "origin": "validated",
+      "ref": 170,
+      "distance": ">=3",
+      "startBucket": "Comics & Pop Culture",
+      "targetBucket": "Wellness"
     },
     {
       "i": 360,
-      "origin": "legacy",
-      "ref": 0
+      "origin": "validated",
+      "ref": 171,
+      "distance": ">=3",
+      "startBucket": "Wellness",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 361,
-      "origin": "legacy",
-      "ref": 1
+      "origin": "validated",
+      "ref": 172,
+      "distance": ">=3",
+      "startBucket": "Games & Toys",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 362,
-      "origin": "legacy",
-      "ref": 2
+      "origin": "validated",
+      "ref": 173,
+      "distance": ">=3",
+      "startBucket": "Wellness",
+      "targetBucket": "Science in Everyday Life"
     },
     {
       "i": 363,
-      "origin": "legacy",
-      "ref": 3
+      "origin": "validated",
+      "ref": 174,
+      "distance": ">=3",
+      "startBucket": "Film, TV & Books",
+      "targetBucket": "Music"
     },
     {
       "i": 364,
-      "origin": "legacy",
-      "ref": 4
+      "origin": "validated",
+      "ref": 175,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 365,
-      "origin": "legacy",
-      "ref": 5
+      "origin": "validated",
+      "ref": 176,
+      "distance": ">=3",
+      "startBucket": "Games & Toys",
+      "targetBucket": "Art & Design"
     },
     {
       "i": 366,
-      "origin": "legacy",
-      "ref": 6
+      "origin": "validated",
+      "ref": 177,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Space"
     },
     {
       "i": 367,
-      "origin": "legacy",
-      "ref": 7
+      "origin": "validated",
+      "ref": 178,
+      "distance": ">=3",
+      "startBucket": "Vehicles",
+      "targetBucket": "Holidays"
     },
     {
       "i": 368,
-      "origin": "legacy",
-      "ref": 8
+      "origin": "validated",
+      "ref": 179,
+      "distance": ">=3",
+      "startBucket": "Earth & Weather",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 369,
-      "origin": "legacy",
-      "ref": 9
+      "origin": "validated",
+      "ref": 180,
+      "distance": ">=3",
+      "startBucket": "Fashion",
+      "targetBucket": "Space"
     },
     {
       "i": 370,
-      "origin": "legacy",
-      "ref": 10
+      "origin": "validated",
+      "ref": 181,
+      "distance": ">=3",
+      "startBucket": "Science in Everyday Life",
+      "targetBucket": "Art & Design"
     },
     {
       "i": 371,
-      "origin": "legacy",
-      "ref": 11
+      "origin": "validated",
+      "ref": 182,
+      "distance": ">=3",
+      "startBucket": "Sport",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 372,
-      "origin": "legacy",
-      "ref": 12
+      "origin": "validated",
+      "ref": 183,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "History & War"
     },
     {
       "i": 373,
-      "origin": "legacy",
-      "ref": 13
+      "origin": "validated",
+      "ref": 184,
+      "distance": ">=3",
+      "startBucket": "Comics & Pop Culture",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 374,
-      "origin": "legacy",
-      "ref": 14
+      "origin": "validated",
+      "ref": 185,
+      "distance": ">=3",
+      "startBucket": "Games & Toys",
+      "targetBucket": "Wellness"
     },
     {
       "i": 375,
-      "origin": "legacy",
-      "ref": 15
+      "origin": "validated",
+      "ref": 186,
+      "distance": ">=3",
+      "startBucket": "Plants & Gardens",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 376,
-      "origin": "legacy",
-      "ref": 16
+      "origin": "validated",
+      "ref": 187,
+      "distance": ">=3",
+      "startBucket": "Sport",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 377,
-      "origin": "legacy",
-      "ref": 17
+      "origin": "validated",
+      "ref": 188,
+      "distance": ">=3",
+      "startBucket": "Comics & Pop Culture",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 378,
-      "origin": "legacy",
-      "ref": 18
+      "origin": "validated",
+      "ref": 189,
+      "distance": ">=3",
+      "startBucket": "Fashion",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 379,
-      "origin": "legacy",
-      "ref": 19
+      "origin": "validated",
+      "ref": 190,
+      "distance": ">=3",
+      "startBucket": "Science in Everyday Life",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 380,
-      "origin": "legacy",
-      "ref": 20
+      "origin": "validated",
+      "ref": 191,
+      "distance": ">=3",
+      "startBucket": "Plants & Gardens",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 381,
-      "origin": "legacy",
-      "ref": 21
+      "origin": "validated",
+      "ref": 192,
+      "distance": ">=3",
+      "startBucket": "Games & Toys",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 382,
-      "origin": "legacy",
-      "ref": 22
+      "origin": "validated",
+      "ref": 193,
+      "distance": ">=3",
+      "startBucket": "History & War",
+      "targetBucket": "Music"
     },
     {
       "i": 383,
-      "origin": "legacy",
-      "ref": 23
+      "origin": "validated",
+      "ref": 194,
+      "distance": ">=3",
+      "startBucket": "Vehicles",
+      "targetBucket": "Sport"
     },
     {
       "i": 384,
-      "origin": "legacy",
-      "ref": 24
+      "origin": "validated",
+      "ref": 195,
+      "distance": ">=3",
+      "startBucket": "Wellness",
+      "targetBucket": "Music"
     },
     {
       "i": 385,
-      "origin": "legacy",
-      "ref": 25
+      "origin": "validated",
+      "ref": 196,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 386,
-      "origin": "legacy",
-      "ref": 26
+      "origin": "validated",
+      "ref": 197,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "Space"
     },
     {
       "i": 387,
-      "origin": "legacy",
-      "ref": 27
+      "origin": "validated",
+      "ref": 198,
+      "distance": ">=3",
+      "startBucket": "Art & Design",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 388,
-      "origin": "legacy",
-      "ref": 28
+      "origin": "validated",
+      "ref": 199,
+      "distance": ">=3",
+      "startBucket": "Comics & Pop Culture",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 389,
-      "origin": "legacy",
-      "ref": 29
+      "origin": "validated",
+      "ref": 200,
+      "distance": ">=3",
+      "startBucket": "Music",
+      "targetBucket": "Science in Everyday Life"
     },
     {
       "i": 390,
-      "origin": "legacy",
-      "ref": 30
+      "origin": "validated",
+      "ref": 201,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Vehicles"
     },
     {
       "i": 391,
-      "origin": "legacy",
-      "ref": 31
+      "origin": "validated",
+      "ref": 202,
+      "distance": ">=3",
+      "startBucket": "Art & Design",
+      "targetBucket": "Space"
     },
     {
       "i": 392,
-      "origin": "legacy",
-      "ref": 32
+      "origin": "validated",
+      "ref": 203,
+      "distance": ">=3",
+      "startBucket": "Comics & Pop Culture",
+      "targetBucket": "Fashion"
     },
     {
       "i": 393,
-      "origin": "legacy",
-      "ref": 33
+      "origin": "validated",
+      "ref": 204,
+      "distance": ">=3",
+      "startBucket": "Games & Toys",
+      "targetBucket": "Music"
     },
     {
       "i": 394,
-      "origin": "legacy",
-      "ref": 34
+      "origin": "validated",
+      "ref": 205,
+      "distance": ">=3",
+      "startBucket": "Plants & Gardens",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 395,
-      "origin": "legacy",
-      "ref": 35
+      "origin": "validated",
+      "ref": 206,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Space"
     },
     {
       "i": 396,
-      "origin": "legacy",
-      "ref": 36
+      "origin": "validated",
+      "ref": 207,
+      "distance": ">=3",
+      "startBucket": "Plants & Gardens",
+      "targetBucket": "Music"
     },
     {
       "i": 397,
-      "origin": "legacy",
-      "ref": 37
+      "origin": "validated",
+      "ref": 208,
+      "distance": ">=3",
+      "startBucket": "Music",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 398,
-      "origin": "legacy",
-      "ref": 38
+      "origin": "validated",
+      "ref": 209,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 399,
-      "origin": "legacy",
-      "ref": 39
+      "origin": "validated",
+      "ref": 210,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Film, TV & Books"
     },
     {
       "i": 400,
-      "origin": "legacy",
-      "ref": 40
+      "origin": "validated",
+      "ref": 211,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 401,
-      "origin": "legacy",
-      "ref": 41
+      "origin": "validated",
+      "ref": 212,
+      "distance": ">=3",
+      "startBucket": "Plants & Gardens",
+      "targetBucket": "Film, TV & Books"
     },
     {
       "i": 402,
-      "origin": "legacy",
-      "ref": 42
+      "origin": "validated",
+      "ref": 213,
+      "distance": ">=3",
+      "startBucket": "Wellness",
+      "targetBucket": "Vehicles"
     },
     {
       "i": 403,
-      "origin": "legacy",
-      "ref": 43
+      "origin": "validated",
+      "ref": 214,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 404,
-      "origin": "legacy",
-      "ref": 44
+      "origin": "validated",
+      "ref": 215,
+      "distance": ">=3",
+      "startBucket": "Space",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 405,
-      "origin": "legacy",
-      "ref": 45
+      "origin": "validated",
+      "ref": 216,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Film, TV & Books"
     },
     {
       "i": 406,
-      "origin": "legacy",
-      "ref": 46
+      "origin": "validated",
+      "ref": 217,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 407,
-      "origin": "legacy",
-      "ref": 47
+      "origin": "validated",
+      "ref": 218,
+      "distance": ">=3",
+      "startBucket": "Space",
+      "targetBucket": "Sport"
     },
     {
       "i": 408,
-      "origin": "legacy",
-      "ref": 48
+      "origin": "validated",
+      "ref": 219,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "History & War"
     },
     {
       "i": 409,
-      "origin": "legacy",
-      "ref": 49
+      "origin": "validated",
+      "ref": 220,
+      "distance": ">=3",
+      "startBucket": "Earth & Weather",
+      "targetBucket": "Film, TV & Books"
     },
     {
       "i": 410,
-      "origin": "legacy",
-      "ref": 50
+      "origin": "validated",
+      "ref": 221,
+      "distance": ">=3",
+      "startBucket": "Art & Design",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 411,
-      "origin": "legacy",
-      "ref": 51
+      "origin": "validated",
+      "ref": 222,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 412,
-      "origin": "legacy",
-      "ref": 52
+      "origin": "validated",
+      "ref": 223,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "Holidays"
     },
     {
       "i": 413,
-      "origin": "legacy",
-      "ref": 53
+      "origin": "validated",
+      "ref": 224,
+      "distance": ">=3",
+      "startBucket": "Sport",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 414,
-      "origin": "legacy",
-      "ref": 54
+      "origin": "validated",
+      "ref": 225,
+      "distance": ">=3",
+      "startBucket": "Earth & Weather",
+      "targetBucket": "Film, TV & Books"
     },
     {
       "i": 415,
-      "origin": "legacy",
-      "ref": 55
+      "origin": "validated",
+      "ref": 226,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Vehicles"
     },
     {
       "i": 416,
-      "origin": "legacy",
-      "ref": 56
+      "origin": "validated",
+      "ref": 227,
+      "distance": ">=3",
+      "startBucket": "History & War",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 417,
-      "origin": "legacy",
-      "ref": 57
+      "origin": "validated",
+      "ref": 228,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 418,
-      "origin": "legacy",
-      "ref": 58
+      "origin": "validated",
+      "ref": 229,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "Ancient World"
     },
     {
       "i": 419,
-      "origin": "legacy",
-      "ref": 59
+      "origin": "validated",
+      "ref": 230,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Animals"
     },
     {
       "i": 420,
-      "origin": "legacy",
-      "ref": 60
+      "origin": "validated",
+      "ref": 231,
+      "distance": ">=3",
+      "startBucket": "Fashion",
+      "targetBucket": "Ancient World"
     },
     {
       "i": 421,
-      "origin": "legacy",
-      "ref": 61
+      "origin": "validated",
+      "ref": 232,
+      "distance": ">=3",
+      "startBucket": "Comics & Pop Culture",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 422,
-      "origin": "legacy",
-      "ref": 62
+      "origin": "validated",
+      "ref": 233,
+      "distance": ">=3",
+      "startBucket": "Fashion",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 423,
-      "origin": "legacy",
-      "ref": 63
+      "origin": "validated",
+      "ref": 234,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "Holidays"
     },
     {
       "i": 424,
-      "origin": "legacy",
-      "ref": 64
+      "origin": "validated",
+      "ref": 235,
+      "distance": ">=3",
+      "startBucket": "Space",
+      "targetBucket": "Sport"
     },
     {
       "i": 425,
-      "origin": "legacy",
-      "ref": 65
+      "origin": "validated",
+      "ref": 236,
+      "distance": ">=3",
+      "startBucket": "Sport",
+      "targetBucket": "Science in Everyday Life"
     },
     {
       "i": 426,
-      "origin": "legacy",
-      "ref": 66
+      "origin": "validated",
+      "ref": 237,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "Sport"
     },
     {
       "i": 427,
-      "origin": "legacy",
-      "ref": 67
+      "origin": "validated",
+      "ref": 238,
+      "distance": ">=3",
+      "startBucket": "Sport",
+      "targetBucket": "Art & Design"
     },
     {
       "i": 428,
-      "origin": "legacy",
-      "ref": 68
+      "origin": "validated",
+      "ref": 239,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Science in Everyday Life"
     },
     {
       "i": 429,
-      "origin": "legacy",
-      "ref": 69
+      "origin": "validated",
+      "ref": 240,
+      "distance": ">=3",
+      "startBucket": "Vehicles",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 430,
-      "origin": "legacy",
-      "ref": 70
+      "origin": "validated",
+      "ref": 241,
+      "distance": ">=3",
+      "startBucket": "Art & Design",
+      "targetBucket": "Space"
     },
     {
       "i": 431,
-      "origin": "legacy",
-      "ref": 71
+      "origin": "validated",
+      "ref": 242,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Holidays"
     },
     {
       "i": 432,
-      "origin": "legacy",
-      "ref": 72
+      "origin": "validated",
+      "ref": 243,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 433,
-      "origin": "legacy",
-      "ref": 73
+      "origin": "validated",
+      "ref": 244,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Wellness"
     },
     {
       "i": 434,
-      "origin": "legacy",
-      "ref": 74
+      "origin": "validated",
+      "ref": 245,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "Vehicles"
     },
     {
       "i": 435,
-      "origin": "legacy",
-      "ref": 75
+      "origin": "validated",
+      "ref": 246,
+      "distance": ">=3",
+      "startBucket": "Sport",
+      "targetBucket": "Music"
     },
     {
       "i": 436,
-      "origin": "legacy",
-      "ref": 76
+      "origin": "validated",
+      "ref": 247,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Art & Design"
     },
     {
       "i": 437,
-      "origin": "legacy",
-      "ref": 77
+      "origin": "validated",
+      "ref": 248,
+      "distance": ">=3",
+      "startBucket": "Sport",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 438,
-      "origin": "legacy",
-      "ref": 78
+      "origin": "validated",
+      "ref": 249,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Vehicles"
     },
     {
       "i": 439,
-      "origin": "legacy",
-      "ref": 79
+      "origin": "validated",
+      "ref": 250,
+      "distance": ">=3",
+      "startBucket": "Fashion",
+      "targetBucket": "Animals"
     },
     {
       "i": 440,
-      "origin": "legacy",
-      "ref": 80
+      "origin": "validated",
+      "ref": 251,
+      "distance": ">=3",
+      "startBucket": "Space",
+      "targetBucket": "Sport"
     },
     {
       "i": 441,
-      "origin": "legacy",
-      "ref": 81
+      "origin": "validated",
+      "ref": 252,
+      "distance": ">=3",
+      "startBucket": "Film, TV & Books",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 442,
-      "origin": "legacy",
-      "ref": 82
+      "origin": "validated",
+      "ref": 253,
+      "distance": ">=3",
+      "startBucket": "Plants & Gardens",
+      "targetBucket": "Sport"
     },
     {
       "i": 443,
-      "origin": "legacy",
-      "ref": 83
+      "origin": "validated",
+      "ref": 254,
+      "distance": ">=3",
+      "startBucket": "Space",
+      "targetBucket": "Art & Design"
     },
     {
       "i": 444,
-      "origin": "legacy",
-      "ref": 84
+      "origin": "validated",
+      "ref": 255,
+      "distance": ">=3",
+      "startBucket": "Games & Toys",
+      "targetBucket": "Space"
     },
     {
       "i": 445,
-      "origin": "legacy",
-      "ref": 85
+      "origin": "validated",
+      "ref": 256,
+      "distance": ">=3",
+      "startBucket": "Space",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 446,
-      "origin": "legacy",
-      "ref": 86
+      "origin": "validated",
+      "ref": 257,
+      "distance": ">=3",
+      "startBucket": "Vehicles",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 447,
-      "origin": "legacy",
-      "ref": 87
+      "origin": "validated",
+      "ref": 258,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Animals"
     },
     {
       "i": 448,
-      "origin": "legacy",
-      "ref": 88
+      "origin": "validated",
+      "ref": 259,
+      "distance": ">=3",
+      "startBucket": "Earth & Weather",
+      "targetBucket": "Wellness"
     },
     {
       "i": 449,
-      "origin": "legacy",
-      "ref": 89
+      "origin": "validated",
+      "ref": 260,
+      "distance": ">=3",
+      "startBucket": "Games & Toys",
+      "targetBucket": "Art & Design"
     },
     {
       "i": 450,
-      "origin": "legacy",
-      "ref": 90
+      "origin": "validated",
+      "ref": 261,
+      "distance": ">=3",
+      "startBucket": "Fashion",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 451,
-      "origin": "legacy",
-      "ref": 91
+      "origin": "validated",
+      "ref": 262,
+      "distance": ">=3",
+      "startBucket": "History & War",
+      "targetBucket": "Fashion"
     },
     {
       "i": 452,
-      "origin": "legacy",
-      "ref": 92
+      "origin": "validated",
+      "ref": 263,
+      "distance": ">=3",
+      "startBucket": "Vehicles",
+      "targetBucket": "Art & Design"
     },
     {
       "i": 453,
-      "origin": "legacy",
-      "ref": 93
+      "origin": "validated",
+      "ref": 264,
+      "distance": ">=3",
+      "startBucket": "Comics & Pop Culture",
+      "targetBucket": "Ancient World"
     },
     {
       "i": 454,
-      "origin": "legacy",
-      "ref": 94
+      "origin": "validated",
+      "ref": 265,
+      "distance": ">=3",
+      "startBucket": "Vehicles",
+      "targetBucket": "History & War"
     },
     {
       "i": 455,
-      "origin": "legacy",
-      "ref": 95
+      "origin": "validated",
+      "ref": 266,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "Music"
     },
     {
       "i": 456,
-      "origin": "legacy",
-      "ref": 96
+      "origin": "validated",
+      "ref": 267,
+      "distance": ">=3",
+      "startBucket": "Plants & Gardens",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 457,
-      "origin": "legacy",
-      "ref": 97
+      "origin": "validated",
+      "ref": 268,
+      "distance": ">=3",
+      "startBucket": "History & War",
+      "targetBucket": "Wellness"
     },
     {
       "i": 458,
-      "origin": "legacy",
-      "ref": 98
+      "origin": "validated",
+      "ref": 269,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Holidays"
     },
     {
       "i": 459,
-      "origin": "legacy",
-      "ref": 99
+      "origin": "validated",
+      "ref": 270,
+      "distance": ">=3",
+      "startBucket": "Comics & Pop Culture",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 460,
-      "origin": "legacy",
-      "ref": 100
+      "origin": "validated",
+      "ref": 271,
+      "distance": ">=3",
+      "startBucket": "Science in Everyday Life",
+      "targetBucket": "Ancient World"
     },
     {
       "i": 461,
-      "origin": "legacy",
-      "ref": 101
+      "origin": "validated",
+      "ref": 272,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Sport"
     },
     {
       "i": 462,
-      "origin": "legacy",
-      "ref": 102
+      "origin": "validated",
+      "ref": 273,
+      "distance": ">=3",
+      "startBucket": "Holidays",
+      "targetBucket": "Art & Design"
     },
     {
       "i": 463,
-      "origin": "legacy",
-      "ref": 103
+      "origin": "validated",
+      "ref": 274,
+      "distance": ">=3",
+      "startBucket": "Music",
+      "targetBucket": "Animals"
     },
     {
       "i": 464,
-      "origin": "legacy",
-      "ref": 104
+      "origin": "validated",
+      "ref": 275,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Sport"
     },
     {
       "i": 465,
-      "origin": "legacy",
-      "ref": 105
+      "origin": "validated",
+      "ref": 276,
+      "distance": ">=3",
+      "startBucket": "Holidays",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 466,
-      "origin": "legacy",
-      "ref": 106
+      "origin": "validated",
+      "ref": 277,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "Space"
     },
     {
       "i": 467,
-      "origin": "legacy",
-      "ref": 107
+      "origin": "validated",
+      "ref": 278,
+      "distance": ">=3",
+      "startBucket": "Plants & Gardens",
+      "targetBucket": "Film, TV & Books"
     },
     {
       "i": 468,
-      "origin": "legacy",
-      "ref": 108
+      "origin": "validated",
+      "ref": 279,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Space"
     },
     {
       "i": 469,
-      "origin": "legacy",
-      "ref": 109
+      "origin": "validated",
+      "ref": 280,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "History & War"
     },
     {
       "i": 470,
-      "origin": "legacy",
-      "ref": 110
+      "origin": "validated",
+      "ref": 281,
+      "distance": ">=3",
+      "startBucket": "Art & Design",
+      "targetBucket": "Sport"
     },
     {
       "i": 471,
-      "origin": "legacy",
-      "ref": 111
+      "origin": "validated",
+      "ref": 282,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Film, TV & Books"
     },
     {
       "i": 472,
-      "origin": "legacy",
-      "ref": 112
+      "origin": "validated",
+      "ref": 283,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Holidays"
     },
     {
       "i": 473,
-      "origin": "legacy",
-      "ref": 113
+      "origin": "validated",
+      "ref": 284,
+      "distance": ">=3",
+      "startBucket": "Vehicles",
+      "targetBucket": "Art & Design"
     },
     {
       "i": 474,
-      "origin": "legacy",
-      "ref": 114
+      "origin": "validated",
+      "ref": 285,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Earth & Weather"
     },
     {
       "i": 475,
-      "origin": "legacy",
-      "ref": 115
+      "origin": "validated",
+      "ref": 286,
+      "distance": ">=3",
+      "startBucket": "Music",
+      "targetBucket": "Fashion"
     },
     {
       "i": 476,
-      "origin": "legacy",
-      "ref": 116
+      "origin": "validated",
+      "ref": 287,
+      "distance": ">=3",
+      "startBucket": "Sport",
+      "targetBucket": "Art & Design"
     },
     {
       "i": 477,
-      "origin": "legacy",
-      "ref": 117
+      "origin": "validated",
+      "ref": 288,
+      "distance": ">=3",
+      "startBucket": "Film, TV & Books",
+      "targetBucket": "Wellness"
     },
     {
       "i": 478,
-      "origin": "legacy",
-      "ref": 118
+      "origin": "validated",
+      "ref": 289,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "Sport"
     },
     {
       "i": 479,
-      "origin": "legacy",
-      "ref": 119
+      "origin": "validated",
+      "ref": 290,
+      "distance": ">=3",
+      "startBucket": "History & War",
+      "targetBucket": "Animals"
     },
     {
       "i": 480,
-      "origin": "legacy",
-      "ref": 0
+      "origin": "validated",
+      "ref": 291,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "History & War"
     },
     {
       "i": 481,
-      "origin": "legacy",
-      "ref": 1
+      "origin": "validated",
+      "ref": 292,
+      "distance": ">=3",
+      "startBucket": "Art & Design",
+      "targetBucket": "Sport"
     },
     {
       "i": 482,
-      "origin": "legacy",
-      "ref": 2
+      "origin": "validated",
+      "ref": 293,
+      "distance": ">=3",
+      "startBucket": "Fashion",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 483,
-      "origin": "legacy",
-      "ref": 3
+      "origin": "validated",
+      "ref": 294,
+      "distance": ">=3",
+      "startBucket": "Vehicles",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 484,
-      "origin": "legacy",
-      "ref": 4
+      "origin": "validated",
+      "ref": 295,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Sport"
     },
     {
       "i": 485,
-      "origin": "legacy",
-      "ref": 5
+      "origin": "validated",
+      "ref": 296,
+      "distance": ">=3",
+      "startBucket": "Sport",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 486,
-      "origin": "legacy",
-      "ref": 6
+      "origin": "validated",
+      "ref": 297,
+      "distance": ">=3",
+      "startBucket": "Film, TV & Books",
+      "targetBucket": "Ancient World"
     },
     {
       "i": 487,
-      "origin": "legacy",
-      "ref": 7
+      "origin": "validated",
+      "ref": 298,
+      "distance": ">=3",
+      "startBucket": "Sport",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 488,
-      "origin": "legacy",
-      "ref": 8
+      "origin": "validated",
+      "ref": 299,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "Wellness"
     },
     {
       "i": 489,
-      "origin": "legacy",
-      "ref": 9
+      "origin": "validated",
+      "ref": 300,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 490,
-      "origin": "legacy",
-      "ref": 10
+      "origin": "validated",
+      "ref": 301,
+      "distance": ">=3",
+      "startBucket": "Music",
+      "targetBucket": "Space"
     },
     {
       "i": 491,
-      "origin": "legacy",
-      "ref": 11
+      "origin": "validated",
+      "ref": 302,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Vehicles"
     },
     {
       "i": 492,
-      "origin": "legacy",
-      "ref": 12
+      "origin": "validated",
+      "ref": 303,
+      "distance": ">=3",
+      "startBucket": "Music",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 493,
-      "origin": "legacy",
-      "ref": 13
+      "origin": "validated",
+      "ref": 304,
+      "distance": ">=3",
+      "startBucket": "History & War",
+      "targetBucket": "Science in Everyday Life"
     },
     {
       "i": 494,
-      "origin": "legacy",
-      "ref": 14
+      "origin": "validated",
+      "ref": 305,
+      "distance": ">=3",
+      "startBucket": "Comics & Pop Culture",
+      "targetBucket": "Space"
     },
     {
       "i": 495,
-      "origin": "legacy",
-      "ref": 15
+      "origin": "validated",
+      "ref": 306,
+      "distance": ">=3",
+      "startBucket": "Holidays",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 496,
-      "origin": "legacy",
-      "ref": 16
+      "origin": "validated",
+      "ref": 307,
+      "distance": ">=3",
+      "startBucket": "Music",
+      "targetBucket": "Holidays"
     },
     {
       "i": 497,
-      "origin": "legacy",
-      "ref": 17
+      "origin": "validated",
+      "ref": 308,
+      "distance": ">=3",
+      "startBucket": "Holidays",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 498,
-      "origin": "legacy",
-      "ref": 18
+      "origin": "validated",
+      "ref": 309,
+      "distance": ">=3",
+      "startBucket": "Comics & Pop Culture",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 499,
-      "origin": "legacy",
-      "ref": 19
+      "origin": "validated",
+      "ref": 310,
+      "distance": ">=3",
+      "startBucket": "Earth & Weather",
+      "targetBucket": "Ancient World"
     },
     {
       "i": 500,
-      "origin": "legacy",
-      "ref": 20
+      "origin": "validated",
+      "ref": 311,
+      "distance": ">=3",
+      "startBucket": "Music",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 501,
-      "origin": "legacy",
-      "ref": 21
+      "origin": "validated",
+      "ref": 312,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 502,
-      "origin": "legacy",
-      "ref": 22
+      "origin": "validated",
+      "ref": 313,
+      "distance": ">=3",
+      "startBucket": "Art & Design",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 503,
-      "origin": "legacy",
-      "ref": 23
+      "origin": "validated",
+      "ref": 314,
+      "distance": ">=3",
+      "startBucket": "History & War",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 504,
-      "origin": "legacy",
-      "ref": 24
+      "origin": "validated",
+      "ref": 315,
+      "distance": ">=3",
+      "startBucket": "Holidays",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 505,
-      "origin": "legacy",
-      "ref": 25
+      "origin": "validated",
+      "ref": 316,
+      "distance": ">=3",
+      "startBucket": "Comics & Pop Culture",
+      "targetBucket": "Earth & Weather"
     },
     {
       "i": 506,
-      "origin": "legacy",
-      "ref": 26
+      "origin": "validated",
+      "ref": 317,
+      "distance": ">=3",
+      "startBucket": "Sport",
+      "targetBucket": "Space"
     },
     {
       "i": 507,
-      "origin": "legacy",
-      "ref": 27
+      "origin": "validated",
+      "ref": 318,
+      "distance": ">=3",
+      "startBucket": "Wellness",
+      "targetBucket": "Vehicles"
     },
     {
       "i": 508,
-      "origin": "legacy",
-      "ref": 28
+      "origin": "validated",
+      "ref": 319,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "Fashion"
     },
     {
       "i": 509,
-      "origin": "legacy",
-      "ref": 29
+      "origin": "validated",
+      "ref": 320,
+      "distance": ">=3",
+      "startBucket": "Earth & Weather",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 510,
-      "origin": "legacy",
-      "ref": 30
+      "origin": "validated",
+      "ref": 321,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 511,
-      "origin": "legacy",
-      "ref": 31
+      "origin": "validated",
+      "ref": 322,
+      "distance": ">=3",
+      "startBucket": "Earth & Weather",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 512,
-      "origin": "legacy",
-      "ref": 32
+      "origin": "validated",
+      "ref": 323,
+      "distance": ">=3",
+      "startBucket": "Ancient World",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 513,
-      "origin": "legacy",
-      "ref": 33
+      "origin": "validated",
+      "ref": 324,
+      "distance": ">=3",
+      "startBucket": "Vehicles",
+      "targetBucket": "Film, TV & Books"
     },
     {
       "i": 514,
-      "origin": "legacy",
-      "ref": 34
+      "origin": "validated",
+      "ref": 325,
+      "distance": ">=3",
+      "startBucket": "Science in Everyday Life",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 515,
-      "origin": "legacy",
-      "ref": 35
+      "origin": "validated",
+      "ref": 326,
+      "distance": ">=3",
+      "startBucket": "Sport",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 516,
-      "origin": "legacy",
-      "ref": 36
+      "origin": "validated",
+      "ref": 327,
+      "distance": ">=3",
+      "startBucket": "Earth & Weather",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 517,
-      "origin": "legacy",
-      "ref": 37
+      "origin": "validated",
+      "ref": 328,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "Fashion"
     },
     {
       "i": 518,
-      "origin": "legacy",
-      "ref": 38
+      "origin": "validated",
+      "ref": 329,
+      "distance": ">=3",
+      "startBucket": "Comics & Pop Culture",
+      "targetBucket": "Art & Design"
     },
     {
       "i": 519,
-      "origin": "legacy",
-      "ref": 39
+      "origin": "validated",
+      "ref": 330,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 520,
-      "origin": "legacy",
-      "ref": 40
+      "origin": "validated",
+      "ref": 331,
+      "distance": ">=3",
+      "startBucket": "Earth & Weather",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 521,
-      "origin": "legacy",
-      "ref": 41
+      "origin": "validated",
+      "ref": 332,
+      "distance": ">=3",
+      "startBucket": "Wellness",
+      "targetBucket": "Fashion"
     },
     {
       "i": 522,
-      "origin": "legacy",
-      "ref": 42
+      "origin": "validated",
+      "ref": 333,
+      "distance": ">=3",
+      "startBucket": "History & War",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 523,
-      "origin": "legacy",
-      "ref": 43
+      "origin": "validated",
+      "ref": 334,
+      "distance": ">=3",
+      "startBucket": "Plants & Gardens",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 524,
-      "origin": "legacy",
-      "ref": 44
+      "origin": "validated",
+      "ref": 335,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Animals"
     },
     {
       "i": 525,
-      "origin": "legacy",
-      "ref": 45
+      "origin": "validated",
+      "ref": 336,
+      "distance": ">=3",
+      "startBucket": "Science in Everyday Life",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 526,
-      "origin": "legacy",
-      "ref": 46
+      "origin": "validated",
+      "ref": 337,
+      "distance": ">=3",
+      "startBucket": "Earth & Weather",
+      "targetBucket": "Art & Design"
     },
     {
       "i": 527,
-      "origin": "legacy",
-      "ref": 47
+      "origin": "validated",
+      "ref": 338,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Vehicles"
     },
     {
       "i": 528,
-      "origin": "legacy",
-      "ref": 48
+      "origin": "validated",
+      "ref": 339,
+      "distance": ">=3",
+      "startBucket": "Comics & Pop Culture",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 529,
-      "origin": "legacy",
-      "ref": 49
+      "origin": "validated",
+      "ref": 340,
+      "distance": ">=3",
+      "startBucket": "Games & Toys",
+      "targetBucket": "Earth & Weather"
     },
     {
       "i": 530,
-      "origin": "legacy",
-      "ref": 50
+      "origin": "validated",
+      "ref": 341,
+      "distance": ">=3",
+      "startBucket": "Film, TV & Books",
+      "targetBucket": "Sport"
     },
     {
       "i": 531,
-      "origin": "legacy",
-      "ref": 51
+      "origin": "validated",
+      "ref": 342,
+      "distance": ">=3",
+      "startBucket": "Science in Everyday Life",
+      "targetBucket": "Earth & Weather"
     },
     {
       "i": 532,
-      "origin": "legacy",
-      "ref": 52
+      "origin": "validated",
+      "ref": 343,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "Holidays"
     },
     {
       "i": 533,
-      "origin": "legacy",
-      "ref": 53
+      "origin": "validated",
+      "ref": 344,
+      "distance": ">=3",
+      "startBucket": "Games & Toys",
+      "targetBucket": "Space"
     },
     {
       "i": 534,
-      "origin": "legacy",
-      "ref": 54
+      "origin": "validated",
+      "ref": 345,
+      "distance": ">=3",
+      "startBucket": "Fashion",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 535,
-      "origin": "legacy",
-      "ref": 55
+      "origin": "validated",
+      "ref": 346,
+      "distance": ">=3",
+      "startBucket": "Art & Design",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 536,
-      "origin": "legacy",
-      "ref": 56
+      "origin": "validated",
+      "ref": 347,
+      "distance": ">=3",
+      "startBucket": "Music",
+      "targetBucket": "Ancient World"
     },
     {
       "i": 537,
-      "origin": "legacy",
-      "ref": 57
+      "origin": "validated",
+      "ref": 348,
+      "distance": ">=3",
+      "startBucket": "Space",
+      "targetBucket": "Plants & Gardens"
     },
     {
       "i": 538,
-      "origin": "legacy",
-      "ref": 58
+      "origin": "validated",
+      "ref": 349,
+      "distance": ">=3",
+      "startBucket": "Vehicles",
+      "targetBucket": "Animals"
     },
     {
       "i": 539,
-      "origin": "legacy",
-      "ref": 59
+      "origin": "validated",
+      "ref": 350,
+      "distance": ">=3",
+      "startBucket": "Earth & Weather",
+      "targetBucket": "Comics & Pop Culture"
     },
     {
       "i": 540,
-      "origin": "legacy",
-      "ref": 60
+      "origin": "validated",
+      "ref": 351,
+      "distance": ">=3",
+      "startBucket": "Art & Design",
+      "targetBucket": "Animals"
     },
     {
       "i": 541,
-      "origin": "legacy",
-      "ref": 61
+      "origin": "validated",
+      "ref": 352,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Music"
     },
     {
       "i": 542,
-      "origin": "legacy",
-      "ref": 62
+      "origin": "validated",
+      "ref": 353,
+      "distance": ">=3",
+      "startBucket": "Animals",
+      "targetBucket": "Film, TV & Books"
     },
     {
       "i": 543,
-      "origin": "legacy",
-      "ref": 63
+      "origin": "validated",
+      "ref": 354,
+      "distance": ">=3",
+      "startBucket": "Myth & Legend",
+      "targetBucket": "Wellness"
     },
     {
       "i": 544,
-      "origin": "legacy",
-      "ref": 64
+      "origin": "validated",
+      "ref": 355,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Ancient World"
     },
     {
       "i": 545,
-      "origin": "legacy",
-      "ref": 65
+      "origin": "validated",
+      "ref": 356,
+      "distance": ">=3",
+      "startBucket": "Space",
+      "targetBucket": "Film, TV & Books"
     },
     {
       "i": 546,
-      "origin": "legacy",
-      "ref": 66
+      "origin": "validated",
+      "ref": 357,
+      "distance": ">=3",
+      "startBucket": "Sport",
+      "targetBucket": "Myth & Legend"
     },
     {
       "i": 547,
-      "origin": "legacy",
-      "ref": 67
+      "origin": "validated",
+      "ref": 358,
+      "distance": ">=3",
+      "startBucket": "Art & Design",
+      "targetBucket": "Games & Toys"
     },
     {
       "i": 548,
-      "origin": "legacy",
-      "ref": 68
+      "origin": "validated",
+      "ref": 359,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "Music"
     },
     {
       "i": 549,
-      "origin": "legacy",
-      "ref": 69
+      "origin": "validated",
+      "ref": 360,
+      "distance": ">=3",
+      "startBucket": "Film, TV & Books",
+      "targetBucket": "Ancient World"
     },
     {
       "i": 550,
-      "origin": "legacy",
-      "ref": 70
+      "origin": "validated",
+      "ref": 361,
+      "distance": ">=3",
+      "startBucket": "Landmarks",
+      "targetBucket": "Food & Drink"
     },
     {
       "i": 551,
-      "origin": "legacy",
-      "ref": 71
+      "origin": "validated",
+      "ref": 362,
+      "distance": ">=3",
+      "startBucket": "Food & Drink",
+      "targetBucket": "Landmarks"
     },
     {
       "i": 552,
-      "origin": "legacy",
-      "ref": 72
+      "origin": "validated",
+      "ref": 363,
+      "distance": ">=3",
+      "startBucket": "Art & Design",
+      "targetBucket": "Space"
     },
     {
       "i": 553,
-      "origin": "legacy",
-      "ref": 73
-    },
-    {
-      "i": 554,
-      "origin": "legacy",
-      "ref": 74
+      "origin": "validated",
+      "ref": 364,
+      "distance": ">=3",
+      "startBucket": "History & War",
+      "targetBucket": "Games & Toys"
     }
   ]
 }
