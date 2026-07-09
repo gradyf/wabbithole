@@ -65,6 +65,18 @@ const CASCADE_COLLAPSE_ABOVE = 112; // scrolled down past this -> collapse
 const CASCADE_INSET_STEP = 8; // px of width inset per buried level (the nesting)
 const CASCADE_INSET_MAX = 28;
 
+// Reading-state chrome (topbar collapse + active-tab condense + racebar). The
+// topbar hides on sustained scroll-down and reveals on sustained scroll-up. The
+// flip is hysteretic so hunting up and down a card never flutters it (Task 26,
+// Gray: "the menu bar keeps popping up and down in time with the scroll"). A
+// direction reversal zeroes accumDelta (handleScroll), so only committed travel
+// in ONE direction past CHROME_TRAVEL toggles — a small re-read jiggle leaves the
+// bar where it is. Near the top (< CHROME_TOP_FOLD) the chrome is always shown.
+// Tuned by feel in-browser; 120px reads as a deliberate flick, not a jitter
+// (was 24px down / 16px up, which flipped on nearly every direction change).
+const CHROME_TOP_FOLD = 96; // within this many px of the card top, chrome always shows
+const CHROME_TRAVEL = 120; // sustained one-direction travel (px) before the topbar toggles
+
 export class Stack {
   lang = 'en';
   private nodes = new Map<number, CardNode>();
@@ -562,8 +574,8 @@ export class Stack {
     }
     this.accumDelta += Math.abs(delta);
     if (!this.reading) {
-      if (dir === 1 && st > 96 && this.accumDelta > 24) this.setReading(true);
-    } else if (st < 96 || (dir === -1 && this.accumDelta > 16)) {
+      if (dir === 1 && st > CHROME_TOP_FOLD && this.accumDelta > CHROME_TRAVEL) this.setReading(true);
+    } else if (st < CHROME_TOP_FOLD || (dir === -1 && this.accumDelta > CHROME_TRAVEL)) {
       this.setReading(false);
     }
   }
