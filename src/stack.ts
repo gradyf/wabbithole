@@ -15,6 +15,10 @@ export interface CardNode {
   subtitle?: string;
   parentId: number | null;
   childIds: number[];
+  /** Opened via the topbar Random button — a JUMP, not a link from the card
+   *  below it. Rendered with a plum marker in the tab, cascade strip and Trail
+   *  dock; the flag is re-derived from sessionStorage so it survives reload. */
+  random?: boolean;
 }
 
 interface CardView {
@@ -99,11 +103,42 @@ export class Stack {
   // lives in the --peek-count CSS var, which pushes the active card down.
   private unstacked = true;
 
+  // Titles opened via the Random button, keyed `lang:title`. Persisted to
+  // sessionStorage so the plum trail marker survives a reload — the URL hash and
+  // the signed-in autosave both carry titles only, no per-card flags. Session-
+  // scoped on purpose: a shared /t/ trail is curated, not "your" random jumps.
+  private randomKeys = new Set<string>();
+
   constructor(stage: HTMLElement, events: StackEvents) {
     this.stage = stage;
     this.events = events;
     this.stage.toggleAttribute('data-unstacked', true);
+    try {
+      const raw = sessionStorage.getItem('wh-random');
+      if (raw) for (const k of JSON.parse(raw) as string[]) this.randomKeys.add(k);
+    } catch {
+      /* sessionStorage unavailable (private mode etc.) — markers just won't persist */
+    }
     window.addEventListener('resize', () => this.layout());
+  }
+
+  private randomKey(lang: string, title: string): string {
+    return `${lang}:${normTitle(title).toLowerCase()}`;
+  }
+
+  /** Flag a node as a random jump and remember it for this session, so the
+   *  marker returns after a reload rebuilds the trail from titles alone. */
+  private rememberRandom(node: CardNode): void {
+    node.random = true;
+    const key = this.randomKey(node.lang, node.title);
+    if (!this.randomKeys.has(key)) {
+      this.randomKeys.add(key);
+      try {
+        sessionStorage.setItem('wh-random', JSON.stringify([...this.randomKeys]));
+      } catch {
+        /* ignore */
+      }
+    }
   }
 
   get path(): CardNode[] {
@@ -120,12 +155,21 @@ export class Stack {
 
   // ---- public operations ----------------------------------------------------
 
-  async startWith(lang: string, title: string): Promise<void> {
+  async startWith(lang: string, title: string, opts: { random?: boolean } = {}): Promise<void> {
     this.lang = lang;
     this.clearViews();
     this.nodes.clear();
     this.nextId = 1;
+    // A deliberate fresh start resets the random-jump memory, so a later trail
+    // that happens to reach an old random title isn't mis-marked.
+    this.randomKeys.clear();
+    try {
+      sessionStorage.removeItem('wh-random');
+    } catch {
+      /* ignore */
+    }
     const node = this.makeNode(title, null);
+    if (opts.random) this.rememberRandom(node);
     // Count the spawn BEFORE appendView, whose layout() fires onPathChange —
     // win detection there must already see this card in the score.
     this.events.onSpawn?.(node);
@@ -134,7 +178,7 @@ export class Stack {
     await this.hydrate(view);
   }
 
-  async spawn(title: string): Promise<void> {
+  async spawn(title: string, opts: { random?: boolean } = {}): Promise<void> {
     const t = normTitle(title);
     const dup = this.views.findIndex((v) => v.node.title.toLowerCase() === t.toLowerCase());
     if (dup >= 0) {
@@ -147,6 +191,7 @@ export class Stack {
       ? parent.childIds.map((id) => this.nodes.get(id)!).find((n) => n.title.toLowerCase() === t.toLowerCase())
       : undefined;
     if (!node) node = this.makeNode(t, parent?.id ?? null);
+    if (opts.random) this.rememberRandom(node);
     // Count the spawn BEFORE appendView, whose layout() fires onPathChange —
     // win detection there must already see this card in the score.
     this.events.onSpawn?.(node);
@@ -214,6 +259,9 @@ export class Stack {
 
   private makeNode(title: string, parentId: number | null): CardNode {
     const node: CardNode = { id: this.nextId++, lang: this.lang, title: normTitle(title), parentId, childIds: [] };
+    // Re-derive the random-jump flag when a trail is rebuilt from titles alone
+    // (reload, popstate): the session remembers which titles were jumps.
+    if (this.randomKeys.has(this.randomKey(node.lang, node.title))) node.random = true;
     this.nodes.set(node.id, node);
     if (parentId !== null) this.nodes.get(parentId)?.childIds.push(node.id);
     return node;
@@ -244,6 +292,19 @@ export class Stack {
     tabSub.className = 'wh-tab-sub';
     tabSub.textContent = node.subtitle ?? '';
     tab.append(num, tabTitle, tabSub);
+
+    // Random-jump marker: plum-tinted tab (data-random, styled in app.css) plus
+    // the shuffle glyph beside the ordinal. The tab doubles as the cascade
+    // strip, so the marker reads in both places for free.
+    if (node.random) {
+      card.toggleAttribute('data-random', true);
+      const flag = document.createElement('span');
+      flag.className = 'wh-icon wh-tab-flag';
+      flag.dataset.name = 'shuffle';
+      flag.setAttribute('aria-hidden', 'true');
+      flag.title = 'Random jump';
+      tab.insertBefore(flag, tabTitle);
+    }
 
     const body = document.createElement('div');
     body.className = 'wh-card-body';
@@ -322,6 +383,9 @@ export class Stack {
           return;
         }
         view.node.title = canonicalTitle;
+        // Keep the random marker anchored to the canonical title, which is what
+        // the URL hash carries — otherwise a reload would drop the flag.
+        if (view.node.random) this.rememberRandom(view.node);
         view.tabTitleEl.textContent = canonicalTitle;
       }
 
@@ -440,7 +504,10 @@ export class Stack {
         bodyEl.setAttribute('inert', '');
         tabEl.setAttribute('data-buried', '');
         tabEl.disabled = false;
-        tabEl.setAttribute('aria-label', `Return to ${view.node.title} — card ${i + 1} of ${n}`);
+        tabEl.setAttribute(
+          'aria-label',
+          `Return to ${view.node.title}${view.node.random ? ' (random jump)' : ''} — card ${i + 1} of ${n}`,
+        );
       }
       const num = tabEl.querySelector('.wh-tab-num');
       if (num) num.textContent = String(i + 1);

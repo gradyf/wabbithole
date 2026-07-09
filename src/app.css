@@ -84,8 +84,36 @@ html[data-reading] .wh-topbar {
 .wh-topbar[data-idle] #btn-back,
 .wh-topbar[data-idle] #depth-chip,
 .wh-topbar[data-idle] #btn-trail,
+.wh-topbar[data-idle] #btn-random-top,
 .wh-topbar[data-idle] #btn-share {
   display: none;
+}
+
+/* ---- random jump marker (topbar Random button spawns) ---- */
+
+/* Plum is the DS trail color (visited links); random jumps borrow it so the
+   marker is distinct from carrot (race, header rule) and portal indigo (link
+   spawns) while staying inside the existing palette. */
+:root { --wh-random-tint: color-mix(in srgb, var(--wh-plum) 9%, var(--wh-paper-0)); }
+
+/* card tab (doubles as the cascade peek strip): plum-tinted strip, plum
+   ordinal, shuffle glyph beside the title */
+.wh-card[data-random] > .wh-tab { background: var(--wh-random-tint); }
+.wh-card[data-random] > .wh-tab .wh-tab-num { color: var(--wh-plum); }
+.wh-tab-flag {
+  width: 13px;
+  height: 13px;
+  color: var(--wh-plum);
+}
+
+/* trail dock row: plum ordinal + small glyph after the title */
+.wh-trail-item[data-random] .wh-trail-num { color: var(--wh-plum); }
+.wh-trail-flag {
+  width: 12px;
+  height: 12px;
+  margin-left: 5px;
+  color: var(--wh-plum);
+  vertical-align: -0.12em;
 }
 
 /* the active card's tab condenses to a slim bar; carrot rule stays (DS) */
@@ -1118,8 +1146,15 @@ html[data-reading] .wh-card[data-state="active"] > .wh-tab .wh-tab-title {
   .wh-sidebar[data-side="right"] { left: auto; right: 0; }
   #btn-back .wh-btn-label,
   #btn-bank .wh-btn-label,
+  #btn-random-top .wh-btn-label,
+  #btn-trail .wh-btn-label,
   #btn-signin .wh-btn-label,
   #btn-share .wh-btn-label { display: none; }
+  /* every topbar button is icon-only here; tighten padding + gap so the full
+     set (Back, Random, Trail, Share, Sign in) fits a 375px bar without
+     clipping (the bar is overflow:hidden for the reading-state collapse) */
+  .wh-topbar { gap: 6px; }
+  .wh-topbar .wh-btn { padding: 0 9px; }
 }
 
 /* ---- daily race ---- */

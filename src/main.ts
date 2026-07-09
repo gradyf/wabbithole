@@ -534,23 +534,54 @@ document.addEventListener('click', (e) => {
   }
 });
 
-function start(title: string): void {
+function start(title: string, opts: { random?: boolean } = {}): void {
   closeResults();
   searchInput.value = '';
-  void stack.startWith(stack.lang, normTitle(title));
+  void stack.startWith(stack.lang, normTitle(title), opts);
 }
 
 $('btn-random').addEventListener('click', async () => {
   const btn = $<HTMLButtonElement>('btn-random');
   btn.disabled = true;
   try {
-    start(await getRandomTitle(stack.lang));
+    start(await getRandomTitle(stack.lang), { random: true });
   } catch {
     showToast("Couldn't find a random article. Try again.");
   } finally {
     btn.disabled = false;
   }
 });
+
+// ---- random jump: the topbar button ----------------------------------------
+// Mid-session Random spawns a random article as a new card on the tip. It is a
+// JUMP, not a link-click, so the stack flags the node (plum marker + shuffle
+// glyph in the tab, cascade strip and Trail dock). With an empty stack the
+// topbar is idle and CSS hides this button — the entry screen's own random
+// button ("or fall in somewhere random") covers that case via the same flag.
+$('btn-random-top').addEventListener('click', async () => {
+  const btn = $<HTMLButtonElement>('btn-random-top');
+  btn.disabled = true;
+  try {
+    const title = await getRandomTitle(stack.lang);
+    if (stack.path.length === 0) start(title, { random: true });
+    else await stack.spawn(title, { random: true });
+  } catch {
+    showToast("Couldn't find a random article. Try again.");
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// Race gating: a random jump would corrupt a race run's click-path premise, so
+// the button hides whenever the race banner is up (scored runs AND freeplay —
+// both are "reach the target by links" surfaces). UI-level only: the racebar's
+// hidden attribute is the signal, race.ts stays untouched.
+const racebarEl = $('racebar');
+const syncRandomGate = () => {
+  $('btn-random-top').hidden = !racebarEl.hidden;
+};
+new MutationObserver(syncRandomGate).observe(racebarEl, { attributes: true, attributeFilter: ['hidden'] });
+syncRandomGate();
 
 // ---- topbar ------------------------------------------------------------------
 
@@ -620,6 +651,21 @@ function renderTrail(path: CardNode[]): void {
     t.className = 'wh-trail-title';
     t.textContent = node.title;
     text.appendChild(t);
+    // Random jumps carry their marker into the dock: plum row accent + shuffle
+    // glyph after the title, with sr text since the glyph alone is decorative.
+    if (node.random) {
+      btn.setAttribute('data-random', '');
+      const flag = document.createElement('span');
+      flag.className = 'wh-icon wh-trail-flag';
+      flag.dataset.name = 'shuffle';
+      flag.setAttribute('aria-hidden', 'true');
+      flag.title = 'Random jump';
+      t.appendChild(flag);
+      const sr = document.createElement('span');
+      sr.className = 'sr-only';
+      sr.textContent = ' (random jump)';
+      t.appendChild(sr);
+    }
     if (node.subtitle) {
       const s = document.createElement('span');
       s.className = 'wh-trail-sub';
