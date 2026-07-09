@@ -1,21 +1,30 @@
-// Phase 3 fixture suite. Author-plane only, NOT wired into any npm script:
+// Emitter + calendar fixture suite. Author-plane only, NOT wired into any npm
+// script:
 //
 //   npx tsx scripts/gen-pairs/emit.test.ts
 //
 // Two things are tested:
 //
-//  1. THE SWEEP (load-bearing — this is why Phase 3 can ship). For EVERY date in
-//     the horizon, the REAL src/race.ts pairForKey must return EXACTLY what the
-//     old mod-120 scheme returned: the override if the date has one, else
-//     legacy[dayIndex mod 120]. The expected value is computed INDEPENDENTLY here
-//     from legacy-pairs.json + a hand copy of the old modulo logic — never from
-//     the emitter — so a wrong emitted calendar OR a wrong pairForKey is caught.
-//     Byte-identical (JSON) comparison, zero tolerated diffs.
+//  1. THE SWEEP (load-bearing). CUTOVER-AWARE since the 2026-07-08 real emit
+//     (Task 25): for EVERY date in the horizon, the REAL src/race.ts pairForKey
+//     must return EXACTLY:
+//       - pre-cutover  (dayIndex < cutover): the override if the date has one,
+//         else legacy[dayIndex mod 120] — byte-identical to the OLD mod-120
+//         scheme (the history-preservation rule, spec §2.4);
+//       - post-cutover (cutover ≤ dayIndex < horizon): the override if present
+//         (overrides are PERMANENT VETOES and win everywhere, even shadowing
+//         validated slots — task-24-review NOTE-1), else
+//         validated[dayIndex − cutover] converted to underscore form;
+//       - beyond horizon: the xmur3 fallback (property-tested below).
+//     The expected value is computed INDEPENDENTLY here from legacy-pairs.json
+//     + overrides.json + data/validated.json + the recorded cutover — never
+//     from the emitter's buildCalendar — so a wrong emitted calendar OR a
+//     wrong pairForKey is caught. Byte-identical (JSON) comparison, zero
+//     tolerated diffs.
 //
 //  2. The emitter's own unit fixtures: cutover splicing, space→underscore
-//     conversion, the horizon freshness assert, determinism, and that the
-//     committed pairs.json is the exact legacy materialization in the exact
-//     shipped byte format.
+//     conversion, the horizon freshness assert, determinism, and committed-file
+//     integrity in the exact shipped byte format.
 //
 // Follows the house pattern (fixtures.test.ts): a check() harness, import the
 // REAL exports, zero network. src/race.ts is DOM-typed, so it is imported at
@@ -31,7 +40,6 @@ import {
   serializeCalendar,
   serializeMeta,
   toUnderscore,
-  HORIZON,
   MIN_HORIZON_DAYS,
   EMIT_EPOCH_UTC,
   type Pair,
@@ -62,6 +70,18 @@ const legacy = JSON.parse(readFileSync(join(DATA, 'legacy-pairs.json'), 'utf8'))
 const overrides = JSON.parse(readFileSync(join(SRC_RACE, 'overrides.json'), 'utf8')) as Record<string, Pair>;
 const pairsFileBytes = readFileSync(join(SRC_RACE, 'pairs.json'), 'utf8');
 const emittedCalendar = JSON.parse(pairsFileBytes) as Pair[];
+const committedMeta = JSON.parse(readFileSync(join(SRC_RACE, 'pairs.meta.json'), 'utf8')) as {
+  cutover: number;
+  horizon: number;
+};
+const validated = (
+  JSON.parse(readFileSync(join(DATA, 'validated.json'), 'utf8')) as { entries: ValidatedPair[] }
+).entries;
+/** The recorded splice point. The sweep verifies both sides of it against
+ *  independent sources (legacy-pairs.json / validated.json), so a wrong
+ *  recorded cutover surfaces as sweep diffs. */
+const CUTOVER = committedMeta.cutover;
+const HORIZON_EMITTED = committedMeta.horizon;
 
 // --- independent oracle: a hand copy of the OLD selection scheme --------------
 function oldDayIndex(key: string): number {
@@ -74,6 +94,18 @@ function oldPairForKey(key: string): Pair {
   if (o) return o;
   const i = ((oldDayIndex(key) % legacy.length) + legacy.length) % legacy.length;
   return legacy[i];
+}
+/** The CUTOVER-AWARE expected value (Task 25): pre-cutover dates keep the OLD
+ *  scheme byte-identically; at/after the cutover the validated list rules,
+ *  with overrides still winning as permanent vetoes. Built from raw committed
+ *  inputs — never from the emitter. */
+function expectedPairForKey(key: string): Pair {
+  const i = oldDayIndex(key);
+  if (i < CUTOVER) return oldPairForKey(key);
+  const o = overrides[key];
+  if (o) return o;
+  const v = validated[i - CUTOVER];
+  return { start: toUnderscore(v.start), target: toUnderscore(v.target) };
 }
 /** The YYYY-MM-DD key at a given dayIndex (UTC round-trip with oldDayIndex). */
 function keyForIndex(i: number): string {
@@ -198,14 +230,28 @@ function emitterTests(): void {
 // =========================== committed-file integrity ========================
 
 function committedTests(): void {
-  check('committed: pairs.json length === HORIZON', emittedCalendar.length === HORIZON, `${emittedCalendar.length}`);
+  check(
+    'committed: pairs.json length === meta horizon (cutover + validated count)',
+    emittedCalendar.length === HORIZON_EMITTED && HORIZON_EMITTED === CUTOVER + validated.length,
+    `${emittedCalendar.length} vs ${HORIZON_EMITTED} (cutover ${CUTOVER} + ${validated.length})`,
+  );
   check(
     'committed: first 120 slots are the legacy rotation exactly',
     legacy.every((p, i) => eq(emittedCalendar[i], p)),
   );
-  let allLegacy = true;
-  for (let i = 0; i < HORIZON; i++) if (!eq(emittedCalendar[i], legacy[i % legacy.length])) allLegacy = false;
-  check('committed: every slot i === legacy[i mod 120] (all-legacy this phase)', allLegacy);
+  let prefixLegacy = true;
+  for (let i = 0; i < CUTOVER; i++) {
+    if (!eq(emittedCalendar[i], legacy[i % legacy.length])) prefixLegacy = false;
+  }
+  check('committed: every PRE-CUTOVER slot i === legacy[i mod 120] (history preserved)', prefixLegacy);
+  let spliceExact = true;
+  for (let i = CUTOVER; i < emittedCalendar.length; i++) {
+    const v = validated[i - CUTOVER];
+    if (!eq(emittedCalendar[i], { start: toUnderscore(v.start), target: toUnderscore(v.target) })) {
+      spliceExact = false;
+    }
+  }
+  check('committed: every POST-CUTOVER slot i === validated[i − cutover] (underscore form)', spliceExact);
   check(
     'committed: pairs.json bytes === serializeCalendar (shipped format fidelity)',
     serializeCalendar(emittedCalendar) === pairsFileBytes,
@@ -220,25 +266,36 @@ function sweepTests(pairForKey: (k: string) => Pair): void {
     'sweep: keyForIndex round-trips oldDayIndex',
     [0, 1, 120, 186, 187, 365, 554].every((i) => oldDayIndex(keyForIndex(i)) === i),
   );
+  // the cutover must be sane before the sweep leans on it
+  check(
+    'sweep: cutover within (0, horizon] and legacy prefix nonempty',
+    CUTOVER > 0 && CUTOVER <= HORIZON_EMITTED,
+    `cutover ${CUTOVER}, horizon ${HORIZON_EMITTED}`,
+  );
 
   let diffs = 0;
+  let preDiffs = 0;
   const firstDiffs: string[] = [];
-  for (let i = 0; i < HORIZON; i++) {
+  for (let i = 0; i < HORIZON_EMITTED; i++) {
     const key = keyForIndex(i);
     const got = pairForKey(key);
-    const want = oldPairForKey(key);
+    const want = expectedPairForKey(key);
     if (JSON.stringify(got) !== JSON.stringify(want)) {
       diffs++;
+      if (i < CUTOVER) preDiffs++;
       if (firstDiffs.length < 5) {
         firstDiffs.push(`day ${i} ${key}: got ${JSON.stringify(got)} want ${JSON.stringify(want)}`);
       }
     }
   }
   check(
-    `SWEEP: all ${HORIZON} in-horizon dates match old behavior (ZERO diffs)`,
+    `SWEEP: all ${HORIZON_EMITTED} in-horizon dates match the cutover-aware oracle (ZERO diffs)`,
     diffs === 0,
-    diffs ? `${diffs} diffs; first: ${firstDiffs.join(' | ')}` : '',
+    diffs ? `${diffs} diffs (${preDiffs} pre-cutover); first: ${firstDiffs.join(' | ')}` : '',
   );
+  // the history-preservation rule called out separately so a pre-cutover break
+  // (the corruption class spec §2.4 exists to prevent) is named loudly.
+  check('SWEEP: zero pre-cutover diffs — elapsed dates byte-identical to the old scheme', preDiffs === 0);
 }
 
 // =========================== overrides win ===================================
@@ -269,7 +326,7 @@ function fallbackTests(pairForKey: (k: string) => Pair): void {
   const slots: number[] = [];
 
   for (let k = 0; k < N; k++) {
-    const i = HORIZON + k; // strictly beyond the horizon → fallback fires
+    const i = emittedCalendar.length + k; // strictly beyond the horizon → fallback fires
     const key = keyForIndex(i);
     const a = pairForKey(key);
     const b = pairForKey(key);

@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && tsc -p api --noEmit && vite build",
     "preview": "vite preview",
+    "gen:pairs": "tsx scripts/gen-pairs/index.ts",
     "typecheck": "tsc --noEmit && tsc -p api --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate"
