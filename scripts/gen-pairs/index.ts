@@ -6,8 +6,8 @@
 //   npx tsx scripts/gen-pairs/index.ts sample --count 365 [--seed S]  # draw+verify pairs (≤2 check only)
 //   npx tsx scripts/gen-pairs/index.ts emit [--cutover N]             # flat calendar
 //
-//   RETIRED by the 2026-07-08 supersession (fail loudly, kept for audit):
-//   quirky, quirky-links — the dead two-tier design's pool/measurement passes.
+//   The dead two-tier `quirky` / `quirky-links` subcommands (2026-07-08
+//   supersession) were DELETED in Task 27; unknown subcommands still fail loudly.
 //
 // Outputs (committed; deterministic inputs downstream):
 //   data/annotated.json     — every Vital-L3 title, annotated  (Phase 1, historical)
@@ -24,26 +24,19 @@
 //   ../../src/race/pairs.json      — the flat, calendar-pinned schedule
 //   ../../src/race/pairs.meta.json — provenance sidecar, NOT imported by the app
 
-import { writeFileSync, mkdirSync, readFileSync, existsSync, renameSync } from 'node:fs';
+import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { harvest, type HarvestEntry } from './harvest.js';
 import { resolve, FAMOUS_MIN_MONTHLY_VIEWS, inPool, type AnnotatedEntry } from './resolve.js';
-import { requestCount, GEN_AGENT, queryAllLinks, queryInlinksCount } from './wiki.js';
-import { buildQuirkyPool, QUIRKY_MIN_MONTHLY_VIEWS } from './quirky.js';
+import { requestCount, GEN_AGENT } from './wiki.js';
 import {
   PairSampler,
   OVERSAMPLE,
   MAX_TITLE_APPEARANCES,
-  QUIRKY_START_BUCKETS,
-  QUIRKY_TARGET_BUCKETS,
-  QUIRKY_START_MAX_OUTLINKS,
-  QUIRKY_TARGET_MAX_INLINKS,
-  narrowQuirky,
   arrangeCalendar,
   type PoolTitle,
-  type QuirkyLinkCounts,
 } from './sample.js';
 import { SAMPLER_SEED } from './rng.js';
 import { liveGraph, accepted } from './distance.js';
@@ -171,213 +164,7 @@ async function runHarvest(): Promise<void> {
   console.log(`wrote ${join(DATA_DIR, 'pool.json')}`);
 }
 
-// --- Phase 2: quirky pool — RETIRED (2026-07-08 supersession) ------------------
-// Kept compiling for the audit trail; the `quirky` subcommand now fails loudly
-// instead of dispatching here. Exported so noUnusedLocals tolerates the
-// retired-in-place function. Delete in the blessed-calendar follow-up.
-
-export async function runQuirky(): Promise<void> {
-  const t0 = Date.now();
-  console.log(`gen-pairs Phase 2 quirky pool — agent: ${GEN_AGENT}`);
-  const q = await buildQuirkyPool();
-  const wallTimeMs = Date.now() - t0;
-
-  const below = q.annotated.filter((e) => e.status === 'below-threshold');
-  const missing = q.annotated.filter((e) => e.status === 'missing');
-  const provenance = {
-    generatedAt: new Date().toISOString(),
-    generator: 'scripts/gen-pairs (Phase 2: quirky pool)',
-    source: {
-      curated: 'scripts/gen-pairs/quirky.ts CURATED_QUIRKY (hand-curated novelty list)',
-      overrides: 'src/race/overrides.json (Task 17 proven ≥4 titles, read-only)',
-      unusualArticlesRejected:
-        'Wikipedia:Unusual_articles probed and rejected: 500+ ns0 links/page dominated by album titles, TLDs, punctuation/meme titles',
-    },
-    pageviews: {
-      project: 'en.wikipedia',
-      access: 'all-access',
-      agent: 'user',
-      granularity: 'monthly',
-      window: q.pageviewWindow,
-    },
-    gate: {
-      minMonthlyViews: QUIRKY_MIN_MONTHLY_VIEWS,
-      note: 'floor gates the curated list; Task 17 proven titles admitted below it (provenExempt)',
-    },
-    counts: {
-      candidates: q.candidateCount,
-      annotated: q.annotated.length,
-      pool: q.pool.length,
-      floorCleared: q.floorCleared,
-      provenExempted: q.provenExempted,
-      belowThreshold: below.length,
-      missing: missing.length,
-      mergedCanonicalDuplicates: q.merged.length,
-      annotatedPerBucket: perBucketCounts(q.annotated),
-      poolPerBucket: perBucketCounts(q.pool),
-    },
-    reconciliation: { merged: q.merged },
-    run: { httpRequests: requestCount(), wallTimeMs },
-  };
-
-  mkdirSync(DATA_DIR, { recursive: true });
-  writeFileSync(join(DATA_DIR, 'quirky.json'), serialize(provenance, q.pool));
-
-  console.log(
-    `\ncandidates ${q.candidateCount}; annotated ${q.annotated.length}; ` +
-      `quirky pool: ${q.pool.length} (${q.floorCleared} cleared >=${QUIRKY_MIN_MONTHLY_VIEWS} views/mo, ` +
-      `${q.provenExempted} proven Task 17 titles admitted below floor)`,
-  );
-  console.log(`per-bucket pool: ${JSON.stringify(perBucketCounts(q.pool))}`);
-  if (below.length > 0) {
-    console.log(
-      `below-threshold (dropped from pool): ` +
-        below.map((e) => `${e.title} ${e.monthlyViews}`).join(' | '),
-    );
-  }
-  if (missing.length > 0) console.log(`missing: ${missing.map((e) => e.title).join(' | ')}`);
-  console.log(`\nHTTP requests: ${requestCount()}; wall time: ${(wallTimeMs / 1000).toFixed(1)}s`);
-  console.log(`wrote ${join(DATA_DIR, 'quirky.json')}`);
-}
-
 // --- Phase 2: sampler + distance verification ---------------------------------
-
-interface PoolFile {
-  entries: Array<{ title: string; bucket: string }>;
-}
-
-function loadPool(name: string): PoolTitle[] {
-  const raw = JSON.parse(readFileSync(join(DATA_DIR, name), 'utf8')) as PoolFile;
-  return raw.entries.map((e) => ({ title: e.title, bucket: e.bucket }));
-}
-
-// --- Task 25: quirky link-count measurement — RETIRED (2026-07-08 supersession)
-// Served the dead narrowed-quirky-draw design (Task 25 decision 2). Kept
-// compiling for the audit trail (data/quirky-linkcounts.json remains the
-// committed evidence for the superseded thresholds); the `quirky-links`
-// subcommand now fails loudly instead of dispatching here. Original notes:
-// offline pre-pass that measures each quirky START's outlink count and each
-// quirky TARGET's inlink count, so the sampler can narrow the quirky tier to
-// {insular starts} × {low-inlink targets}. The result is a committed, resumable
-// cache — a re-run skips already-measured titles. Cap inlink counting at
-// INLINK_MEASURE_CAP so a hub target costs a bounded few requests.
-
-const QUIRKY_LINKCOUNTS_FILE = 'quirky-linkcounts.json';
-const INLINK_MEASURE_CAP = 2_000;
-
-interface QuirkyLinkCountsFile extends QuirkyLinkCounts {
-  provenance: {
-    generatedAt: string;
-    generator: string;
-    measureCap: number;
-    thresholds: { startMaxOutlinks: number; targetMaxInlinks: number };
-    run: { httpRequests: number; wallTimeMs: number };
-  };
-}
-
-function saveLinkCounts(path: string, data: QuirkyLinkCountsFile): void {
-  const tmp = `${path}.tmp`;
-  writeFileSync(tmp, JSON.stringify(data, null, 2) + '\n');
-  renameSync(tmp, path);
-}
-
-function loadLinkCounts(path: string): QuirkyLinkCountsFile {
-  if (!existsSync(path)) {
-    return {
-      startOutlinks: {},
-      targetInlinks: {},
-      provenance: {
-        generatedAt: '',
-        generator: 'scripts/gen-pairs (Task 25: quirky link-count measurement)',
-        measureCap: INLINK_MEASURE_CAP,
-        thresholds: {
-          startMaxOutlinks: QUIRKY_START_MAX_OUTLINKS,
-          targetMaxInlinks: QUIRKY_TARGET_MAX_INLINKS,
-        },
-        run: { httpRequests: 0, wallTimeMs: 0 },
-      },
-    };
-  }
-  return JSON.parse(readFileSync(path, 'utf8')) as QuirkyLinkCountsFile;
-}
-
-export async function runQuirkyLinks(): Promise<void> {
-  const t0 = Date.now();
-  console.log(`gen-pairs Task 25 quirky link-count measurement — agent: ${GEN_AGENT}`);
-  const quirky = loadPool('quirky.json');
-  const starts = quirky.filter((q) => (QUIRKY_START_BUCKETS as readonly string[]).includes(q.bucket));
-  const targets = quirky.filter((q) => (QUIRKY_TARGET_BUCKETS as readonly string[]).includes(q.bucket));
-
-  const path = join(DATA_DIR, QUIRKY_LINKCOUNTS_FILE);
-  const store = loadLinkCounts(path);
-  const persist = (): void => {
-    store.provenance.generatedAt = new Date().toISOString();
-    store.provenance.measureCap = INLINK_MEASURE_CAP;
-    store.provenance.thresholds = {
-      startMaxOutlinks: QUIRKY_START_MAX_OUTLINKS,
-      targetMaxInlinks: QUIRKY_TARGET_MAX_INLINKS,
-    };
-    store.provenance.run = { httpRequests: requestCount(), wallTimeMs: Date.now() - t0 };
-    saveLinkCounts(path, store);
-  };
-
-  // STARTS: outlink (hop-1) count. queryAllLinks fully paginates (~1 req each
-  // for these insular pages). Skip titles already measured (resume).
-  await Promise.all(
-    starts.map(async (s) => {
-      if (store.startOutlinks[s.title] !== undefined) return;
-      const { titles } = await queryAllLinks(s.title);
-      store.startOutlinks[s.title] = titles.length;
-      persist();
-    }),
-  );
-
-  // TARGETS: inlink count, capped. Skip already-measured (resume).
-  await Promise.all(
-    targets.map(async (t) => {
-      if (store.targetInlinks[t.title] !== undefined) return;
-      const { count, capped } = await queryInlinksCount(t.title, INLINK_MEASURE_CAP);
-      store.targetInlinks[t.title] = { count, capped };
-      persist();
-    }),
-  );
-  persist();
-
-  // --- report the distribution so the thresholds are set from evidence --------
-  const startRows = starts
-    .map((s) => ({ title: s.title, bucket: s.bucket, n: store.startOutlinks[s.title] }))
-    .sort((a, b) => a.n - b.n);
-  const targetRows = targets
-    .map((t) => ({ title: t.title, bucket: t.bucket, ...store.targetInlinks[t.title] }))
-    .sort((a, b) => a.count - b.count);
-
-  console.log(`\n=== quirky START outlink counts (insular = low) ===`);
-  for (const r of startRows) {
-    const keep = r.n <= QUIRKY_START_MAX_OUTLINKS ? 'KEEP' : 'drop';
-    console.log(`  ${keep}  ${String(r.n).padStart(5)}  ${r.title} [${r.bucket}]`);
-  }
-  console.log(`\n=== quirky TARGET inlink counts (low-inlink = far) ===`);
-  for (const r of targetRows) {
-    const val = r.capped ? `>${INLINK_MEASURE_CAP}` : String(r.count);
-    const keep = !r.capped && r.count <= QUIRKY_TARGET_MAX_INLINKS ? 'KEEP' : 'drop';
-    console.log(`  ${keep}  ${val.padStart(6)}  ${r.title} [${r.bucket}]`);
-  }
-
-  const narrowed = narrowQuirky(starts, targets, store);
-  console.log(
-    `\nthresholds: start outlinks ≤ ${QUIRKY_START_MAX_OUTLINKS}, target inlinks ≤ ${QUIRKY_TARGET_MAX_INLINKS}`,
-  );
-  console.log(
-    `narrowed pool: ${narrowed.starts.length}/${starts.length} starts (ceiling ${narrowed.starts.length * 3}), ` +
-      `${narrowed.targets.length}/${targets.length} targets (ceiling ${narrowed.targets.length * 3})`,
-  );
-  console.log(`dropped starts: ${narrowed.droppedStarts.map((d) => `${d.title}(${d.outlinks})`).join(', ') || 'none'}`);
-  console.log(
-    `dropped targets: ${narrowed.droppedTargets.map((d) => `${d.title}(${d.capped ? '>' : ''}${d.inlinks})`).join(', ') || 'none'}`,
-  );
-  console.log(`\nHTTP requests: ${requestCount()}; wall time: ${((Date.now() - t0) / 1000).toFixed(1)}s`);
-  console.log(`wrote ${path}`);
-}
 
 // --- 2026-07-08 major-topics design: authored topics + resolve pass -----------
 
@@ -762,10 +549,10 @@ function reportRun(
 
 const SUBCOMMAND = process.argv[2];
 
-/** Retired subcommands fail LOUDLY (they must not fall through to the default
- *  harvest, which would fire ~1.3k live requests by accident). The functions
- *  they used to dispatch to are retired in place above (exported, compiled,
- *  never called) per the no-deletions rule of the supersession pass. */
+/** Unknown / retired subcommands fail LOUDLY (they must not fall through to the
+ *  default harvest, which would fire ~1.3k live requests by accident). The dead
+ *  two-tier `quirky` / `quirky-links` passes were deleted in Task 27, so they now
+ *  land here alongside any unrecognized subcommand. */
 function retired(name: string): () => Promise<void> {
   return async () => {
     throw new Error(
@@ -782,11 +569,9 @@ const dispatch: () => Promise<void> =
       ? runSample // single-tier draw + ≤2-only verify + arrangeCalendar
       : SUBCOMMAND === 'emit'
         ? runEmit // flat-calendar emitter → src/race/pairs.json + pairs.meta.json
-        : SUBCOMMAND === 'quirky' || SUBCOMMAND === 'quirky-links'
-          ? retired(SUBCOMMAND)
-          : SUBCOMMAND === undefined || SUBCOMMAND === 'harvest'
-            ? runHarvest // default + explicit "harvest" (Phase 1, unchanged)
-            : retired(SUBCOMMAND); // unknown subcommand: fail loudly, never harvest by accident
+        : SUBCOMMAND === undefined || SUBCOMMAND === 'harvest'
+          ? runHarvest // default + explicit "harvest" (Phase 1, unchanged)
+          : retired(SUBCOMMAND); // unknown (incl. retired quirky/quirky-links): fail loudly
 
 dispatch().catch((e) => {
   console.error(e);

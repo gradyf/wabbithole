@@ -8,8 +8,8 @@
 // rng determinism + avalanche, sampler constraint enforcement (single-tier +
 // rekeyed deny-list per the 2026-07-08 supersession), arrangeCalendar
 // (adjacency + determinism + bounded relaxation), the authored topics.json
-// integrity, distance verdict logic (redirect-hardened; the depth-3 branches
-// stay covered though retired), the NOTE-2 gate, and checkpoint skip-on-rerun.
+// integrity, the redirect-hardened ≤2 distance verdict logic, the NOTE-2 gate,
+// and checkpoint skip-on-rerun.
 
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -22,16 +22,12 @@ import {
   QUIRKY_SHARE,
   MAX_TITLE_APPEARANCES,
   BUCKET_DENY_LIST,
-  narrowQuirky,
   arrangeCalendar,
   MAX_ARRANGE_PASSES,
-  QUIRKY_START_MAX_OUTLINKS,
-  QUIRKY_TARGET_MAX_INLINKS,
   type PoolTitle,
-  type QuirkyLinkCounts,
   type ArrangeItem,
 } from './sample.js';
-import { classifyPair, type LinkGraph, type Tier, MAX_HOP1_FRONTIER } from './distance.js';
+import { classifyPair, type LinkGraph, type Tier } from './distance.js';
 import { getOrClassify, type DistanceCache } from './cache.js';
 import { withGate, activeWorkers, MAX_WORKERS, sleep } from './wiki.js';
 
@@ -199,115 +195,6 @@ function samplerTests(): void {
   );
 }
 
-// =========================== sample.ts narrowing (Task 25) ===================
-
-function narrowTests(): void {
-  // A mock quirky pool spanning both thresholds, plus one UNMEASURED candidate
-  // on each axis. Titles encode their intended fate for readability.
-  const starts: PoolTitle[] = [
-    { title: 'InsularA', bucket: 'Science' }, // 120 outlinks → keep
-    { title: 'InsularB', bucket: 'Science' }, // 640 → keep (just under 650)
-    { title: 'BroadHub', bucket: 'Science' }, // 900 → drop (too broad)
-    { title: 'ArtInsular', bucket: 'Arts' }, // 300 → keep
-    { title: 'UnmeasuredStart', bucket: 'Arts' }, // absent from counts → unmeasured
-  ];
-  const targets: PoolTitle[] = [
-    { title: 'LowInlinkA', bucket: 'Everyday life' }, // 40 inlinks → keep
-    { title: 'LowInlinkB', bucket: 'Everyday life' }, // 440 → keep (under 450)
-    { title: 'MidInlink', bucket: 'Everyday life' }, // 500 → drop (mid-inlink)
-    { title: 'HubTarget', bucket: 'Technology' }, // capped → drop (hub)
-    { title: 'LowInlinkC', bucket: 'Technology' }, // 100 → keep
-    { title: 'UnmeasuredTarget', bucket: 'Technology' }, // absent → unmeasured
-  ];
-  const counts: QuirkyLinkCounts = {
-    startOutlinks: { InsularA: 120, InsularB: 640, BroadHub: 900, ArtInsular: 300 },
-    targetInlinks: {
-      LowInlinkA: { count: 40, capped: false },
-      LowInlinkB: { count: 440, capped: false },
-      MidInlink: { count: 500, capped: false },
-      HubTarget: { count: 2000, capped: true },
-      LowInlinkC: { count: 100, capped: false },
-    },
-  };
-
-  const n = narrowQuirky(starts, targets, counts);
-
-  check(
-    'narrow: keeps insular starts (≤ outlink threshold)',
-    n.starts.map((s) => s.title).sort().join(',') === 'ArtInsular,InsularA,InsularB',
-    n.starts.map((s) => s.title).join(','),
-  );
-  check(
-    'narrow: drops the broad start (> outlink threshold)',
-    n.droppedStarts.length === 1 &&
-      n.droppedStarts[0].title === 'BroadHub' &&
-      n.droppedStarts[0].outlinks === 900,
-  );
-  check(
-    'narrow: keeps low-inlink targets (≤ inlink threshold)',
-    n.targets.map((t) => t.title).sort().join(',') === 'LowInlinkA,LowInlinkB,LowInlinkC',
-    n.targets.map((t) => t.title).join(','),
-  );
-  check(
-    'narrow: drops mid-inlink AND capped targets',
-    n.droppedTargets.map((d) => d.title).sort().join(',') === 'HubTarget,MidInlink' &&
-      n.droppedTargets.some((d) => d.title === 'HubTarget' && d.capped) &&
-      n.droppedTargets.some((d) => d.title === 'MidInlink' && !d.capped && d.inlinks === 500),
-  );
-  check(
-    'narrow: unmeasured candidates are NOT silently kept (fail-loud path)',
-    n.unmeasuredStarts.length === 1 &&
-      n.unmeasuredStarts[0] === 'UnmeasuredStart' &&
-      n.unmeasuredTargets.length === 1 &&
-      n.unmeasuredTargets[0] === 'UnmeasuredTarget' &&
-      !n.starts.some((s) => s.title === 'UnmeasuredStart') &&
-      !n.targets.some((t) => t.title === 'UnmeasuredTarget'),
-  );
-
-  // Thresholds are inclusive (≤): a candidate exactly AT the max is kept.
-  const edge = narrowQuirky(
-    [{ title: 'Edge', bucket: 'Science' }],
-    [{ title: 'Edge', bucket: 'Everyday life' }],
-    {
-      startOutlinks: { Edge: QUIRKY_START_MAX_OUTLINKS },
-      targetInlinks: { Edge: { count: QUIRKY_TARGET_MAX_INLINKS, capped: false } },
-    },
-  );
-  check('narrow: threshold inclusive (title exactly at max is kept)', edge.starts.length === 1 && edge.targets.length === 1);
-
-  // RETIRED-MECHANISM property (kept passing-but-inert per the 2026-07-08
-  // supersession): a sampler built from the NARROWED pools never emits a quirky
-  // pair touching a dropped or unmeasured title. The live QUIRKY_SHARE is 0, so
-  // an explicit nonzero share (the superseded 0.15) is injected to exercise the
-  // retired quirky draw path at all.
-  const forbiddenStarts = new Set([...n.droppedStarts.map((d) => d.title), ...n.unmeasuredStarts]);
-  const forbiddenTargets = new Set([...n.droppedTargets.map((d) => d.title), ...n.unmeasuredTargets]);
-  const keptStarts = new Set(n.starts.map((s) => s.title));
-  const keptTargets = new Set(n.targets.map((t) => t.title));
-  const backbone = mockPool().backbone; // 40 topic titles, ample to not exhaust
-  const s = new PairSampler(SAMPLER_SEED, backbone, n.starts, n.targets, 0.15);
-  let quirkyDrawn = 0;
-  let leak = false;
-  for (let i = 0; i < 30; i++) {
-    const c = s.next();
-    if (!c) break;
-    if (c.tier === 'quirky') {
-      quirkyDrawn++;
-      if (
-        forbiddenStarts.has(c.start.title) ||
-        forbiddenTargets.has(c.target.title) ||
-        !keptStarts.has(c.start.title) ||
-        !keptTargets.has(c.target.title)
-      ) {
-        leak = true;
-      }
-    }
-    s.accept(c);
-  }
-  check('narrow: sampler over narrowed pools actually drew quirky pairs (exercised)', quirkyDrawn > 0, `${quirkyDrawn} quirky`);
-  check('narrow: NO quirky draw leaves the narrowed space', !leak);
-}
-
 // ============== arrangeCalendar (2026-07-08 major-topics design) ==============
 
 function arrangeTests(): void {
@@ -423,88 +310,42 @@ function mockGraph(spec: {
     inlinks: async (t) => spec.inlinks?.[t] ?? [],
     linksAnyTo: async (sources, targets) =>
       sources.some((s) => (spec.outlinks[canon(s)] ?? []).some((l) => targets.includes(l))),
-    expandOutlinks: async (sources) => {
-      const set = new Set<string>();
-      for (const s of sources) for (const l of spec.outlinks[canon(s)] ?? []) set.add(l);
-      return set;
-    },
   };
 }
 
 async function distanceTests(): Promise<void> {
   // dist 1 (direct link) → reject-close
-  let v = await classifyPair('A', 'B', 'backbone', mockGraph({ outlinks: { A: ['B', 'X'] } }));
+  let v = await classifyPair('A', 'B', mockGraph({ outlinks: { A: ['B', 'X'] } }));
   check('distance: dist1 direct → reject-close', v.verdict === 'reject-close' && v.distance === '<=2');
 
   // dist 1 via a redirect of B → reject-close (backward redirect hardening)
   v = await classifyPair(
     'A',
     'B',
-    'backbone',
     mockGraph({ outlinks: { A: ['Bee'] }, redirectsOf: { B: ['Bee'] } }),
   );
   check('distance: dist1 via redirect-of-B → reject-close', v.verdict === 'reject-close');
 
   // dist 2 meet-in-the-middle → reject-close
-  v = await classifyPair('A', 'B', 'backbone', mockGraph({ outlinks: { A: ['X'], X: ['B'] } }));
+  v = await classifyPair('A', 'B', mockGraph({ outlinks: { A: ['X'], X: ['B'] } }));
   check('distance: dist2 → reject-close', v.verdict === 'reject-close' && v.distance === '<=2');
 
   // dist 2 through a forward redirect (A→Rx→X→B) → reject-close (forward hardening)
   v = await classifyPair(
     'A',
     'B',
-    'backbone',
     mockGraph({ outlinks: { A: ['Rx'], X: ['B'] }, redirectTo: { Rx: 'X' } }),
   );
   check('distance: dist2 via forward redirect → reject-close', v.verdict === 'reject-close');
 
-  // backbone survives ≤2 → accept-min3 (no depth-3 spent)
+  // survives ≤2 → accept-min3 (the single-tier verdict since the 2026-07-08
+  // supersession: the ≤2 rejection IS the only distance check)
   v = await classifyPair(
     'A',
     'B',
-    'backbone',
-    mockGraph({ outlinks: { A: ['X'], X: ['Y'], Y: ['B'] }, inlinks: { B: ['Y'] } }),
+    mockGraph({ outlinks: { A: ['X'], X: ['Y'], Y: ['B'] } }),
   );
-  check('distance: backbone ≥3 → accept-min3', v.verdict === 'accept-min3' && v.distance === '>=3');
-
-  // quirky exact dist 3 → reject-not4plus
-  v = await classifyPair(
-    'A',
-    'B',
-    'quirky',
-    mockGraph({ outlinks: { A: ['X'], X: ['Y'], Y: ['B'] }, inlinks: { B: ['Y'] } }),
-  );
-  check('distance: quirky dist3 → reject-not4plus', v.verdict === 'reject-not4plus' && v.distance === '3');
-
-  // quirky dist ≥4 → accept 4+
-  v = await classifyPair(
-    'A',
-    'B',
-    'quirky',
-    mockGraph({ outlinks: { A: ['X'], X: ['Y'], Y: ['Z'], Z: ['B'] }, inlinks: { B: ['Z'] } }),
-  );
-  check('distance: quirky dist≥4 → accept 4+', v.verdict === 'accept' && v.distance === '4+');
-
-  // quirky dist 3 where hop-2 links to a REDIRECT of B (backward-redirect hardening in depth-3)
-  v = await classifyPair(
-    'A',
-    'B',
-    'quirky',
-    mockGraph({
-      outlinks: { A: ['X'], X: ['Y'], Y: ['Bee'] },
-      redirectsOf: { B: ['Bee'] },
-      inlinks: { Bee: ['Y'] },
-    }),
-  );
-  check('distance: depth-3 hardened via inlinks-of-redirect → dist3', v.verdict === 'reject-not4plus');
-
-  // quirky hub start (|F1| > cap) → reject-unverifiable, no expensive expansion
-  const hubOut = Array.from({ length: MAX_HOP1_FRONTIER + 1 }, (_, i) => `L${i}`);
-  v = await classifyPair('Hub', 'B', 'quirky', mockGraph({ outlinks: { Hub: hubOut } }));
-  check(
-    'distance: quirky hub start over cap → reject-unverifiable',
-    v.verdict === 'reject-unverifiable' && v.hop1 === MAX_HOP1_FRONTIER + 1,
-  );
+  check('distance: survives ≤2 → accept-min3', v.verdict === 'accept-min3' && v.distance === '>=3');
 }
 
 // =========================== cache.ts (checkpoint) ===========================
@@ -527,10 +368,6 @@ async function cacheTests(): Promise<void> {
     linksAnyTo: async () => {
       graphCalls++;
       return false;
-    },
-    expandOutlinks: async () => {
-      graphCalls++;
-      return new Set(['Y']);
     },
   };
   const cache: DistanceCache = {};
@@ -578,7 +415,6 @@ async function gateTests(): Promise<void> {
 async function main(): Promise<void> {
   rngTests();
   samplerTests();
-  narrowTests();
   arrangeTests();
   topicsTests();
   await distanceTests();

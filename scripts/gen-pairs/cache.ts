@@ -61,7 +61,7 @@ export async function getOrClassify(
   const key = cacheKey(start, target);
   const hit = cache[key];
   if (hit) return { entry: hit, computed: false };
-  const verdict = await classifyPair(start, target, tier, graph);
+  const verdict = await classifyPair(start, target, graph);
   const entry: CacheEntry = { ...verdict, tier, requests: 0, at: new Date().toISOString() };
   cache[key] = entry;
   return { entry, computed: true };

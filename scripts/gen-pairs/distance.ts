@@ -1,35 +1,26 @@
 // Link-distance verification for a candidate pair (A → B). Author-plane only.
 //
-// 2026-07-08 SUPERSESSION (major-topics design): the ≤2 REJECTION (stage 1) is
-// now the ONLY distance check — Gray locked the guaranteed dist ≥3 / 4-card
-// floor and formally retired the 5-card (4+) guarantee. The single-tier run
-// classifies every pair as tier 'backbone', so stage 2 (the depth-3
-// classification: isExactlyDist3, expandOutlinks usage, MAX_HOP1_FRONTIER and
-// the quirky branch of classifyPair) is UNREACHABLE from the live flow. It is
-// comment-deprecated IN PLACE — no deletions this pass (audit trail; deletion
-// is a blessed-calendar follow-up). The 383-verdict distance cache retains
-// historical quirky verdicts; they remain valid audit evidence.
+// 2026-07-08 SUPERSESSION (major-topics design): the ≤2 REJECTION is now the
+// ONLY distance check — Gray locked the guaranteed dist ≥3 / 4-card floor and
+// formally retired the 5-card (4+) guarantee. Every pair classifies as tier
+// 'backbone': surviving the ≤2 rejection IS the ≥3 proof. The old depth-3
+// classification (isExactlyDist3, expandOutlinks, MAX_HOP1_FRONTIER, the quirky
+// branch of classifyPair) served the dead 4+ tier and was DELETED in Task 27
+// (the blessed-calendar follow-up). The committed distance cache retains
+// historical quirky verdicts ('accept'/'reject-not4plus'/…); they stay valid
+// audit evidence and the Verdict union still names them so a resumed run can
+// read them.
 //
-// Two stages, per spec 2.3 / race-research-wiki.md §1.3-1.4:
+// The single check, per spec 2.3 / race-research-wiki.md §1.3-1.4:
 //
-//   1. ≤2 REJECTION (cheap, sound, redirect-hardened). Reject any pair with a
-//      direct link (dist 1) or a 2-hop path (dist 2). This is the exhaustive,
-//      load-bearing kill of the reported "one/two-click" defect. It is bounded
-//      by A's OUTLINK count only (the `pltitles` forward trick makes it
-//      independent of B's inlink count, so hub targets stay cheap), and it can
-//      never MISS a ≤2 path — the dangerous direction — because both endpoints
-//      are redirect-hardened: targets = {B} ∪ redirects(B), and the forward
-//      link queries use redirects=1 to resolve A→redirect→X before reading X's
-//      links.
-//
-//   2. DEPTH-3 CLASSIFICATION (expensive, ~112 req/pair). Expand A's 2-hop
-//      forward frontier and intersect with the hardened inlink set of B: a hit
-//      means exact distance 3, a miss means verified 4+. Only the QUIRKY tier
-//      needs this (it must prove ≥4; Task 17 showed hub starts structurally
-//      cannot reach 4+, so quirky uses insular starts where the expansion is
-//      affordable). The BACKBONE tier only needs ≥3, which surviving stage 1
-//      already proves — so backbone records "≥3" and skips the expensive
-//      expansion (the amendment's affordability win; documented in the report).
+//   ≤2 REJECTION (cheap, sound, redirect-hardened). Reject any pair with a
+//   direct link (dist 1) or a 2-hop path (dist 2). This is the exhaustive,
+//   load-bearing kill of the reported "one/two-click" defect. It is bounded by
+//   A's OUTLINK count only (the `pltitles` forward trick makes it independent of
+//   B's inlink count, so hub targets stay cheap), and it can never MISS a ≤2
+//   path — the dangerous direction — because both endpoints are redirect-
+//   hardened: targets = {B} ∪ redirects(B), and the forward link queries use
+//   redirects=1 to resolve A→redirect→X before reading X's links.
 //
 // The verdict logic is a pure function over an injectable LinkGraph, so
 // fixtures.ts can drive every branch against canned link sets with no network.
@@ -46,16 +37,7 @@ export interface LinkGraph {
   inlinks(title: string): Promise<string[]>;
   /** True iff any of `sources` (≤50) links to any of `targets` (≤50). */
   linksAnyTo(sources: string[], targets: string[]): Promise<boolean>;
-  /** Union of the outlinks of every title in `sources` (the 2-hop frontier). */
-  expandOutlinks(sources: string[]): Promise<Set<string>>;
 }
-
-/**
- * RETIRED (2026-07-08 supersession): cap on A's hop-1 frontier for the depth-3
- * expansion — unreachable now that the quirky tier is dead (single-tier runs
- * never take the depth-3 branch). Kept for the audit trail + inert fixtures.
- */
-export const MAX_HOP1_FRONTIER = 1_500;
 
 /** pltitles / titles multivalue hard cap for normal callers (measured). */
 const BATCH = 50;
@@ -114,41 +96,14 @@ async function reachableLeq2(
 }
 
 /**
- * RETIRED (2026-07-08 supersession): depth-3 refinement for the dead quirky
- * tier. Unreachable from the live single-tier flow (classifyPair only reaches
- * it for tier 'quirky', which the sampler never emits at QUIRKY_SHARE = 0).
- * Kept in place for the audit trail + inert fixtures; delete in the
- * blessed-calendar follow-up.
- *
- * Given a pair that survived the ≤2 check (so dist ≥3), is it EXACTLY 3?
- * dist 3 ⟺ some node in A's 2-hop forward frontier links to B ⟺
- * expandOutlinks(F1) ∩ [inlinks(B) ∪ inlinks(redirects(B))] ≠ ∅.
- */
-async function isExactlyDist3(
-  b: string,
-  redirectsOfB: string[],
-  f1: string[],
-  graph: LinkGraph,
-): Promise<boolean> {
-  const f2 = await graph.expandOutlinks(f1);
-  const reachB1 = new Set<string>();
-  for (const t of await graph.inlinks(b)) reachB1.add(t);
-  for (const r of redirectsOfB) {
-    for (const t of await graph.inlinks(r)) reachB1.add(t);
-  }
-  for (const y of f2) if (reachB1.has(y)) return true;
-  return false;
-}
-
-/**
  * Classify a pair. Pure over `graph`, so fixtures drive every branch with
  * canned data. The caller (verifyPair in index.ts) snapshots wiki.requestCount
- * around this call for per-pair request accounting.
+ * around this call for per-pair request accounting. Single-tier since the
+ * 2026-07-08 supersession: surviving the ≤2 rejection IS the ≥3 verdict.
  */
 export async function classifyPair(
   a: string,
   b: string,
-  tier: Tier,
   graph: LinkGraph,
 ): Promise<PairVerdict> {
   const redirectsOfB = await graph.redirectsOf(b);
@@ -166,36 +121,11 @@ export async function classifyPair(
     };
   }
 
-  // Survived ≤2 ⇒ dist ≥3.
-  if (tier === 'backbone') {
-    // The single-tier flow (2026-07-08 supersession) always lands here:
-    // surviving the ≤2 rejection IS the guaranteed dist ≥3 / 4-card floor.
-    // Record ">=3" and stop — no depth-3 refinement.
-    return { verdict: 'accept-min3', distance: '>=3', detail: 'survived ≤2 (dist ≥3)', hop1 };
-  }
-
-  // RETIRED PATH (2026-07-08 supersession): everything below served the dead
-  // quirky 4+ tier and is unreachable from the live flow (the sampler never
-  // emits tier 'quirky' at QUIRKY_SHARE = 0). Exercised only by inert fixtures.
-  // Quirky tier must prove ≥4 (5-card floor). Run the depth-3 check.
-  if (hop1 > MAX_HOP1_FRONTIER) {
-    return {
-      verdict: 'reject-unverifiable',
-      distance: '>=3',
-      detail: `quirky start too hub-like to prove ≥4 (|F1|=${hop1} > ${MAX_HOP1_FRONTIER})`,
-      hop1,
-    };
-  }
-  const dist3 = await isExactlyDist3(b, redirectsOfB, f1, graph);
-  if (dist3) {
-    return {
-      verdict: 'reject-not4plus',
-      distance: '3',
-      detail: 'depth-3 hit: exact dist 3, quirky requires ≥4',
-      hop1,
-    };
-  }
-  return { verdict: 'accept', distance: '4+', detail: 'depth-3 miss: dist ≥4', hop1 };
+  // Survived ≤2 ⇒ dist ≥3. The single-tier flow (2026-07-08 supersession) always
+  // lands here: surviving the ≤2 rejection IS the guaranteed dist ≥3 / 4-card
+  // floor. Record ">=3" and stop (the depth-3 refinement for the dead quirky 4+
+  // tier was deleted in Task 27).
+  return { verdict: 'accept-min3', distance: '>=3', detail: 'survived ≤2 (dist ≥3)', hop1 };
 }
 
 // --- live LinkGraph backed by wiki.ts ----------------------------------------
@@ -205,7 +135,6 @@ import {
   queryAllLinks,
   queryInlinks,
   queryLinksFiltered,
-  queryOutlinksUnion,
 } from './wiki.js';
 
 /** The production LinkGraph — every method hits the live Wikipedia API. */
@@ -214,5 +143,4 @@ export const liveGraph: LinkGraph = {
   outlinks: async (title) => (await queryAllLinks(title)).titles,
   inlinks: async (title) => (await queryInlinks(title)).titles,
   linksAnyTo: (sources, targets) => queryLinksFiltered(sources, targets),
-  expandOutlinks: async (sources) => (await queryOutlinksUnion(sources)).titles,
 };
