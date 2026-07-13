@@ -6,12 +6,14 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import { and, eq, lt, sql } from 'drizzle-orm';
-import { requireUser } from './_lib/auth.js';
+import { authenticate } from './_lib/auth.js';
 import { enforceGenerationBudget, logGeneration } from './_lib/budget.js';
 import { db } from './_lib/db.js';
+import { type Entitlements, resolveEntitlements } from './_lib/entitlements.js';
 import { HttpError, handle, json, readJson, requireMethod } from './_lib/http.js';
-import { WEEKLY_ADD_CAP, isUnlimited, weeklyRemaining } from './_lib/limits.js';
+import { WEEKLY_ADD_CAP, weeklyRemaining } from './_lib/limits.js';
 import {
+  EXTRACTION_CEILING,
   EXTRACTION_MODEL,
   PROMPT_VERSION,
   QuestionsSchema,
@@ -30,7 +32,7 @@ interface ExtractBody {
 
 export default handle(async (request) => {
   requireMethod(request, 'POST');
-  const userId = await requireUser(request);
+  const { userId, has } = await authenticate(request);
 
   const body = await readJson<ExtractBody>(request);
   if (!validLang(body.lang) || typeof body.title !== 'string' || !body.title.trim()) {
@@ -54,13 +56,17 @@ export default handle(async (request) => {
       .from(articles)
       .where(and(eq(articles.lang, lang), eq(articles.title, source.canonicalTitle))))[0];
 
+  // The serving tier (question ceiling). Resolved once and used by every
+  // respond() path so a cache hit and a fresh generation serve identically.
+  const entitlements = await resolveEntitlements(userId, has);
+
   const cached = await loadQuestions(articleRow.id);
-  if (cached.length > 0) return respond(source, cached, true, userId);
+  if (cached.length > 0) return respond(source, cached, true, userId, entitlements);
 
   // Wallet guard (cache misses only — hits above are free). The kill switch and
   // global daily ceiling stop everyone including owners; the per-user cap
-  // exempts owners.
-  const isOwner = await isUnlimited(userId);
+  // exempts owners. Owner status is the resolved tier (same isUnlimited source).
+  const isOwner = entitlements.tier === 'owner';
   await enforceGenerationBudget(userId, isOwner);
 
   const lockId = await acquireLock(articleRow.id, userId);
@@ -69,7 +75,7 @@ export default handle(async (request) => {
   const cachedAfterLock = await loadQuestions(articleRow.id);
   if (cachedAfterLock.length > 0) {
     await db.delete(extractions).where(eq(extractions.id, lockId));
-    return respond(source, cachedAfterLock, true, userId);
+    return respond(source, cachedAfterLock, true, userId, entitlements);
   }
 
   try {
@@ -80,19 +86,22 @@ export default handle(async (request) => {
     const rows = await db
       .insert(articleQuestions)
       .values(
-        generated.map((q) => ({
+        // The model emits most-memorable-first, so its output index IS the rank
+        // (0 = most memorable). Serving slices free callers to the top ranks.
+        generated.map((q, i) => ({
           articleId: articleRow.id,
           prompt: q.prompt,
           choices: q.choices,
           answerIndex: q.answerIndex,
           explanation: q.explanation,
+          rank: i,
           promptVersion: PROMPT_VERSION,
           model: EXTRACTION_MODEL,
         })),
       )
       .returning();
     await db.update(extractions).set({ status: 'done' }).where(eq(extractions.id, lockId));
-    return respond(source, rows, false, userId);
+    return respond(source, rows, false, userId, entitlements);
   } catch (err) {
     await db.update(extractions).set({ status: 'failed' }).where(eq(extractions.id, lockId));
     throw err;
@@ -101,6 +110,10 @@ export default handle(async (request) => {
 
 type QuestionRow = typeof articleQuestions.$inferSelect;
 
+// Returns ALL rows for the article+version, unfiltered, ordered by rank then
+// age (NULL ranks — old rows, flag rows — sort last). serveQuestions does the
+// per-tier partition; every other read (backward-compat, flags in Task 29)
+// starts from this full ordered set.
 async function loadQuestions(articleId: number): Promise<QuestionRow[]> {
   return db
     .select()
@@ -110,7 +123,28 @@ async function loadQuestions(articleId: number): Promise<QuestionRow[]> {
         eq(articleQuestions.articleId, articleId),
         eq(articleQuestions.promptVersion, PROMPT_VERSION),
       ),
-    );
+    )
+    .orderBy(sql`${articleQuestions.rank} NULLS LAST, ${articleQuestions.createdAt}`);
+}
+
+// Partition the full pool into what a tier is served. Flag rows are always
+// included for every tier and never rank-sliced; MC rows are sorted by rank
+// (NULLs last) then age and sliced to the tier's ceiling. hidden rows and
+// ad-hoc rows never appear in the curated panel. (No flag rows exist until
+// Task 29 — this must simply be correct when they do.)
+export function serveQuestions(rows: QuestionRow[], tier: Entitlements): QuestionRow[] {
+  const visible = rows.filter((r) => !r.hidden && r.origin === 'extract');
+  const flags = visible.filter((r) => r.type === 'flag');
+  const mc = visible
+    .filter((r) => r.type === 'mc')
+    .sort((a, b) => {
+      const ra = a.rank ?? Number.MAX_SAFE_INTEGER;
+      const rb = b.rank ?? Number.MAX_SAFE_INTEGER;
+      if (ra !== rb) return ra - rb;
+      return a.createdAt.getTime() - b.createdAt.getTime();
+    })
+    .slice(0, tier.questionCeiling);
+  return [...flags, ...mc];
 }
 
 // The partial unique index (one pending row per article+version) is the lock.
@@ -149,7 +183,10 @@ async function generateQuestions(source: {
   const client = new Anthropic(); // ANTHROPIC_API_KEY from env
   const res = await client.messages.parse({
     model: EXTRACTION_MODEL,
-    max_tokens: 2500,
+    // Headroom for EXTRACTION_CEILING (25) questions: ~25 x ~130 tok ≈ 3.3k
+    // typical; 6000 is margin, not the ceiling. Paired with maxDuration 60
+    // (vercel.json) so the larger call finishes inside the function window.
+    max_tokens: 6000,
     messages: [
       {
         role: 'user',
@@ -165,7 +202,7 @@ async function generateQuestions(source: {
   // Cost visibility: one line per paid call (REVIEW cost check).
   console.log('extraction usage', JSON.stringify(res.usage));
 
-  const questions = validQuestions(res.parsed_output?.questions ?? []).slice(0, 5);
+  const questions = validQuestions(res.parsed_output?.questions ?? []).slice(0, EXTRACTION_CEILING);
   if (questions.length < 3) {
     throw new HttpError(502, 'extraction_failed', 'Could not generate good questions for this article.');
   }
@@ -177,7 +214,9 @@ async function respond(
   rows: QuestionRow[],
   cachedHit: boolean,
   userId: string,
+  entitlements: Entitlements,
 ): Promise<Response> {
+  const served = serveQuestions(rows, entitlements);
   return json({
     article: {
       title: source.canonicalTitle,
@@ -187,7 +226,7 @@ async function respond(
     cached: cachedHit,
     weeklyRemaining: await weeklyRemaining(userId),
     weeklyCap: WEEKLY_ADD_CAP,
-    questions: rows.map((r) => ({
+    questions: served.map((r) => ({
       id: r.id,
       prompt: r.prompt,
       choices: r.choices,

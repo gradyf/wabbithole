@@ -9,6 +9,7 @@ import {
   jsonb,
   pgTable,
   serial,
+  smallint,
   text,
   timestamp,
   uniqueIndex,
@@ -42,11 +43,28 @@ export const articleQuestions = pgTable(
     explanation: text('explanation').notNull(),
     imageUrl: text('image_url'),
     imageSourceUrl: text('image_source_url'),
+    // MC ordering within an article (0 = most memorable) so the free top-5 are
+    // the best 5. NULL for pre-existing rows and for flag rows; sorts last.
+    rank: smallint('rank'),
+    // 'extract' (curated panel) | 'adhoc' (highlight->question, pool-only).
+    origin: text('origin').notNull().default('extract'),
+    // Ad-hoc exact-dedup key (normalized selection hash); NULL for extract rows.
+    selectionHash: text('selection_hash'),
+    // Clerk user id of an ad-hoc author; NULL for extract rows.
+    createdBy: text('created_by'),
+    // Soft-moderation: hidden rows are excluded from every serve/quiz read.
+    hidden: boolean('hidden').notNull().default(false),
     promptVersion: integer('prompt_version').notNull(),
     model: text('model').notNull(),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
-  (t) => [index('aq_article_version_idx').on(t.articleId, t.promptVersion)],
+  (t) => [
+    index('aq_article_version_idx').on(t.articleId, t.promptVersion),
+    uniqueIndex('aq_adhoc_selection_idx')
+      .on(t.articleId, t.selectionHash)
+      .where(sql`${t.origin} = 'adhoc'`),
+    index('aq_created_by_idx').on(t.createdBy, t.createdAt).where(sql`${t.origin} = 'adhoc'`),
+  ],
 );
 
 // One row per extraction attempt: the partial unique index is the concurrency

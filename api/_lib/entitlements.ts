@@ -11,6 +11,7 @@
 
 import type { Has } from './auth.js';
 import { isUnlimited } from './limits.js';
+import { EXTRACTION_CEILING, FREE_CEILING } from './prompt.js';
 
 export type Tier = 'free' | 'premium' | 'owner';
 
@@ -28,21 +29,21 @@ export interface Entitlements {
 
 const FREE: Entitlements = {
   tier: 'free',
-  questionCeiling: 5,
+  questionCeiling: FREE_CEILING,
   adHoc: false,
   weeklyAddCap: 10,
   adhocDailyCap: 0,
 };
 const PREMIUM: Entitlements = {
   tier: 'premium',
-  questionCeiling: 25,
+  questionCeiling: EXTRACTION_CEILING,
   adHoc: true,
   weeklyAddCap: 50,
   adhocDailyCap: 10,
 };
 const OWNER: Entitlements = {
   tier: 'owner',
-  questionCeiling: 25,
+  questionCeiling: EXTRACTION_CEILING,
   adHoc: true,
   weeklyAddCap: null,
   adhocDailyCap: null,

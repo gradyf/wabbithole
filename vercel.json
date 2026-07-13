@@ -1,4 +1,7 @@
 {
+  "functions": {
+    "api/extract.ts": { "maxDuration": 60 }
+  },
   "rewrites": [{ "source": "/t/:path*", "destination": "/api/t" }],
   "headers": [
     {

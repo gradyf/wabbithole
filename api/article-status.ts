@@ -26,6 +26,9 @@ export default handle(async (request) => {
     .where(and(eq(articles.lang, lang), eq(articles.title, title)));
   if (!article) return json({ hasQuestions: false, inBank: 0 });
 
+  // Only the curated, visible pool decorates the card, so hasQuestions matches
+  // exactly what a tier is served: extract-origin, not hidden. (Ad-hoc rows live
+  // in the pool but never in the panel; hidden rows are moderated out.)
   const questions = await db
     .select({ id: articleQuestions.id })
     .from(articleQuestions)
@@ -33,6 +36,8 @@ export default handle(async (request) => {
       and(
         eq(articleQuestions.articleId, article.id),
         eq(articleQuestions.promptVersion, PROMPT_VERSION),
+        eq(articleQuestions.origin, 'extract'),
+        eq(articleQuestions.hidden, false),
       ),
     );
   if (questions.length === 0) return json({ hasQuestions: false, inBank: 0 });

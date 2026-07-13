@@ -36,6 +36,13 @@
       "when": 1783356452985,
       "tag": "0004_conscious_dragon_man",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1783908406491,
+      "tag": "0005_unusual_chamber",
+      "breakpoints": true
     }
   ]
 }
