@@ -49,6 +49,11 @@ export interface StackEvents {
   /** A genuinely NEW card was appended to the tip (start or link spawn), not a
    *  trail-jump revisit or a deep-link reconcile. The race layer counts these. */
   onSpawn?(node: CardNode): void;
+  /** The active card changed: its node (live reference — title may canonicalize
+   *  after hydration) and its scroll-container body, or (null, null) when no card
+   *  is active. The trivia layer scopes its highlight-selection listeners to the
+   *  active body's .wh-prose; the stack stays trivia-agnostic. */
+  onActiveBody?(node: CardNode | null, bodyEl: HTMLElement | null): void;
 }
 
 const LICENSE_URL = 'https://creativecommons.org/licenses/by-sa/4.0/';
@@ -568,6 +573,9 @@ export class Stack {
       // freshly-switched body, so seed its fold state now.
       const top = this.views[n - 1];
       if (top) this.markDeep(top, top.bodyEl.scrollTop);
+      // Hand the active card (live node + body) to the trivia layer so it can
+      // scope highlight-selection listeners; null when the stack is empty.
+      this.events.onActiveBody?.(top?.node ?? null, topBody);
     }
 
     // Assign cascade geometry last, so it reads the settled unstacked state.

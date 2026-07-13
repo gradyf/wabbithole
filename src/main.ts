@@ -135,6 +135,11 @@ const stack = new Stack(stage, {
     // Every genuinely new card is one point of race score.
     race?.onSpawn();
   },
+  onActiveBody(node, bodyEl) {
+    // Trivia owns the highlight-to-question selection UX; the stack just reports
+    // which card is active (live node + its prose body) so listeners scope to it.
+    trivia.onActiveCard(node, bodyEl);
+  },
   onAnnounce(msg) {
     announcer.textContent = msg;
   },

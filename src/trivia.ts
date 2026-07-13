@@ -21,6 +21,9 @@ export interface TriviaUI {
   signUp(): void;
   /** Decorate a card's extract button with cache/bank state (signed-in only). */
   decorateExtractButton(node: { lang: string; title: string }, btn: HTMLButtonElement): void;
+  /** The active card changed (stack onActiveBody): scopes the highlight-to-
+   *  question selection pill. Pass (null, null) when no card is active. */
+  onActiveCard(node: { lang: string; title: string } | null, bodyEl: HTMLElement | null): void;
   /** Authenticated JSON fetch (Bearer token, throws on error). Callers MUST
    *  gate on signed-in state — invoking this forces the Clerk bundle to load. */
   api<T>(path: string, init?: RequestInit): Promise<T>;
@@ -56,6 +59,19 @@ interface BillingStatus {
   renewsAt: string | null;
   endsAt: string | null;
   planSlug: string | null;
+}
+
+// POST /api/ask — one question generated from a reader's highlight. cached=true
+// means it came from the communal pool (near-instant, no spend).
+interface AskResponse {
+  cached: boolean;
+  question: {
+    id: string;
+    prompt: string;
+    choices: string[];
+    answerIndex: number;
+    explanation: string;
+  };
 }
 
 interface ArticleStatus {
@@ -112,7 +128,12 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
 
   // The action interrupted by sign-in, persisted so it survives both the
   // modal flow and any full-page navigation Clerk performs on completion.
-  type PendingAction = { type: 'bank' } | { type: 'extract'; lang: string; title: string };
+  type PendingAction =
+    | { type: 'bank' }
+    | { type: 'extract'; lang: string; title: string }
+    // Highlight -> question, interrupted by sign-in. Carries only serializable
+    // text: the normalized selection plus the article's lang/title.
+    | { type: 'ask'; lang: string; title: string; text: string };
   const PENDING_KEY = 'wh-after-auth';
 
   function queuePending(action: PendingAction): void {
@@ -136,6 +157,8 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
       const action = JSON.parse(raw) as PendingAction;
       if (action.type === 'bank') openBank();
       else if (action.type === 'extract') openExtract({ lang: action.lang, title: action.title });
+      else if (action.type === 'ask')
+        openAsk({ lang: action.lang, title: action.title, selectedText: action.text });
     } catch {
       // malformed leftover; drop it
     }
@@ -928,45 +951,295 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     })();
   });
 
-  function renderExtractError(err: unknown, node: { lang: string; title: string }): void {
-    const e = err instanceof TriviaError ? err : new TriviaError('unknown', 'Something went wrong.');
+  // Friendly title per error code. Covers the extract codes and the ad-hoc
+  // codes (not_in_article / no_question / bad_selection / adhoc_cap) so both
+  // surfaces speak the same DS voice.
+  function errorTitle(code: string): string {
+    switch (code) {
+      case 'daily_cap':
+      case 'weekly_cap':
+      case 'adhoc_cap':
+        return "That's plenty for now";
+      case 'generation_paused':
+        return 'Trivia is resting';
+      case 'extraction_in_progress':
+        return 'Almost there';
+      case 'not_in_article':
+        return 'Not in this article';
+      case 'no_question':
+        return 'No question this time';
+      case 'bad_selection':
+        return 'Highlight a little more';
+      default:
+        return "That didn't work";
+    }
+  }
+
+  function errorIconName(code: string): string {
+    if (code === 'extraction_in_progress') return 'sparkles';
+    if (code === 'generation_paused' || code === 'not_in_article' || code === 'no_question')
+      return 'info';
+    return 'rotate-ccw';
+  }
+
+  // Shared error card for the extract + ad-hoc surfaces. The caller decides
+  // whether a retry makes sense (pass a thunk) — a spent/soft-capped or
+  // deterministic failure passes null so no "Try again" appears.
+  function errorNoteEl(code: string, message: string, onRetry: (() => void) | null): HTMLElement {
     const note = document.createElement('div');
     note.className = 'wh-note';
     const icon = document.createElement('span');
     icon.className = 'wh-icon';
-    icon.dataset.name =
-      e.code === 'extraction_in_progress'
-        ? 'sparkles'
-        : e.code === 'generation_paused'
-          ? 'info'
-          : 'rotate-ccw';
+    icon.dataset.name = errorIconName(code);
     icon.setAttribute('aria-hidden', 'true');
     const title = document.createElement('p');
     title.className = 'wh-note-title';
-    title.textContent =
-      e.code === 'daily_cap' || e.code === 'weekly_cap'
-        ? "That's plenty for now"
-        : e.code === 'generation_paused'
-          ? 'Trivia is resting'
-          : e.code === 'extraction_in_progress'
-            ? 'Almost there'
-            : "That didn't work";
+    title.textContent = errorTitle(code);
     const body = document.createElement('p');
     body.className = 'wh-note-body';
-    body.textContent = e.message;
+    body.textContent = message;
     note.append(icon, title, body);
-    if (e.code !== 'daily_cap' && e.code !== 'generation_paused') {
+    if (onRetry) {
       const retry = document.createElement('button');
       retry.type = 'button';
       retry.className = 'wh-btn';
       retry.dataset.size = 'sm';
       retry.textContent = 'Try again';
-      retry.addEventListener('click', () => openExtract(node));
+      retry.addEventListener('click', onRetry);
       note.appendChild(retry);
     }
-    extractBody.replaceChildren(note);
+    extractFoot.hidden = true;
+    return note;
+  }
+
+  function renderExtractError(err: unknown, node: { lang: string; title: string }): void {
+    const e = err instanceof TriviaError ? err : new TriviaError('unknown', 'Something went wrong.');
+    // Same retry policy as before: everything retries except a hit daily cap or a
+    // paused site (both terminal for this open).
+    const retry = e.code === 'daily_cap' || e.code === 'generation_paused' ? null : () => openExtract(node);
+    extractBody.replaceChildren(errorNoteEl(e.code, e.message, retry));
     extractFoot.hidden = true;
   }
+
+  // ---- highlight -> question (ad-hoc, premium) ------------------------------
+  // Reuses the extract overlay as the result surface. openAsk gates on sign-in
+  // (queuing an 'ask' PendingAction), then POSTs /api/ask; premium/owner get the
+  // real question, free tier gets a 402 rendered as the quiet upgrade nudge.
+
+  function openAsk(req: { lang: string; title: string; selectedText: string }): void {
+    void (async () => {
+      if (
+        !(await requireAuth({ type: 'ask', lang: req.lang, title: req.title, text: req.selectedText }))
+      )
+        return;
+      extractTitle.textContent = 'Make a question';
+      extractFoot.hidden = true;
+      extractBody.replaceChildren(skeleton());
+      openOverlay(extractOverlay);
+      try {
+        const data = await apiFetch<AskResponse>('/api/ask', {
+          method: 'POST',
+          body: JSON.stringify(req),
+        });
+        renderAsk(data);
+      } catch (err) {
+        renderAskError(err, req);
+      }
+    })();
+  }
+
+  function renderAsk(data: AskResponse): void {
+    const q = data.question;
+    extractTitle.textContent = 'Your question';
+
+    const intro = document.createElement('p');
+    intro.className = 'wh-trivia-intro';
+    intro.textContent = data.cached
+      ? 'A question from your highlight, already in the pool.'
+      : 'A question from your highlight. Keep it if it is worth remembering.';
+
+    const card = document.createElement('div');
+    card.className = 'wh-ask-card';
+    const prompt = document.createElement('p');
+    prompt.className = 'wh-ask-q';
+    prompt.textContent = q.prompt;
+    const answer = document.createElement('p');
+    answer.className = 'wh-ask-a';
+    answer.textContent = q.choices[q.answerIndex] ?? '';
+    card.append(prompt, answer);
+    if (q.explanation.trim()) {
+      const why = document.createElement('p');
+      why.className = 'wh-ask-why';
+      why.textContent = q.explanation;
+      card.appendChild(why);
+    }
+
+    const actions = document.createElement('div');
+    actions.className = 'wh-ask-actions';
+    const add = document.createElement('button');
+    add.type = 'button';
+    add.className = 'wh-btn';
+    const icon = document.createElement('span');
+    icon.className = 'wh-icon';
+    icon.dataset.name = 'sparkles';
+    icon.setAttribute('aria-hidden', 'true');
+    add.append(icon, 'Add to bank');
+    add.addEventListener('click', () => void bankAdhoc(q.id, add, actions));
+    actions.appendChild(add);
+
+    extractBody.replaceChildren(intro, card, actions);
+    extractFoot.hidden = true;
+  }
+
+  async function bankAdhoc(id: string, btn: HTMLButtonElement, actions: HTMLElement): Promise<void> {
+    btn.disabled = true;
+    try {
+      const res = await apiFetch<{ added: number }>('/api/bank', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'add', questionIds: [id] }),
+      });
+      const banked = res.added > 0;
+      const note = document.createElement('p');
+      note.className = 'wh-ask-banked';
+      note.textContent = banked ? 'Added to your bank.' : 'Already in your bank.';
+      actions.replaceChildren(note);
+      const msg = banked ? 'Added 1 question to your bank.' : 'Already in your bank.';
+      opts.onToast(msg);
+      opts.announce(msg);
+      if (bankOpen()) void refreshBank().catch(() => {});
+    } catch (err) {
+      opts.onToast(err instanceof TriviaError ? err.message : "That didn't save. Try again.");
+      btn.disabled = false;
+    }
+  }
+
+  function renderAskError(err: unknown, req: { lang: string; title: string; selectedText: string }): void {
+    const e = err instanceof TriviaError ? err : new TriviaError('unknown', 'Something went wrong.');
+    // Free tier: /api/ask returns 402 — the quiet upgrade nudge, no modal.
+    if (e.code === 'premium_required') {
+      const intro = document.createElement('p');
+      intro.className = 'wh-trivia-intro';
+      intro.textContent = 'Turning your own highlight into a question is a premium feature.';
+      extractBody.replaceChildren(intro, upgradeNudge('Get premium to make a question from any highlight'));
+      extractFoot.hidden = true;
+      return;
+    }
+    // not_in_article / no_question / adhoc_cap are terminal for this highlight;
+    // bad_selection won't help on retry. Everything else can retry the same ask.
+    const noRetry = new Set(['not_in_article', 'no_question', 'adhoc_cap', 'bad_selection', 'daily_cap', 'generation_paused']);
+    const retry = noRetry.has(e.code) ? null : () => openAsk(req);
+    extractBody.replaceChildren(errorNoteEl(e.code, e.message, retry));
+    extractFoot.hidden = true;
+  }
+
+  // ---- selection pill: "Make a question" near a highlight -------------------
+  // The stack reports the active card (onActiveBody -> onActiveCard); selection
+  // is scoped to that card's .wh-prose. The pill floats near the selection and
+  // dismisses on scroll, collapse, or Escape. Signed-out press routes through
+  // the sign-in-first flow (PendingAction 'ask'); the server does the premium
+  // gate, so free users still see the pill and get the 402 nudge.
+
+  let activeCard: { node: { lang: string; title: string }; bodyEl: HTMLElement } | null = null;
+  let pill: HTMLButtonElement | null = null;
+  let pillText = '';
+  let pillRaf = 0;
+
+  function onActiveCard(
+    node: { lang: string; title: string } | null,
+    bodyEl: HTMLElement | null,
+  ): void {
+    activeCard = node && bodyEl ? { node, bodyEl } : null;
+    if (!activeCard) dismissPill();
+  }
+
+  function ensurePill(): HTMLButtonElement {
+    if (pill) return pill;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'wh-ask-pill';
+    b.hidden = true;
+    const icon = document.createElement('span');
+    icon.className = 'wh-icon';
+    icon.dataset.name = 'sparkles';
+    icon.setAttribute('aria-hidden', 'true');
+    const label = document.createElement('span');
+    label.textContent = 'Make a question';
+    b.append(icon, label);
+    // pointerdown preventDefault: pressing the pill must not collapse the
+    // selection before the click lands (mobile especially); we captured the text
+    // when the pill was shown, so the press has what it needs regardless.
+    b.addEventListener('pointerdown', (e) => e.preventDefault());
+    b.addEventListener('click', (e) => {
+      e.preventDefault();
+      pressPill();
+    });
+    document.body.appendChild(b);
+    pill = b;
+    return b;
+  }
+
+  function pressPill(): void {
+    const text = pillText;
+    const card = activeCard;
+    dismissPill();
+    if (!card || !text) return;
+    openAsk({ lang: card.node.lang, title: card.node.title, selectedText: text });
+  }
+
+  function dismissPill(): void {
+    pillText = '';
+    if (pill) pill.hidden = true;
+  }
+
+  function evaluateSelection(): void {
+    if (!activeCard) return dismissPill();
+    // Never over an open overlay (the result surface, quiz, or settings).
+    if (!extractOverlay.hidden || !quizOverlay.hidden || !settingsOverlay.hidden) return dismissPill();
+    const sel = window.getSelection();
+    if (!sel || sel.isCollapsed || sel.rangeCount === 0) return dismissPill();
+    const prose = activeCard.bodyEl.querySelector('.wh-prose');
+    if (!prose) return dismissPill();
+    const range = sel.getRangeAt(0);
+    if (!prose.contains(range.startContainer) || !prose.contains(range.endContainer))
+      return dismissPill();
+    const norm = sel.toString().replace(/\s+/g, ' ').trim();
+    const words = norm ? norm.split(' ').length : 0;
+    // Mirror the server gate (12-400 chars, >=3 words) so the pill never appears
+    // for a selection the endpoint would reject as bad_selection.
+    if (norm.length < 12 || norm.length > 400 || words < 3) return dismissPill();
+    pillText = norm;
+    positionPill(range.getBoundingClientRect());
+  }
+
+  function positionPill(rect: DOMRect): void {
+    const b = ensurePill();
+    b.hidden = false;
+    const pw = b.offsetWidth || 160;
+    const ph = b.offsetHeight || 34;
+    const gap = 8;
+    let left = rect.left + rect.width / 2 - pw / 2;
+    left = Math.max(8, Math.min(left, window.innerWidth - pw - 8));
+    let top = rect.top - ph - gap;
+    if (top < 8) top = rect.bottom + gap; // no room above -> below the selection
+    b.style.left = `${Math.round(left)}px`;
+    b.style.top = `${Math.round(top)}px`;
+  }
+
+  function scheduleSelectionCheck(): void {
+    if (pillRaf) return;
+    pillRaf = requestAnimationFrame(() => {
+      pillRaf = 0;
+      evaluateSelection();
+    });
+  }
+
+  document.addEventListener('selectionchange', scheduleSelectionCheck);
+  // Capture: a scroll on the card body (or anywhere) dismisses the pill.
+  document.addEventListener('scroll', dismissPill, true);
+  window.addEventListener('resize', dismissPill);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') dismissPill();
+  });
 
   // ---- trivia portal (docked right sidebar: Bank | Stats | History) ----------
   // One right dock, three tabs. Bank and Stats both read the /api/bank payload
@@ -1810,6 +2083,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     openBank,
     openSettings,
     decorateExtractButton,
+    onActiveCard,
     api: apiFetch,
     signIn: () => {
       void requireAuth();
