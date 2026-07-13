@@ -86,3 +86,66 @@ export function validQuestions(qs: ExtractedQuestion[]): ExtractedQuestion[] {
       q.explanation.trim().length > 0,
   );
 }
+
+// ---- ad-hoc highlight -> question (Task 31, additive) -----------------------
+
+// One question generated from a reader's highlight. Reuses EXTRACTION_MODEL and
+// QuestionsSchema (same wire shape as extraction) so the client renders it with
+// the existing question renderer.
+export const ADHOC_MODEL = EXTRACTION_MODEL;
+
+// Build the ad-hoc prompt: exactly one MC question about the highlighted
+// SELECTION, grounded in the surrounding article CONTEXT. The model is given an
+// explicit refusal path (empty questions array) so a selection with no checkable
+// fact never forces a fabricated question — the caller maps an empty/invalid
+// result to 422 no_question.
+export function buildAdhocPrompt(args: {
+  title: string;
+  description?: string;
+  context: string;
+  selection: string;
+}): string {
+  return `You are generating ONE quiz question for a personal trivia bank. A reader highlighted a passage while reading a Wikipedia article and wants a single question that tests the fact in it.
+
+Write exactly ONE multiple-choice question about the HIGHLIGHTED SELECTION below, using the surrounding article as context.
+
+Rules:
+- The question must test the specific fact contained in the highlighted selection, not some other part of the article.
+- It must be answerable from the article text alone; never rely on outside knowledge for the correct answer.
+- Exactly 4 choices with exactly one defensibly correct answer. Set answerIndex to the correct choice's position (0-3).
+- Distractors must be plausible and from the same domain (real related names, dates, places where possible).
+- Write a self-contained question: name the subject explicitly; never write "according to the article", "as highlighted", or "as mentioned above".
+- explanation: one sentence stating the fact that makes the answer correct.
+- Plain text only: no URLs, no HTML, no Markdown links or formatting.
+- Write the question in the same language as the article text.
+- If the highlighted selection contains no checkable fact you can build a fair, single-answer question around, return an empty questions array rather than guessing.
+
+Article title: ${args.title}
+${args.description ? `Short description: ${args.description}\n` : ''}Article context (may be truncated):
+${args.context}
+
+Highlighted selection:
+${args.selection}`;
+}
+
+// Content-check the ad-hoc output [C12]: on top of validQuestions' shape rules,
+// enforce tighter length bounds, reject any URL / HTML / Markdown-link markup,
+// require four DISTINCT choices, and drop any image URL (ad-hoc questions are
+// always text). Returns the surviving questions; an empty result is the refusal
+// / no-good-question signal the caller turns into 422 no_question.
+export function validAdhocQuestions(qs: ExtractedQuestion[]): ExtractedQuestion[] {
+  return validQuestions(qs).filter((q) => {
+    const texts = [q.prompt, ...q.choices, q.explanation];
+    // No links or markup may reach the stored, communal question.
+    if (texts.some((t) => /https?:\/\//i.test(t) || /[<>]/.test(t) || /]\(/.test(t))) return false;
+    // Length bounds: a real question, not a fragment or an essay.
+    if (q.prompt.trim().length < 8 || q.prompt.length > 300) return false;
+    if (q.explanation.length > 400) return false;
+    if (q.choices.some((c) => c.length > 160)) return false;
+    // Four genuinely distinct choices (case/space-insensitive).
+    if (new Set(q.choices.map((c) => c.trim().toLowerCase())).size !== 4) return false;
+    // Ad-hoc questions never carry an image URL.
+    if (q.imageUrl) return false;
+    return true;
+  });
+}

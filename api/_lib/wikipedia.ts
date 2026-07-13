@@ -77,6 +77,24 @@ export async function fetchArticleSource(lang: string, title: string): Promise<A
   };
 }
 
+// The article's FULL, uncapped plain text (action API explaintext) — a separate
+// fetch from fetchArticleSource's MAX_TEXT_CHARS-capped generation text. Used
+// ONLY by the ad-hoc containment gate [C9]: a highlight can come from deep in a
+// long article (past the 12k generation cap), so the gate must check the whole
+// article, not the truncated lead. Same single-endpoint discipline (wikiFetch).
+// Redirects are followed (redirects=1) so a canonical title always resolves.
+export async function fetchFullPlaintext(lang: string, canonicalTitle: string): Promise<string> {
+  const res = await wikiFetch(
+    `https://${lang}.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=1&redirects=1&format=json&formatversion=2&titles=${encodeURIComponent(canonicalTitle)}`,
+  );
+  const data = (await res.json()) as {
+    query?: { pages?: Array<{ missing?: boolean; extract?: string }> };
+  };
+  const page = data.query?.pages?.[0];
+  if (!page || page.missing || !page.extract) throw new HttpError(404, 'article_not_found');
+  return page.extract;
+}
+
 // upload.wikimedia.org/.../Some_file.jpg -> its file description page, where
 // the image's own license and author live.
 function filePageFor(imageUrl: string): string {
