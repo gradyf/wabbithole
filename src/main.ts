@@ -781,14 +781,21 @@ function parseHash(): { lang: string; titles: string[] } | null {
   }
 }
 
-// `#settings` is a deep-link that opens the Settings overlay (Task 30 adds
-// `#upgrade` -> Membership). It is not a trail hash, so it must never reach the
-// trail parser (which would empty the stack). Handled on hashchange and, when
-// arrived at via history forward, ahead of the popstate trail logic.
+// `#settings` opens the Settings overlay; `#upgrade` opens it scrolled to the
+// Membership section (shareable deep-link for the upgrade nudges). Neither is a
+// trail hash, so both must short-circuit the trail parser (which would empty the
+// stack). Handled on hashchange and, when arrived at via history forward, ahead
+// of the popstate trail logic.
 function maybeOpenSettingsHash(): boolean {
-  if (location.hash !== '#settings') return false;
-  trivia.openSettings();
-  return true;
+  if (location.hash === '#settings') {
+    trivia.openSettings();
+    return true;
+  }
+  if (location.hash === '#upgrade') {
+    trivia.openSettings(true);
+    return true;
+  }
+  return false;
 }
 window.addEventListener('hashchange', () => {
   maybeOpenSettingsHash();

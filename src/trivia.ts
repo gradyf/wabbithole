@@ -14,7 +14,9 @@ interface TriviaOpts {
 export interface TriviaUI {
   openExtract(node: { lang: string; title: string }): void;
   openBank(): void;
-  openSettings(): void;
+  /** Open the settings overlay; when true, scroll to the Membership section
+   *  (the `#upgrade` deep-link target). */
+  openSettings(scrollToMembership?: boolean): void;
   signIn(): void;
   signUp(): void;
   /** Decorate a card's extract button with cache/bank state (signed-in only). */
@@ -40,7 +42,20 @@ interface ExtractResponse {
   // null for owner accounts, which have no weekly cap.
   weeklyRemaining: number | null;
   weeklyCap: number;
+  // Full curated MC pool size before the per-tier slice (additive, read-only).
+  // Drives the free-tier "N more questions with premium" nudge.
+  mcTotal: number;
   questions: ApiQuestion[];
+}
+
+// GET /api/billing — the caller's membership. tier is fail-closed to free on
+// any server-side error; dates are present only for a live premium subscription.
+interface BillingStatus {
+  tier: 'free' | 'premium' | 'owner';
+  status: 'none' | 'active' | 'canceled';
+  renewsAt: string | null;
+  endsAt: string | null;
+  planSlug: string | null;
 }
 
 interface ArticleStatus {
@@ -165,10 +180,14 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
       closeOverlay(settingsOverlay);
       settingsCache = null;
       settingsLoad = null;
+      billingCache = null;
+      billingLoad = null;
     } else {
       // Warm the preferences so the first quiz draw reflects the flags toggle
-      // without waiting on a round trip.
+      // without waiting on a round trip; warm the tier so nudges/panel decisions
+      // have it ready.
       void ensureSettings();
+      void ensureBilling();
     }
     const userBtn = $('user-button');
     userBtn.hidden = !signedIn;
@@ -291,6 +310,39 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
   let settingsCache: UserPreferences | null = null;
   let settingsLoad: Promise<UserPreferences> | null = null;
 
+  // Membership/tier, loaded once per signed-in session. Everything that gates on
+  // the paid tier (Membership section, the two free-tier nudges, the panel cap)
+  // reads it here. Fails CLOSED: a failed load leaves the cache null, which every
+  // reader treats as free — never premium — and the Membership section shows a
+  // retry line instead of a status.
+  let billingCache: BillingStatus | null = null;
+  let billingLoad: Promise<BillingStatus | null> | null = null;
+
+  function ensureBilling(force = false): Promise<BillingStatus | null> {
+    if (force) {
+      billingCache = null;
+      billingLoad = null;
+    }
+    billingLoad ??= apiFetch<BillingStatus>('/api/billing')
+      .then((r) => {
+        billingCache = r;
+        return r;
+      })
+      .catch(() => {
+        // Allow a retry next open; readers see null and fall back to free.
+        billingLoad = null;
+        return null;
+      });
+    return billingLoad;
+  }
+
+  // Definitive free only. A null cache (load failed / not yet loaded) is NOT
+  // treated as free here, so a premium user with a transient billing error is
+  // never nagged with an upgrade nudge. Nudges/panel-cap read this.
+  function isFreeTier(): boolean {
+    return billingCache?.tier === 'free';
+  }
+
   function ensureSettings(): Promise<UserPreferences> {
     settingsLoad ??= apiFetch<{ preferences: UserPreferences }>('/api/settings')
       .then((r) => {
@@ -345,13 +397,240 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     })();
   });
 
-  function openSettings(): void {
+  function openSettings(scrollToMembership = false): void {
     void (async () => {
       if (!(await requireAuth())) return;
+      // Opening settings takes over the modal layer: clear any extract/quiz
+      // overlay underneath (a nudge's #upgrade link opens settings from the
+      // extract panel).
+      closeOverlay(extractOverlay);
+      closeOverlay(quizOverlay);
       await ensureSettings();
       renderSettings();
       openOverlay(settingsOverlay);
+      // Refresh the tier every open so a just-completed checkout/cancel or an
+      // expired period is reflected; render whatever we have, then repaint when
+      // the fresh status lands.
+      renderMembership();
+      void ensureBilling(true).then(renderMembership);
+      if (scrollToMembership) {
+        // The overlay just became visible; defer so layout is ready.
+        requestAnimationFrame(() =>
+          $('settings-membership').scrollIntoView({ block: 'start', behavior: 'smooth' }),
+        );
+      }
     })();
+  }
+
+  // ---- membership (the Task-29 slot: upgrade / status / cancel) --------------
+
+  const membershipSlot = $('settings-membership-slot');
+
+  // Gray's APPROVED upgrade copy — shipped VERBATIM (D6, locked 2026-07-12).
+  // Only typographic adaptation to markup (the title + two paragraphs) is
+  // allowed. Nothing here implies premium lifts the daily generation cap.
+  const UPGRADE_TITLE = 'Support the burrow';
+  const UPGRADE_BODY_1 =
+    'Wabbit Hole is a hobby project with real running costs: every trivia question comes from a paid AI model, and the servers and database cost money each month. Premium helps cover that, and you get more in return: 25 questions per article instead of 5, highlight any sentence to turn it into a question, and a bank that grows five times faster.';
+  const UPGRADE_BODY_2 =
+    "$3 a month. If you ever cancel, you keep everything you've banked.";
+
+  function fmtDate(iso: string | null): string {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+  }
+
+  function renderMembership(): void {
+    const b = billingCache;
+    // Fail-closed: a failed load (null cache) renders as free with a retry line,
+    // never as premium.
+    if (!b) {
+      membershipSlot.replaceChildren(retryLine(), upgradePitch());
+      return;
+    }
+    if (b.tier === 'owner') {
+      membershipSlot.replaceChildren(statusLine('Owner'));
+      return;
+    }
+    if (b.tier === 'premium') {
+      if (b.status === 'canceled') {
+        const until = fmtDate(b.endsAt);
+        membershipSlot.replaceChildren(
+          statusLine(until ? `Premium until ${until}` : 'Premium, ending soon'),
+          memNote("You keep everything you've banked."),
+        );
+        return;
+      }
+      const renews = fmtDate(b.renewsAt);
+      membershipSlot.replaceChildren(
+        statusLine(renews ? `Premium, renews ${renews}` : 'Premium'),
+        cancelControl(),
+      );
+      return;
+    }
+    // Free.
+    membershipSlot.replaceChildren(upgradePitch());
+  }
+
+  function statusLine(text: string): HTMLElement {
+    const p = document.createElement('p');
+    p.className = 'wh-mem-status';
+    p.textContent = text;
+    return p;
+  }
+
+  function memNote(text: string): HTMLElement {
+    const p = document.createElement('p');
+    p.className = 'wh-mem-note';
+    p.textContent = text;
+    return p;
+  }
+
+  function retryLine(): HTMLElement {
+    const wrap = document.createElement('p');
+    wrap.className = 'wh-mem-note';
+    wrap.textContent = "Couldn't load your membership. ";
+    const retry = document.createElement('button');
+    retry.type = 'button';
+    retry.className = 'wh-linkbtn';
+    retry.textContent = 'Retry';
+    retry.addEventListener('click', () => {
+      void ensureBilling(true).then(renderMembership);
+    });
+    wrap.appendChild(retry);
+    return wrap;
+  }
+
+  function upgradePitch(): HTMLElement {
+    const wrap = document.createElement('div');
+    wrap.className = 'wh-mem';
+    const title = document.createElement('p');
+    title.className = 'wh-mem-title';
+    title.textContent = UPGRADE_TITLE;
+    const p1 = document.createElement('p');
+    p1.className = 'wh-mem-body';
+    p1.textContent = UPGRADE_BODY_1;
+    const p2 = document.createElement('p');
+    p2.className = 'wh-mem-body';
+    p2.textContent = UPGRADE_BODY_2;
+    const cta = document.createElement('button');
+    cta.type = 'button';
+    cta.className = 'wh-btn';
+    const spark = document.createElement('span');
+    spark.className = 'wh-icon';
+    spark.dataset.name = 'sparkles';
+    spark.setAttribute('aria-hidden', 'true');
+    cta.append(spark, 'Get premium');
+    cta.addEventListener('click', () => void startCheckout(cta));
+    wrap.append(title, p1, p2, cta);
+    return wrap;
+  }
+
+  function cancelControl(): HTMLElement {
+    const wrap = document.createElement('div');
+    wrap.className = 'wh-mem-cancel';
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'wh-linkbtn';
+    btn.textContent = 'Cancel premium';
+    btn.addEventListener('click', () => {
+      // One confirm step, DS-styled, no guilt copy: swap the link for a plain
+      // question + two buttons.
+      const confirm = document.createElement('div');
+      confirm.className = 'wh-mem-confirm';
+      const q = document.createElement('p');
+      q.className = 'wh-mem-note';
+      const until = fmtDate(billingCache?.endsAt ?? billingCache?.renewsAt ?? null);
+      q.textContent = until
+        ? `Cancel premium? You'll keep it until ${until}, and keep everything you've banked.`
+        : "Cancel premium? You'll keep everything you've banked.";
+      const row = document.createElement('div');
+      row.className = 'wh-mem-confirm-row';
+      const keep = document.createElement('button');
+      keep.type = 'button';
+      keep.className = 'wh-btn';
+      keep.dataset.variant = 'soft';
+      keep.dataset.size = 'sm';
+      keep.textContent = 'Keep premium';
+      keep.addEventListener('click', () => renderMembership());
+      const go = document.createElement('button');
+      go.type = 'button';
+      go.className = 'wh-btn';
+      go.dataset.size = 'sm';
+      go.textContent = 'Cancel it';
+      go.addEventListener('click', () => void doCancel(go));
+      row.append(keep, go);
+      confirm.append(q, row);
+      wrap.replaceChildren(confirm);
+    });
+    wrap.appendChild(btn);
+    return wrap;
+  }
+
+  async function doCancel(btn: HTMLButtonElement): Promise<void> {
+    btn.disabled = true;
+    try {
+      const next = await apiFetch<BillingStatus>('/api/billing', { method: 'POST' });
+      billingCache = next;
+      renderMembership();
+      opts.onToast('Premium canceled. You keep it until the period ends.');
+    } catch (err) {
+      opts.onToast(err instanceof TriviaError ? err.message : "That didn't work. Try again.");
+      btn.disabled = false;
+    }
+  }
+
+  async function startCheckout(cta: HTMLButtonElement): Promise<void> {
+    const c = await loadClerk();
+    if (!c) {
+      opts.onToast('Accounts are unavailable right now. Wandering still works.');
+      return;
+    }
+    const slug = billingCache?.planSlug;
+    if (!slug) {
+      opts.onToast("Premium isn't quite ready yet. Check back soon.");
+      return;
+    }
+    cta.disabled = true;
+    try {
+      // The plan claim (has({plan})) is keyed by SLUG, but checkout needs the
+      // plan ID; resolve it from the published plans at click time.
+      const plans = await c.billing.getPlans();
+      const plan = plans.data.find((p) => p.slug === slug);
+      if (!plan) {
+        opts.onToast("Premium isn't available right now. Try again soon.");
+        cta.disabled = false;
+        return;
+      }
+      // Clerk's hosted checkout drawer (card entry + confirm). Same entry point
+      // the prebuilt <CheckoutButton> uses under the hood in clerk-js 6.
+      c.__internal_openCheckout({
+        planId: plan.id,
+        planPeriod: 'month',
+        onSubscriptionComplete: () => void afterCheckout(),
+        onClose: () => {
+          cta.disabled = false;
+        },
+      });
+    } catch {
+      opts.onToast("Couldn't start checkout. Try again.");
+      cta.disabled = false;
+    }
+  }
+
+  async function afterCheckout(): Promise<void> {
+    // NOTE-2: the fresh token must carry the plan claim before entitlements flip,
+    // so reload the session first, then re-read tier/status and repaint.
+    try {
+      await clerk?.session?.reload();
+    } catch {
+      // best effort; the forced billing reload below still corrects the view
+    }
+    await ensureBilling(true);
+    renderMembership();
+    opts.onToast('You are premium now. Thanks for keeping the burrow lit.');
   }
 
   // ---- extract panel ---------------------------------------------------------
@@ -375,11 +654,16 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
       try {
         // Flag hint is sent whenever one is detected, regardless of this user's
         // own toggle — the pool is communal and the server validates it hard.
+        // Resolve the tier alongside the extract so the nudge/panel-cap decisions
+        // have it; ensureBilling never rejects, so it can't fail the extract.
         const flag = detectFlag();
-        const data = await apiFetch<ExtractResponse>('/api/extract', {
-          method: 'POST',
-          body: JSON.stringify({ lang: node.lang, title: node.title, ...(flag ? { flag } : {}) }),
-        });
+        const [data] = await Promise.all([
+          apiFetch<ExtractResponse>('/api/extract', {
+            method: 'POST',
+            body: JSON.stringify({ lang: node.lang, title: node.title, ...(flag ? { flag } : {}) }),
+          }),
+          ensureBilling(),
+        ]);
         renderExtract(data);
       } catch (err) {
         renderExtractError(err, node);
@@ -410,7 +694,11 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
 
   function renderExtract(data: ExtractResponse): void {
     extractTitle.textContent = data.article.displayTitle;
-    panelRemaining = data.weeklyRemaining;
+    // Premium/owner are not bounded by the panel's free-basis weekly number (the
+    // extract endpoint reports a free-10 figure to every tier); their real cap
+    // (50 / unlimited) is enforced server-side in bank.ts. Only a known free tier
+    // keeps the panel's hard limit + row greying — existing free behavior intact.
+    panelRemaining = billingCache && billingCache.tier !== 'free' ? null : data.weeklyRemaining;
 
     // Flag rows (image questions) only appear when the user allows them; the
     // server serves them to everyone (communal pool), the toggle decides who
@@ -463,9 +751,47 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
         inBank: statusCache.get(key)?.inBank ?? 0,
       });
     }
-    extractBody.replaceChildren(intro, list);
+
+    // Two quiet free-tier nudges, at most one shown (never for premium/owner):
+    // a hit weekly cap takes priority (it blocks adding at all); otherwise, when
+    // the article's curated pool holds more MC than a free reader is served,
+    // surface the real remainder. No badges, counters, or interstitials.
+    const children: Node[] = [intro, list];
+    if (isFreeTier()) {
+      const servedMc = data.questions.filter((q) => !q.imageUrl).length;
+      const more = data.mcTotal - servedMc;
+      if (panelRemaining === 0) {
+        children.push(upgradeNudge('Weekly bank limit reached. Premium raises it to 50.'));
+      } else if (more > 0) {
+        children.push(
+          upgradeNudge(`${more} more question${more === 1 ? '' : 's'} in this article with premium`),
+        );
+      }
+    }
+
+    extractBody.replaceChildren(...children);
     extractFoot.hidden = false;
     updateAddButton();
+  }
+
+  // A single muted line linking to the Membership section (#upgrade). Shown only
+  // for free users, only when its condition is true — the whole line is the link.
+  function upgradeNudge(message: string): HTMLElement {
+    const a = document.createElement('a');
+    a.className = 'wh-nudge';
+    a.href = '#upgrade';
+    a.textContent = message;
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      goUpgrade();
+    });
+    return a;
+  }
+
+  // The #upgrade in-app path: leave the extract panel and open settings scrolled
+  // to Membership. openSettings also clears the extract/quiz overlays.
+  function goUpgrade(): void {
+    openSettings(true);
   }
 
   function selectedIds(): string[] {
