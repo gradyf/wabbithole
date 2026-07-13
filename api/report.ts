@@ -29,6 +29,17 @@ export default handle(async (request) => {
     throw new HttpError(400, 'bad_request');
   }
 
+  // A well-formed uuid that doesn't exist would otherwise die on the FK insert
+  // as an opaque 500 — answer it with a clean 404 instead. No pre-check/insert
+  // race: questions are never deleted (moderation HIDES, it doesn't delete), so
+  // an id that exists here still exists at the insert.
+  const exists = await db
+    .select({ id: articleQuestions.id })
+    .from(articleQuestions)
+    .where(eq(articleQuestions.id, questionId))
+    .limit(1);
+  if (exists.length === 0) throw new HttpError(404, 'question_not_found');
+
   // Idempotent per (user, question): the unique index makes a re-tap a no-op via
   // onConflictDoNothing, so one person can never advance the distinct count.
   const inserted = await db

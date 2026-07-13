@@ -193,8 +193,28 @@ export function isContained(fullPlaintext: string, selection: string): boolean {
   return normalizeForContainment(fullPlaintext).includes(needle);
 }
 
+// Rendered .wh-prose carries inline citation/footnote markers ([1], [a],
+// [note 2], [citation needed]) that the explaintext output does NOT contain, so
+// a legitimate sentence selection with a marker would false-reject — a paid
+// user seeing "That text isn't in this article." on normal prose. Stripped from
+// BOTH sides (harmless where the haystack never has them; safe even if a
+// marker-shaped string were real article text, since both sides lose it
+// identically).
+const CITATION_MARKERS = /\[(?:\d+|[a-z]{1,2}|note \d+|citation needed)\]/gi;
+
+/** Shared containment normalization, applied identically to the selection and
+ * the plaintext: NFC unicode composition first (the browser DOM and the
+ * explaintext endpoint are not guaranteed the same composition form), then the
+ * citation-marker strip, then whitespace collapse + case fold. Marker strip
+ * runs before the collapse so a marker between words never leaves a double
+ * space behind. */
 function normalizeForContainment(s: string): string {
-  return s.replace(/\s+/g, ' ').trim().toLowerCase();
+  return s
+    .normalize('NFC')
+    .replace(CITATION_MARKERS, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
 }
 
 // ---- DB + generation --------------------------------------------------------
