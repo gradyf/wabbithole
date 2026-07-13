@@ -93,9 +93,13 @@ export function validLang(lang: unknown): lang is string {
 }
 
 // A client-detected flag image, validated server-side before it can seed the
-// communal pool. imageUrl is the exact string echoed to the model and stored;
-// sourceUrl is the file-description page for attribution, DERIVED here (never
-// trusted from the client).
+// communal pool. imageUrl is the NORMALIZED url.href — never the raw client
+// string, whose query/fragment could smuggle newlines that new URL() strips
+// before the gates run but that would survive verbatim into the extraction
+// prompt and the stored row. url.href is guaranteed single-line (newlines/tabs
+// gone, specials percent-encoded); it is the one value echoed to the model,
+// matched post-parse, and stored. sourceUrl is the file-description page for
+// attribution, DERIVED here (never trusted from the client).
 export interface ValidatedFlag {
   imageUrl: string;
   sourceUrl: string;
@@ -123,7 +127,9 @@ export async function validateFlagHint(
     const fileName = baseFileName(url);
     if (!/Flag[_ ]of/i.test(fileName)) return null;
     if (!(await pageHasImage(lang, canonicalTitle, fileName))) return null;
-    return { imageUrl, sourceUrl: filePageForName(fileName) };
+    // url.href, NOT the raw client string: the parser stripped newlines/tabs
+    // before the gates ran, so only the parsed form is what was validated.
+    return { imageUrl: url.href, sourceUrl: filePageForName(fileName) };
   } catch {
     return null;
   }
