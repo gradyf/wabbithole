@@ -43,6 +43,13 @@
       "when": 1783908406491,
       "tag": "0005_unusual_chamber",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1783909637252,
+      "tag": "0006_furry_beast",
+      "breakpoints": true
     }
   ]
 }

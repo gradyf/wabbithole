@@ -1,4 +1,4 @@
-// Drizzle schema for the trivia layer. Seven tables; Clerk is the source of
+// Drizzle schema for the trivia layer. Eight tables; Clerk is the source of
 // truth for users, so rows are keyed by clerk_user_id (no users table).
 
 import { sql } from 'drizzle-orm';
@@ -191,3 +191,24 @@ export const generationLog = pgTable(
     index('generation_log_user_time_idx').on(t.clerkUserId, t.createdAt),
   ],
 );
+
+// Per-user product preferences. Clerk owns identity; Postgres owns product
+// state, so settings live here (not Clerk metadata). One row per user, keyed by
+// clerk_user_id. `preferences` is a whitelisted jsonb blob — api/settings.ts
+// validates every key/shape before it lands. Today it holds `quizFocuses`
+// (which optional trivia lenses, e.g. flag-image questions, this user allows).
+export const userSettings = pgTable('user_settings', {
+  clerkUserId: text('clerk_user_id').primaryKey(),
+  preferences: jsonb('preferences').$type<UserPreferences>().notNull().default({}),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+// The validated shape of `user_settings.preferences`. Every field is optional
+// (absent = the feature's default); api/settings.ts is the only writer and
+// rejects anything not described here.
+export interface UserPreferences {
+  /** Optional trivia lenses this user allows. Present + contains 'flags' =
+   * flag-image questions are shown/quizzed; absent = off (opt-in default). */
+  quizFocuses?: string[];
+}
