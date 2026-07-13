@@ -289,6 +289,13 @@ async function respond(
   entitlements: Entitlements,
 ): Promise<Response> {
   const served = serveQuestions(rows, entitlements);
+  // Additive, read-only count of the FULL curated MC pool for this article
+  // (before the per-tier slice), so the client can quietly tell a free user how
+  // many more questions premium's higher ceiling would surface. Does not touch
+  // the Task-28 slice/ceiling logic — serveQuestions still owns what is served.
+  const mcTotal = rows.filter(
+    (r) => !r.hidden && r.origin === 'extract' && r.type === 'mc',
+  ).length;
   return json({
     article: {
       title: source.canonicalTitle,
@@ -298,6 +305,7 @@ async function respond(
     cached: cachedHit,
     weeklyRemaining: await weeklyRemaining(userId),
     weeklyCap: WEEKLY_ADD_CAP,
+    mcTotal,
     questions: served.map((r) => ({
       id: r.id,
       prompt: r.prompt,

@@ -4,10 +4,11 @@
 //   POST {action:'remove', bankItemIds}  -> unlink items
 
 import { and, desc, eq, inArray } from 'drizzle-orm';
-import { requireUser } from './_lib/auth.js';
-import { db, withUserLock } from './_lib/db.js';
+import { authenticate } from './_lib/auth.js';
+import { type DbTx, db, withUserLock } from './_lib/db.js';
+import { type Entitlements, resolveEntitlements } from './_lib/entitlements.js';
 import { HttpError, handle, json, readJson } from './_lib/http.js';
-import { WEEKLY_ADD_CAP, weeklyRemaining } from './_lib/limits.js';
+import { weeklyAddsUsed } from './_lib/limits.js';
 import { articleQuestions, articles, bankItems } from './_lib/schema.js';
 
 interface BankPost {
@@ -17,16 +18,31 @@ interface BankPost {
 }
 
 export default handle(async (request) => {
-  const userId = await requireUser(request);
+  const { userId, has } = await authenticate(request);
+  // The tier decides the weekly bank-add cap: free 10 / premium 50 / owner
+  // unlimited. Resolved once per request and threaded into list() + add().
+  const entitlements = await resolveEntitlements(userId, has);
 
-  if (request.method === 'GET') return list(userId);
+  if (request.method === 'GET') return list(userId, entitlements);
   if (request.method !== 'POST') throw new HttpError(405, 'method_not_allowed');
 
   const body = await readJson<BankPost>(request);
-  if (body.action === 'add') return add(userId, idList(body.questionIds));
+  if (body.action === 'add') return add(userId, entitlements, idList(body.questionIds));
   if (body.action === 'remove') return remove(userId, idList(body.bankItemIds));
   throw new HttpError(400, 'bad_request');
 });
+
+// Slots left this rolling week for this tier, or null for owner (uncapped).
+// Reads live bank rows via the given executor, so the count runs inside the
+// per-user lock in add() (no add/add race can overspend the cap).
+async function remainingFor(
+  ent: Entitlements,
+  userId: string,
+  executor: typeof db | DbTx = db,
+): Promise<number | null> {
+  if (ent.weeklyAddCap === null) return null;
+  return Math.max(0, ent.weeklyAddCap - (await weeklyAddsUsed(userId, executor)));
+}
 
 function idList(value: unknown): string[] {
   if (
@@ -40,7 +56,7 @@ function idList(value: unknown): string[] {
   return value;
 }
 
-async function list(userId: string): Promise<Response> {
+async function list(userId: string, ent: Entitlements): Promise<Response> {
   const rows = await db
     .select({
       bankItemId: bankItems.id,
@@ -62,10 +78,10 @@ async function list(userId: string): Promise<Response> {
     .innerJoin(articles, eq(articleQuestions.articleId, articles.id))
     .where(eq(bankItems.clerkUserId, userId))
     .orderBy(desc(bankItems.addedAt));
-  return json({ items: rows, remaining: await weeklyRemaining(userId), cap: WEEKLY_ADD_CAP });
+  return json({ items: rows, remaining: await remainingFor(ent, userId), cap: ent.weeklyAddCap });
 }
 
-async function add(userId: string, questionIds: string[]): Promise<Response> {
+async function add(userId: string, ent: Entitlements, questionIds: string[]): Promise<Response> {
   // Only questions that actually exist; insert is idempotent per user+question.
   const existing = await db
     .select({ id: articleQuestions.id })
@@ -75,7 +91,7 @@ async function add(userId: string, questionIds: string[]): Promise<Response> {
   // Cap check and insert share a per-user lock so two concurrent adds
   // can't both spend the same remaining slots.
   const result = await withUserLock(userId, async (tx) => {
-    const remaining = await weeklyRemaining(userId, tx);
+    const remaining = await remainingFor(ent, userId, tx);
     if (remaining === 0 || existing.length === 0) return { added: 0, remaining };
 
     // Owner accounts (remaining null) take everything; otherwise the cap
@@ -90,11 +106,10 @@ async function add(userId: string, questionIds: string[]): Promise<Response> {
   });
 
   if (result.added === 0 && result.remaining === 0) {
-    throw new HttpError(
-      429,
-      'weekly_cap',
-      `Your bank takes ${WEEKLY_ADD_CAP} new questions a week. It has room again soon.`,
-    );
+    // A friendly code the client renders as a soft line (and, for free users,
+    // a quiet premium nudge) — never a modal. Message stays tier-neutral; the
+    // "premium raises it" pitch lives client-side, gated on the free tier.
+    throw new HttpError(429, 'weekly_cap', 'Weekly bank limit reached. It has room again soon.');
   }
   return json(result);
 }
