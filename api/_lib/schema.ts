@@ -192,6 +192,32 @@ export const generationLog = pgTable(
   ],
 );
 
+// The moderation floor (Task 31, Phase 7). One row per (user, question) report,
+// so a report is idempotent per user (the unique index) and the DISTINCT
+// reporter count for a question is simply COUNT(*) of its rows. A table — not a
+// report_count column on article_questions — is deliberate: a bare counter
+// cannot dedup a user re-tapping, so it could be inflated by one person; this
+// shape makes "3 DISTINCT reporters" exact and re-tap-proof. At threshold the
+// endpoint sets article_questions.hidden=true, which drops the row from every
+// serve/quiz read WITHOUT deleting it, so existing bank_items FKs (and the
+// banker's own quiz) keep working. The FK to article_questions guarantees a
+// report always points at a real question.
+export const questionReports = pgTable(
+  'question_reports',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    clerkUserId: text('clerk_user_id').notNull(),
+    questionId: uuid('question_id')
+      .notNull()
+      .references(() => articleQuestions.id),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex('question_reports_user_question_idx').on(t.clerkUserId, t.questionId),
+    index('question_reports_question_idx').on(t.questionId),
+  ],
+);
+
 // Per-user product preferences. Clerk owns identity; Postgres owns product
 // state, so settings live here (not Clerk metadata). One row per user, keyed by
 // clerk_user_id. `preferences` is a whitelisted jsonb blob — api/settings.ts

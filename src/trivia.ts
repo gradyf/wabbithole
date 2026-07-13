@@ -1913,12 +1913,42 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
 
     const actions = document.createElement('div');
     actions.className = 'wh-quiz-actions';
-    actions.appendChild(next);
+    // A quiet "report question" affordance on the reveal (moderation floor). It
+    // sits left of the advance button (margin-right:auto) so it never competes
+    // with the primary action.
+    actions.append(buildReportButton(item.questionId), next);
     quizBody.append(feedback, actions);
     // Feedback is showing: Enter/Space now advance.
     quizPrimaryBtn = next;
     next.focus();
     opts.announce(feedback.textContent);
+  }
+
+  function buildReportButton(questionId: string): HTMLButtonElement {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'wh-btn wh-quiz-report';
+    btn.dataset.variant = 'ghost';
+    btn.dataset.size = 'sm';
+    btn.textContent = 'Report question';
+    btn.addEventListener('click', () => void reportQuestion(questionId, btn));
+    return btn;
+  }
+
+  // POST /api/report — idempotent per user server-side; a re-tap in a later round
+  // just no-ops there and thanks the user again. A network failure is honest
+  // (re-enable + a retry toast) rather than a false "thank you".
+  async function reportQuestion(questionId: string, btn: HTMLButtonElement): Promise<void> {
+    btn.disabled = true;
+    try {
+      await apiFetch('/api/report', { method: 'POST', body: JSON.stringify({ questionId }) });
+      btn.textContent = 'Reported';
+      opts.onToast('Reported. Thank you.');
+      opts.announce('Reported. Thank you.');
+    } catch (err) {
+      btn.disabled = false;
+      opts.onToast(err instanceof TriviaError ? err.message : "Couldn't send that report. Try again.");
+    }
   }
 
   function renderQuizEnd(): void {
