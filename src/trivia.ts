@@ -595,6 +595,17 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     }
     cta.disabled = true;
     try {
+      // Preferred path: Clerk's hosted checkout drawer (card entry + confirm),
+      // the same entry point the prebuilt <CheckoutButton> uses under the hood
+      // in clerk-js 6. It is an __internal_ symbol, so feature-detect at click
+      // time: if a future clerk-js drops or renames it, fall back IN CODE to
+      // the documented PricingTable component — checkout keeps working instead
+      // of dead-ending on a toast (review MINOR-1).
+      if (typeof c.__internal_openCheckout !== 'function') {
+        openPricingFallback(c);
+        cta.disabled = false;
+        return;
+      }
       // The plan claim (has({plan})) is keyed by SLUG, but checkout needs the
       // plan ID; resolve it from the published plans at click time.
       const plans = await c.billing.getPlans();
@@ -604,8 +615,6 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
         cta.disabled = false;
         return;
       }
-      // Clerk's hosted checkout drawer (card entry + confirm). Same entry point
-      // the prebuilt <CheckoutButton> uses under the hood in clerk-js 6.
       c.__internal_openCheckout({
         planId: plan.id,
         planPeriod: 'month',
@@ -620,6 +629,48 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     }
   }
 
+  // Documented-API fallback when the hosted drawer entry point is missing:
+  // mount Clerk's PricingTable inside the Membership section. Its Subscribe flow
+  // handles payment end to end and is self-consistent within whatever clerk-js
+  // version is loaded. The refresh line re-reads the tier once the user has
+  // subscribed; renderMembership then replaces the slot with the new state.
+  function openPricingFallback(c: Clerk): void {
+    if (membershipSlot.querySelector('.wh-mem-pricing')) return; // already mounted
+    const wrap = document.createElement('div');
+    wrap.className = 'wh-mem-pricing';
+    const mount = document.createElement('div');
+    wrap.appendChild(mount);
+    const note = document.createElement('p');
+    note.className = 'wh-mem-note';
+    note.textContent = 'Subscribed? ';
+    const refresh = document.createElement('button');
+    refresh.type = 'button';
+    refresh.className = 'wh-linkbtn';
+    refresh.textContent = 'Refresh status';
+    refresh.addEventListener('click', () => {
+      void (async () => {
+        // Same NOTE-2 order as afterCheckout, minus its completion toast (this
+        // line can be clicked before any purchase happened).
+        try {
+          await clerk?.session?.reload();
+        } catch {
+          // best effort; the forced billing reload below still corrects the view
+        }
+        await ensureBilling(true);
+        renderMembership();
+      })();
+    });
+    note.appendChild(refresh);
+    wrap.appendChild(note);
+    membershipSlot.appendChild(wrap);
+    try {
+      c.mountPricingTable(mount as HTMLDivElement);
+    } catch {
+      wrap.remove();
+      opts.onToast("Couldn't start checkout. Try again.");
+    }
+  }
+
   async function afterCheckout(): Promise<void> {
     // NOTE-2: the fresh token must carry the plan claim before entitlements flip,
     // so reload the session first, then re-read tier/status and repaint.
@@ -628,9 +679,15 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     } catch {
       // best effort; the forced billing reload below still corrects the view
     }
-    await ensureBilling(true);
+    const b = await ensureBilling(true);
     renderMembership();
-    opts.onToast('You are premium now. Thanks for keeping the burrow lit.');
+    // NOTE-3: only claim premium once the reloaded status actually shows it; a
+    // lagging plan claim gets a neutral line the repainted UI can't contradict.
+    if (b && b.tier !== 'free') {
+      opts.onToast('You are premium now. Thanks for keeping the burrow lit.');
+    } else {
+      opts.onToast('Checkout complete. Your plan may take a moment to update.');
+    }
   }
 
   // ---- extract panel ---------------------------------------------------------

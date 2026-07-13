@@ -6,7 +6,10 @@
 //           Backend API; a lookup failure degrades to status 'none' — it never
 //           downgrades the token-derived tier and never throws to the client.
 //   POST -> cancel the premium subscription item at END OF PERIOD (endNow:false,
-//           D5 keep-until-period-end), then echo the refreshed status.
+//           D5 keep-until-period-end), then echo the refreshed status. Errors
+//           are honest: 404 no_subscription ONLY when the lookup succeeded and
+//           found nothing; a failed Clerk call is a retryable 503
+//           billing_unavailable (never a misleading "you have no subscription").
 //
 // Reuses the shared Clerk backend client (CLERK_SECRET_KEY) — no new secrets.
 // WH_PREMIUM_PLAN is the plan SLUG (the same identifier resolveEntitlements
@@ -90,18 +93,33 @@ function iso(ms: number | null | undefined): string | null {
   return typeof ms === 'number' ? new Date(ms).toISOString() : null;
 }
 
-// The user's live premium subscription item (matched to WH_PREMIUM_PLAN by
-// plan slug), or null. Any lookup error (billing not enabled, no subscription,
-// network) resolves to null so the surface fails safe rather than throwing.
-async function premiumItem(userId: string) {
-  const slug = process.env.WH_PREMIUM_PLAN;
+// The user's live premium subscription item (matched to WH_PREMIUM_PLAN by plan
+// slug). The two "no item" outcomes are deliberately DISTINCT (review MINOR-2):
+// a lookup that SUCCEEDS with no matching item resolves null (the true "no
+// subscription" — cancel maps it to 404); a Clerk call that FAILS (outage,
+// network, billing disabled) throws a retryable 503 billing_unavailable, so a
+// premium user mid-outage is told to retry — never that they have nothing. An
+// ambiguous failure can therefore never proceed to a cancel (fail-safe).
+// Takes the fetch as a thunk so the split is unit-testable without the SDK.
+export async function lookupPremiumItem(
+  fetchSub: () => Promise<{ subscriptionItems: PremiumItemShape[] }>,
+  slug: string | undefined,
+): Promise<PremiumItemShape | null> {
   if (!slug) return null;
+  let items: PremiumItemShape[];
   try {
-    const sub = await clerk.billing.getUserBillingSubscription(userId);
-    return sub.subscriptionItems.find((i) => matchesPremiumItem(i, slug)) ?? null;
+    items = (await fetchSub()).subscriptionItems;
   } catch {
-    return null;
+    throw new HttpError(503, 'billing_unavailable', "Couldn't reach billing. Try again in a moment.");
   }
+  return items.find((i) => matchesPremiumItem(i, slug)) ?? null;
+}
+
+async function premiumItem(userId: string): Promise<PremiumItemShape | null> {
+  return lookupPremiumItem(
+    () => clerk.billing.getUserBillingSubscription(userId),
+    process.env.WH_PREMIUM_PLAN,
+  );
 }
 
 async function status(userId: string, has: Awaited<ReturnType<typeof authenticate>>['has']): Promise<Response> {
@@ -118,18 +136,32 @@ async function status(userId: string, has: Awaited<ReturnType<typeof authenticat
   // and free have no premium item; skipping the lookup also avoids a needless
   // Clerk round trip on every settings open for them.
   if (entitlements.tier === 'premium') {
-    const item = await premiumItem(userId);
-    if (item) Object.assign(body, deriveDates(item));
+    try {
+      const item = await premiumItem(userId);
+      if (item) Object.assign(body, deriveDates(item));
+    } catch {
+      // GET stays fail-safe: a billing blip degrades the DATES to 'none' but
+      // keeps the token-derived tier — the client renders "Premium" undated
+      // rather than a 5xx or a bogus downgrade. Only cancel surfaces the 503.
+    }
   }
 
   return json(body);
 }
 
 async function cancel(userId: string, has: Awaited<ReturnType<typeof authenticate>>['has']): Promise<Response> {
+  // A Clerk lookup failure propagates as 503 billing_unavailable (retryable);
+  // only a SUCCESSFUL lookup with no live item is the true 404.
   const item = await premiumItem(userId);
   if (!item) throw new HttpError(404, 'no_subscription', 'No active premium subscription to cancel.');
   // endNow:false — D5 keep-until-period-end. The user keeps premium (and every
   // banked question) until the paid period ends, then reverts to free.
-  await clerk.billing.cancelSubscriptionItem(item.id, { endNow: false });
+  try {
+    await clerk.billing.cancelSubscriptionItem(item.id, { endNow: false });
+  } catch {
+    // Same retryable code: the cancel may or may not have landed; the client
+    // retries and the lookup/cancel pair is idempotent for a live item.
+    throw new HttpError(503, 'billing_unavailable', "Couldn't reach billing. Try again in a moment.");
+  }
   return status(userId, has);
 }
