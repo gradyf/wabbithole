@@ -76,6 +76,9 @@
       <button class="wh-btn" data-variant="ghost" id="btn-bank" hidden aria-label="Trivia">
         <span class="wh-icon" data-name="book-marked" aria-hidden="true"></span><span class="wh-btn-label">Trivia</span>
       </button>
+      <button class="wh-btn" data-variant="ghost" id="btn-settings" hidden aria-label="Settings">
+        <span class="wh-icon" data-name="settings" aria-hidden="true"></span><span class="wh-btn-label">Settings</span>
+      </button>
       <button class="wh-btn" data-variant="soft" id="btn-share" aria-label="Share">
         <span class="wh-icon" data-name="link" aria-hidden="true"></span><span class="wh-btn-label">Share</span>
       </button>
@@ -317,6 +320,40 @@
             <p>Wandering needs no account and is not tracked. An account lets your trivia bank and saved trails follow you between visits; it stores only your saved questions, your saved trails, and quiz stats. This project is not endorsed by or affiliated with the Wikimedia Foundation.</p>
             <p>Trivia questions are generated from article text by a language model and can be wrong. Each question links back to its source article.</p>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="wh-overlay" id="settings-overlay" hidden>
+      <div class="wh-panel" data-side="center" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <div class="wh-panel-head">
+          <h2 class="wh-panel-title" id="settings-title">Settings</h2>
+          <button class="wh-iconbtn" data-size="sm" id="btn-close-settings" aria-label="Close">
+            <span class="wh-icon" data-name="x" aria-hidden="true"></span>
+          </button>
+        </div>
+        <div class="wh-panel-body" data-pad>
+          <section class="wh-settings-section">
+            <h3 class="wh-settings-heading">Study</h3>
+            <label class="wh-settings-row" for="settings-flags">
+              <span class="wh-settings-row-text">
+                <span class="wh-settings-row-title">Allow flag questions</span>
+                <span class="wh-settings-row-note">Trivia may include identify-the-flag questions with images.</span>
+              </span>
+              <span class="wh-switch">
+                <input type="checkbox" id="settings-flags" role="switch" />
+                <span class="wh-switch-track" aria-hidden="true"><span class="wh-switch-thumb"></span></span>
+              </span>
+            </label>
+          </section>
+          <section class="wh-settings-section">
+            <h3 class="wh-settings-heading">Account</h3>
+            <p class="wh-settings-account" id="settings-email"></p>
+          </section>
+          <section class="wh-settings-section" id="settings-membership">
+            <h3 class="wh-settings-heading">Membership</h3>
+            <div id="settings-membership-slot"></div>
+          </section>
         </div>
       </div>
     </div>

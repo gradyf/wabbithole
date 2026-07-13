@@ -730,6 +730,7 @@ $('btn-export').addEventListener('click', () => {
 
 $('btn-bank').addEventListener('click', () => trivia.openBank());
 $('btn-entry-bank').addEventListener('click', () => trivia.openBank());
+$('btn-settings').addEventListener('click', () => trivia.openSettings());
 $('btn-signin').addEventListener('click', () => trivia.signIn());
 
 // ---- landing page --------------------------------------------------------
@@ -780,7 +781,21 @@ function parseHash(): { lang: string; titles: string[] } | null {
   }
 }
 
+// `#settings` is a deep-link that opens the Settings overlay (Task 30 adds
+// `#upgrade` -> Membership). It is not a trail hash, so it must never reach the
+// trail parser (which would empty the stack). Handled on hashchange and, when
+// arrived at via history forward, ahead of the popstate trail logic.
+function maybeOpenSettingsHash(): boolean {
+  if (location.hash !== '#settings') return false;
+  trivia.openSettings();
+  return true;
+}
+window.addEventListener('hashchange', () => {
+  maybeOpenSettingsHash();
+});
+
 window.addEventListener('popstate', (e) => {
+  if (maybeOpenSettingsHash()) return;
   const state = e.state as TrailState | null;
   if (state?.trail) {
     // In-session back/forward (states we pushed) — the race rides along:
@@ -830,3 +845,5 @@ if (resumed) {
   updateHomeScreens();
   if (!entry.hidden) searchInput.focus();
 }
+// A `#settings` deep-link opens the overlay on top of whatever booted above.
+maybeOpenSettingsHash();

@@ -14,6 +14,7 @@ interface TriviaOpts {
 export interface TriviaUI {
   openExtract(node: { lang: string; title: string }): void;
   openBank(): void;
+  openSettings(): void;
   signIn(): void;
   signUp(): void;
   /** Decorate a card's extract button with cache/bank state (signed-in only). */
@@ -67,6 +68,13 @@ interface QuizSession {
   playedAt: string;
   questionCount: number;
   correctCount: number;
+}
+
+// The server-persisted preferences blob (api/settings.ts). quizFocuses lists
+// the optional trivia lenses this user allows; ['flags'] = flag-image questions
+// are shown and quizzed, absent/empty = off (opt-in default).
+interface UserPreferences {
+  quizFocuses?: string[];
 }
 
 class TriviaError extends Error {
@@ -151,7 +159,17 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     console.debug('[trivia] auth change', { signedIn, status: clerk?.status, hasSession: !!clerk?.session });
     $('btn-signin').hidden = signedIn || !clerk;
     $('btn-bank').hidden = !signedIn;
-    if (!signedIn) setBankSidebar(false);
+    $('btn-settings').hidden = !signedIn;
+    if (!signedIn) {
+      setBankSidebar(false);
+      closeOverlay(settingsOverlay);
+      settingsCache = null;
+      settingsLoad = null;
+    } else {
+      // Warm the preferences so the first quiz draw reflects the flags toggle
+      // without waiting on a round trip.
+      void ensureSettings();
+    }
     const userBtn = $('user-button');
     userBtn.hidden = !signedIn;
     if (signedIn && clerk && !userButtonMounted) {
@@ -229,6 +247,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
 
   const extractOverlay = $('extract-overlay');
   const quizOverlay = $('quiz-overlay');
+  const settingsOverlay = $('settings-overlay');
 
   function openOverlay(el: HTMLElement): void {
     el.hidden = false;
@@ -241,13 +260,14 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     }
   }
 
-  for (const el of [extractOverlay, quizOverlay]) {
+  for (const el of [extractOverlay, quizOverlay, settingsOverlay]) {
     el.addEventListener('click', (e) => {
       if (e.target === el) closeOverlay(el);
     });
   }
   $('btn-close-extract').addEventListener('click', () => closeOverlay(extractOverlay));
   $('btn-close-quiz').addEventListener('click', () => closeOverlay(quizOverlay));
+  $('btn-close-settings').addEventListener('click', () => closeOverlay(settingsOverlay));
 
   // Close the topmost trivia overlay on Escape before main.ts's handler can
   // resurface a card (capture phase runs first; stopPropagation ends it).
@@ -255,7 +275,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     'keydown',
     (e) => {
       if (e.key !== 'Escape') return;
-      const open = [quizOverlay, extractOverlay].find((el) => !el.hidden);
+      const open = [quizOverlay, extractOverlay, settingsOverlay].find((el) => !el.hidden);
       if (open) {
         e.stopPropagation();
         closeOverlay(open);
@@ -263,6 +283,76 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     },
     true,
   );
+
+  // ---- settings + focus preferences -----------------------------------------
+
+  // Loaded once per signed-in session (mirrors statusCache). quizFocuses gates
+  // which flag rows this user sees/quizzes; the communal pool is unaffected.
+  let settingsCache: UserPreferences | null = null;
+  let settingsLoad: Promise<UserPreferences> | null = null;
+
+  function ensureSettings(): Promise<UserPreferences> {
+    settingsLoad ??= apiFetch<{ preferences: UserPreferences }>('/api/settings')
+      .then((r) => {
+        settingsCache = r.preferences ?? {};
+        return settingsCache;
+      })
+      .catch(() => {
+        // A failed load must not strand the session offline forever; default to
+        // empty (flags off) and allow a retry next time settings are needed.
+        settingsLoad = null;
+        settingsCache ??= {};
+        return settingsCache;
+      });
+    return settingsLoad;
+  }
+
+  // Synchronous read for the quiz/panel draw. Absent cache = flags off (the
+  // opt-in default), which is exactly today's behavior for non-flag rows.
+  function flagsOn(): boolean {
+    return (settingsCache?.quizFocuses ?? []).includes('flags');
+  }
+
+  const flagsToggle = $<HTMLInputElement>('settings-flags');
+
+  function renderSettings(): void {
+    flagsToggle.checked = flagsOn();
+    const email = clerk?.user?.primaryEmailAddress?.emailAddress ?? '';
+    $('settings-email').textContent = email || 'Signed in';
+  }
+
+  flagsToggle.addEventListener('change', () => {
+    const on = flagsToggle.checked;
+    const before = settingsCache?.quizFocuses ?? [];
+    const next = on
+      ? Array.from(new Set([...before, 'flags']))
+      : before.filter((f) => f !== 'flags');
+    // Optimistic: the toggle already shows `on`; persist and revert on failure.
+    settingsCache = { ...(settingsCache ?? {}), quizFocuses: next };
+    void (async () => {
+      try {
+        const r = await apiFetch<{ preferences: UserPreferences }>('/api/settings', {
+          method: 'PUT',
+          body: JSON.stringify({ preferences: { quizFocuses: next } }),
+        });
+        settingsCache = r.preferences ?? {};
+        renderSettings();
+      } catch {
+        settingsCache = { ...(settingsCache ?? {}), quizFocuses: before };
+        flagsToggle.checked = before.includes('flags');
+        opts.onToast("That didn't save. Try again.");
+      }
+    })();
+  });
+
+  function openSettings(): void {
+    void (async () => {
+      if (!(await requireAuth())) return;
+      await ensureSettings();
+      renderSettings();
+      openOverlay(settingsOverlay);
+    })();
+  }
 
   // ---- extract panel ---------------------------------------------------------
 
@@ -283,9 +373,12 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
       extractBody.replaceChildren(skeleton());
       openOverlay(extractOverlay);
       try {
+        // Flag hint is sent whenever one is detected, regardless of this user's
+        // own toggle — the pool is communal and the server validates it hard.
+        const flag = detectFlag();
         const data = await apiFetch<ExtractResponse>('/api/extract', {
           method: 'POST',
-          body: JSON.stringify({ lang: node.lang, title: node.title }),
+          body: JSON.stringify({ lang: node.lang, title: node.title, ...(flag ? { flag } : {}) }),
         });
         renderExtract(data);
       } catch (err) {
@@ -294,20 +387,46 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     })();
   }
 
+  // Scan the active card's infobox for a flag image and return a hint. Parsoid
+  // keeps the file link's `resource` (./File:Flag_of_X.svg) and the
+  // mw-file-description anchor, so either identifies the flag; imageUrl is the
+  // resolved (possibly thumbnail) upload URL the browser actually loaded.
+  function detectFlag(): { imageUrl: string; sourceUrl: string } | null {
+    const card = document.querySelector('.wh-cardpos[data-active]') ?? document;
+    const anchor = card.querySelector<HTMLAnchorElement>('a.mw-file-description[title^="Flag of" i]');
+    const img =
+      anchor?.querySelector<HTMLImageElement>('img') ??
+      card.querySelector<HTMLImageElement>('img[resource*="File:Flag_of" i]');
+    if (!img) return null;
+    let imageUrl = img.currentSrc || img.src || '';
+    if (imageUrl.startsWith('//')) imageUrl = `https:${imageUrl}`;
+    if (!imageUrl.startsWith('https://')) return null;
+    // sourceUrl is best-effort attribution; the server derives its own from the
+    // validated URL, so an unresolved/relative anchor href is harmless here.
+    const href = anchor?.href ?? '';
+    const sourceUrl = href.startsWith('https://') ? href : imageUrl;
+    return { imageUrl, sourceUrl };
+  }
+
   function renderExtract(data: ExtractResponse): void {
     extractTitle.textContent = data.article.displayTitle;
     panelRemaining = data.weeklyRemaining;
 
+    // Flag rows (image questions) only appear when the user allows them; the
+    // server serves them to everyone (communal pool), the toggle decides who
+    // sees them. Off = today's text-only panel, exactly.
+    const visible = flagsOn() ? data.questions : data.questions.filter((q) => !q.imageUrl);
+
     const intro = document.createElement('p');
     intro.className = 'wh-trivia-intro';
     intro.textContent =
-      data.questions.length === 1
+      visible.length === 1
         ? '1 question from this article. Keep the ones worth remembering.'
-        : `${data.questions.length} questions from this article. Keep the ones worth remembering.`;
+        : `${visible.length} questions from this article. Keep the ones worth remembering.`;
 
     const list = document.createElement('div');
     list.className = 'wh-picks';
-    data.questions.forEach((q, i) => {
+    visible.forEach((q, i) => {
       const label = document.createElement('label');
       label.className = 'wh-pick';
       const input = document.createElement('input');
@@ -330,7 +449,9 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
       const answer = document.createElement('span');
       answer.className = 'wh-pick-a';
       answer.textContent = q.choices[q.answerIndex];
-      text.append(prompt, answer);
+      text.append(prompt);
+      if (q.imageUrl) text.append(flagImage(q.imageUrl, q.imageSourceUrl));
+      text.append(answer);
       label.append(input, box, text);
       list.appendChild(label);
     });
@@ -617,6 +738,9 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
   function openBank(): void {
     void (async () => {
       if (!(await requireAuth({ type: 'bank' }))) return;
+      // Preferences gate the quiz draw (flag front-loading); make sure they are
+      // loaded before a draw can happen.
+      await ensureSettings();
       if ($('main-row').hidden) {
         try {
           await loadBankData();
@@ -741,6 +865,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
   function revealBlock(item: BankItem): HTMLElement {
     const reveal = document.createElement('div');
     reveal.className = 'wh-bank-reveal';
+    if (item.imageUrl) reveal.appendChild(flagImage(item.imageUrl, item.imageSourceUrl));
     const answer = document.createElement('p');
     answer.className = 'wh-bank-a';
     answer.textContent = item.choices[item.answerIndex] ?? '';
@@ -1039,13 +1164,24 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
   }
 
   function startQuiz(): void {
-    quizItems = shuffle([...bank]).slice(0, QUIZ_SIZE);
+    quizItems = drawQuiz();
     quizIndex = 0;
     quizCorrect = 0;
     quizResults = [];
     openOverlay(quizOverlay);
     attachQuizKeys();
     renderQuizQuestion();
+  }
+
+  // The quiz draw honors the flags toggle (client-side only; the bank keeps
+  // every row). On: flag questions are front-loaded ahead of a shuffled rest.
+  // Off: flag rows are excluded from draws (but stay in the bank list). Empty/
+  // absent preferences on non-flag rows = today's uniform shuffle, unchanged.
+  function drawQuiz(): BankItem[] {
+    const flags = bank.filter((b) => b.imageUrl);
+    const rest = bank.filter((b) => !b.imageUrl);
+    const ordered = flagsOn() ? [...shuffle(flags), ...shuffle(rest)] : shuffle(rest);
+    return ordered.slice(0, QUIZ_SIZE);
   }
 
   function renderQuizQuestion(): void {
@@ -1057,6 +1193,8 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     const prompt = document.createElement('p');
     prompt.className = 'wh-quiz-q';
     prompt.textContent = item.prompt;
+
+    const image = item.imageUrl ? flagImage(item.imageUrl, item.imageSourceUrl) : null;
 
     const choices = document.createElement('div');
     choices.className = 'wh-quiz-choices';
@@ -1087,7 +1225,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     a.textContent = item.articleTitle.replace(/_/g, ' ');
     from.append('From the Wikipedia article ', a);
 
-    quizBody.replaceChildren(prompt, choices, from);
+    quizBody.replaceChildren(...(image ? [prompt, image, choices, from] : [prompt, choices, from]));
   }
 
   function answerQuiz(item: BankItem, picked: number, choicesEl: HTMLElement): void {
@@ -1250,6 +1388,35 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     return arr;
   }
 
+  // A flag question's image + attribution link, shared by the panel, quiz, and
+  // bank. alt is deliberately generic ("flag") so assistive tech never reads the
+  // country and gives the answer away. Attribution matches the per-question
+  // discipline: the file page carries the image's own license and author.
+  function flagImage(url: string, sourceUrl: string | null): HTMLElement {
+    const fig = document.createElement('figure');
+    fig.className = 'wh-qimage';
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = 'flag';
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    fig.appendChild(img);
+    if (sourceUrl) {
+      const a = document.createElement('a');
+      a.className = 'wh-qimage-src';
+      a.href = sourceUrl;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      const icon = document.createElement('span');
+      icon.className = 'wh-icon';
+      icon.dataset.name = 'external-link';
+      icon.setAttribute('aria-hidden', 'true');
+      a.append(icon, 'Image source');
+      fig.appendChild(a);
+    }
+    return fig;
+  }
+
   // Load Clerk at boot only for returning users (its __client_uat cookie is
   // nonzero when a session exists), so anonymous wandering never downloads
   // the auth bundle. Everyone else gets it on their first trivia action.
@@ -1258,6 +1425,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
   return {
     openExtract,
     openBank,
+    openSettings,
     decorateExtractButton,
     api: apiFetch,
     signIn: () => {

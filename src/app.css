@@ -844,6 +844,7 @@ html[data-reading] .wh-card[data-state="active"] > .wh-tab .wh-tab-title {
 .wh-icon[data-name="circle-check"] { -webkit-mask-image: url("./ds/assets/icons/circle-check.svg"); mask-image: url("./ds/assets/icons/circle-check.svg"); }
 .wh-icon[data-name="book-marked"] { -webkit-mask-image: url("./ds/assets/icons/book-marked.svg"); mask-image: url("./ds/assets/icons/book-marked.svg"); }
 .wh-icon[data-name="list-tree"] { -webkit-mask-image: url("./ds/assets/icons/list-tree.svg"); mask-image: url("./ds/assets/icons/list-tree.svg"); }
+.wh-icon[data-name="settings"] { -webkit-mask-image: url("./ds/assets/icons/settings.svg"); mask-image: url("./ds/assets/icons/settings.svg"); }
 
 /* Clerk user button slot in the topbar */
 .wh-userbtn { display: flex; align-items: center; }
@@ -1401,3 +1402,104 @@ html[data-reading] .wh-racebar-kicker { display: none; }
   #racebar-leave .wh-btn-label { display: none; }
   .wh-race-win-stats { gap: var(--space-5); }
 }
+
+/* ---- settings overlay ---- */
+.wh-settings-section { margin-bottom: var(--space-5); }
+.wh-settings-section:last-child { margin-bottom: 0; }
+.wh-settings-heading {
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-faint);
+  margin: 0 0 var(--space-3);
+}
+.wh-settings-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-3);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-md);
+  background: var(--surface-app);
+  cursor: pointer;
+}
+.wh-settings-row-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; flex: 1; }
+.wh-settings-row-title {
+  font-family: var(--font-sans);
+  font-size: var(--text-ui);
+  color: var(--text-primary);
+}
+.wh-settings-row-note {
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  color: var(--text-faint);
+  line-height: 1.4;
+}
+.wh-settings-account {
+  font-family: var(--font-sans);
+  font-size: var(--text-ui);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* accessible switch: the native checkbox is visually hidden but stays in the
+   tab order and drives the track/thumb via sibling selectors */
+.wh-switch { position: relative; flex: none; display: inline-flex; }
+.wh-switch input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.wh-switch-track {
+  width: 40px;
+  height: 24px;
+  border-radius: var(--radius-pill);
+  background: var(--border-strong);
+  transition: background-color var(--dur-fast) var(--ease-swift);
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+}
+.wh-switch-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--surface-card);
+  transition: transform var(--dur-fast) var(--ease-swift);
+}
+.wh-switch input:checked + .wh-switch-track { background: var(--accent-deep); }
+.wh-switch input:checked + .wh-switch-track .wh-switch-thumb { transform: translateX(16px); }
+.wh-switch input:focus-visible + .wh-switch-track { outline: 2px solid var(--link); outline-offset: 2px; }
+
+/* ---- flag / image questions (panel, quiz, bank) ---- */
+.wh-qimage {
+  margin: var(--space-3) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  align-items: flex-start;
+}
+.wh-qimage img {
+  max-width: 100%;
+  max-height: 160px;
+  width: auto;
+  height: auto;
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-sm);
+  background: var(--surface-card);
+}
+.wh-qimage-src {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  color: var(--text-faint);
+}
+.wh-qimage-src .wh-icon { width: 12px; height: 12px; }
