@@ -19,10 +19,23 @@ const authorizedParties = [
   'http://localhost:3000',
 ].filter(Boolean);
 
-export async function requireUser(request: Request): Promise<string> {
+// Verify the request and return both the user id and Clerk's `has` predicate.
+// `has` is read from `state.toAuth()` (the session claims — networkless), so a
+// caller can check plan/feature entitlements without a Clerk API round trip.
+export async function authenticate(request: Request) {
   const state = await clerk.authenticateRequest(request, { authorizedParties });
   if (!state.isAuthenticated) throw new HttpError(401, 'unauthorized');
-  const { userId } = state.toAuth();
+  const { userId, has } = state.toAuth();
   if (!userId) throw new HttpError(401, 'unauthorized');
+  return { userId, has };
+}
+
+/** The networkless authorization predicate from the session claims. */
+export type Has = Awaited<ReturnType<typeof authenticate>>['has'];
+
+// Thin wrapper preserved verbatim for the callers that only need the id
+// (bank.ts, me.ts, article-status.ts, race.ts, trails.ts, quiz-results.ts).
+export async function requireUser(request: Request): Promise<string> {
+  const { userId } = await authenticate(request);
   return userId;
 }
