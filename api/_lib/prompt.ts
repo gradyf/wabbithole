@@ -27,6 +27,12 @@ export const QuestionsSchema = z.object({
       explanation: z
         .string()
         .describe('One sentence stating the fact that makes the answer correct'),
+      imageUrl: z
+        .string()
+        .optional()
+        .describe(
+          'Only for an image question (e.g. identify-the-flag): the exact image URL you were given. Omit on every text question.',
+        ),
     }),
   ),
 });
@@ -37,7 +43,13 @@ export function buildExtractionPrompt(args: {
   title: string;
   description?: string;
   text: string;
+  // Present only when a validated flag image was detected on the page. Folds an
+  // image question into this same call; imageUrl is the exact string to echo.
+  flag?: { imageUrl: string; promptFragment: string };
 }): string {
+  const flagRule = args.flag
+    ? `\n${args.flag.promptFragment}\nFlag image URL (use this exact string as that question's imageUrl): ${args.flag.imageUrl}\n`
+    : '';
   return `You are generating quiz questions for a personal trivia bank. Readers collect these after reading a Wikipedia article, then quiz themselves later to remember what they learned.
 
 Write exactly ${EXTRACTION_CEILING} multiple-choice questions from the article text below.
@@ -54,7 +66,7 @@ Rules:
 - Each question must cover a distinct fact; do not restate the same fact two ways.
 - explanation: one sentence stating the fact that makes the answer correct.
 - Write the questions in the same language as the article text.
-
+${flagRule}
 Article title: ${args.title}
 ${args.description ? `Short description: ${args.description}\n` : ''}
 Article text (may be truncated):

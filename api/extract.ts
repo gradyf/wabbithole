@@ -10,24 +10,35 @@ import { authenticate } from './_lib/auth.js';
 import { enforceGenerationBudget, logGeneration } from './_lib/budget.js';
 import { db } from './_lib/db.js';
 import { type Entitlements, resolveEntitlements } from './_lib/entitlements.js';
+import { focusByKey } from './_lib/focus.js';
 import { HttpError, handle, json, readJson, requireMethod } from './_lib/http.js';
 import { WEEKLY_ADD_CAP, weeklyRemaining } from './_lib/limits.js';
 import {
   EXTRACTION_CEILING,
   EXTRACTION_MODEL,
+  type ExtractedQuestion,
   PROMPT_VERSION,
   QuestionsSchema,
   buildExtractionPrompt,
   validQuestions,
 } from './_lib/prompt.js';
 import { articleQuestions, articles, extractions } from './_lib/schema.js';
-import { fetchArticleSource, validLang } from './_lib/wikipedia.js';
+import {
+  fetchArticleSource,
+  validLang,
+  type ValidatedFlag,
+  validateFlagHint,
+} from './_lib/wikipedia.js';
 
 const STALE_LOCK_MS = 2 * 60 * 1000;
 
 interface ExtractBody {
   lang?: unknown;
   title?: unknown;
+  // Optional client flag-detection hint: { imageUrl, sourceUrl }. Sent whenever
+  // a flag image is found in the infobox, regardless of the sender's own toggle
+  // (the pool is communal). Validated hard server-side on cache-miss only.
+  flag?: unknown;
 }
 
 export default handle(async (request) => {
@@ -78,26 +89,53 @@ export default handle(async (request) => {
     return respond(source, cachedAfterLock, true, userId, entitlements);
   }
 
+  // Flag hint: validated on this cache-miss only (host + filename + prop=images
+  // membership). A forged/absent hint yields null and extraction proceeds
+  // flagless. Detection + generation are preference-independent — the pool is
+  // communal, so the toggle of the sender never gates what gets generated.
+  const validatedFlag = await validateFlagHint(lang, source.canonicalTitle, body.flag);
+
   try {
     // Count before we spend: a timeout or crash during generateQuestions still
     // leaves this row, so the attempt counts against both caps (no free retry).
     await logGeneration(userId, 'extract', articleRow.id);
-    const generated = await generateQuestions(source);
+    const { mc, flag: flagQuestion } = await generateQuestions(source, validatedFlag);
     const rows = await db
       .insert(articleQuestions)
       .values(
-        // The model emits most-memorable-first, so its output index IS the rank
-        // (0 = most memorable). Serving slices free callers to the top ranks.
-        generated.map((q, i) => ({
-          articleId: articleRow.id,
-          prompt: q.prompt,
-          choices: q.choices,
-          answerIndex: q.answerIndex,
-          explanation: q.explanation,
-          rank: i,
-          promptVersion: PROMPT_VERSION,
-          model: EXTRACTION_MODEL,
-        })),
+        [
+          // The model emits most-memorable-first, so its output index IS the rank
+          // (0 = most memorable). Serving slices free callers to the top ranks.
+          ...mc.map((q, i) => ({
+            articleId: articleRow.id,
+            prompt: q.prompt,
+            choices: q.choices,
+            answerIndex: q.answerIndex,
+            explanation: q.explanation,
+            rank: i,
+            promptVersion: PROMPT_VERSION,
+            model: EXTRACTION_MODEL,
+          })),
+          // One communal flag row when validated: type='flag', rank NULL (flags
+          // are never rank-sliced — served to every tier). image_url is the
+          // exact validated URL; image_source_url is the derived file page.
+          ...(flagQuestion && validatedFlag
+            ? [
+                {
+                  articleId: articleRow.id,
+                  type: 'flag',
+                  prompt: flagQuestion.prompt,
+                  choices: flagQuestion.choices,
+                  answerIndex: flagQuestion.answerIndex,
+                  explanation: flagQuestion.explanation,
+                  imageUrl: validatedFlag.imageUrl,
+                  imageSourceUrl: validatedFlag.sourceUrl,
+                  promptVersion: PROMPT_VERSION,
+                  model: EXTRACTION_MODEL,
+                },
+              ]
+            : []),
+        ],
       )
       .returning();
     await db.update(extractions).set({ status: 'done' }).where(eq(extractions.id, lockId));
@@ -175,12 +213,16 @@ async function acquireLock(articleId: number, userId: string): Promise<number> {
   throw new HttpError(409, 'extraction_in_progress', 'This article is being extracted right now. Try again in a few seconds.');
 }
 
-async function generateQuestions(source: {
-  displayTitle: string;
-  description?: string;
-  text: string;
-}) {
+// One Haiku call produces both the MC set and (when a flag was validated) the
+// single flag question. Returns them partitioned: mc is the ranked MC set
+// sliced to the ceiling; flag is the one image question whose imageUrl exactly
+// matches the validated URL, or null.
+async function generateQuestions(
+  source: { displayTitle: string; description?: string; text: string },
+  flag: ValidatedFlag | null,
+): Promise<{ mc: ExtractedQuestion[]; flag: ExtractedQuestion | null }> {
   const client = new Anthropic(); // ANTHROPIC_API_KEY from env
+  const flagFocus = flag ? focusByKey('flags') : undefined;
   const res = await client.messages.parse({
     model: EXTRACTION_MODEL,
     // Headroom for EXTRACTION_CEILING (25) questions: ~25 x ~130 tok ≈ 3.3k
@@ -194,6 +236,10 @@ async function generateQuestions(source: {
           title: source.displayTitle,
           description: source.description,
           text: source.text,
+          flag:
+            flag && flagFocus
+              ? { imageUrl: flag.imageUrl, promptFragment: flagFocus.promptFragment }
+              : undefined,
         }),
       },
     ],
@@ -202,11 +248,37 @@ async function generateQuestions(source: {
   // Cost visibility: one line per paid call (REVIEW cost check).
   console.log('extraction usage', JSON.stringify(res.usage));
 
-  const questions = validQuestions(res.parsed_output?.questions ?? []).slice(0, EXTRACTION_CEILING);
-  if (questions.length < 3) {
+  const { mc, flag: flagQuestion } = partitionGenerated(res.parsed_output?.questions ?? [], flag);
+  if (mc.length < 3) {
     throw new HttpError(502, 'extraction_failed', 'Could not generate good questions for this article.');
   }
-  return questions;
+  return { mc, flag: flagQuestion };
+}
+
+// Pure fold of one Haiku call's output into (MC set, single flag question).
+// The flag question is the FIRST question whose imageUrl exactly equals the URL
+// we validated and gave the model; every other imageUrl is a hallucination and
+// is dropped, so no unvalidated URL can reach the communal pool. MC rows are
+// then filtered for validity and sliced to the ceiling. Exported so the
+// exact-match drop and single-call fold are unit-testable without a live call.
+export function partitionGenerated(
+  parsed: ExtractedQuestion[],
+  flag: ValidatedFlag | null,
+): { mc: ExtractedQuestion[]; flag: ExtractedQuestion | null } {
+  let flagQuestion: ExtractedQuestion | null = null;
+  const mcRaw: ExtractedQuestion[] = [];
+  for (const q of parsed) {
+    if (flag && !flagQuestion && q.imageUrl === flag.imageUrl) {
+      flagQuestion = q;
+    } else {
+      mcRaw.push({ ...q, imageUrl: undefined });
+    }
+  }
+  const mc = validQuestions(mcRaw).slice(0, EXTRACTION_CEILING);
+  return {
+    mc,
+    flag: flagQuestion && validQuestions([flagQuestion]).length === 1 ? flagQuestion : null,
+  };
 }
 
 async function respond(
