@@ -538,16 +538,26 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     const p2 = document.createElement('p');
     p2.className = 'wh-mem-body';
     p2.textContent = UPGRADE_BODY_2;
-    const cta = document.createElement('button');
-    cta.type = 'button';
-    cta.className = 'wh-btn';
-    const spark = document.createElement('span');
-    spark.className = 'wh-icon';
-    spark.dataset.name = 'sparkles';
-    spark.setAttribute('aria-hidden', 'true');
-    cta.append(spark, 'Get premium');
-    cta.addEventListener('click', () => void startCheckout(cta));
-    wrap.append(title, p1, p2, cta);
+    wrap.append(title, p1, p2);
+    // Pre-Stripe posture: with no resolvable plan (WH_PREMIUM_PLAN unset, so
+    // GET /api/billing echoes planSlug null — or a failed billing load leaving
+    // billingCache null), show an honest coming-soon line instead of a
+    // Get-premium button that would only toast "not ready yet". Once the plan
+    // resolves, the CTA renders again automatically — no code change.
+    if (billingCache?.planSlug) {
+      const cta = document.createElement('button');
+      cta.type = 'button';
+      cta.className = 'wh-btn';
+      const spark = document.createElement('span');
+      spark.className = 'wh-icon';
+      spark.dataset.name = 'sparkles';
+      spark.setAttribute('aria-hidden', 'true');
+      cta.append(spark, 'Get premium');
+      cta.addEventListener('click', () => void startCheckout(cta));
+      wrap.append(cta);
+    } else {
+      wrap.append(memNote('Premium is coming soon.'));
+    }
     return wrap;
   }
 
@@ -799,7 +809,10 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
       label.className = 'wh-pick';
       const input = document.createElement('input');
       input.type = 'checkbox';
-      input.checked = data.weeklyRemaining === null || i < data.weeklyRemaining;
+      // Pre-check against the tier-corrected panel cap (:781), not the raw
+      // free-basis weeklyRemaining: premium/owner (panelRemaining === null) get
+      // every question pre-checked; free keeps the exact free-remaining basis.
+      input.checked = panelRemaining === null || i < panelRemaining;
       input.value = q.id;
       input.addEventListener('change', updateAddButton);
       const box = document.createElement('span');

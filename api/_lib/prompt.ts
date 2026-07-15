@@ -4,7 +4,7 @@
 
 import { z } from 'zod';
 
-export const PROMPT_VERSION = 1;
+export const PROMPT_VERSION = 2;
 export const EXTRACTION_MODEL = 'claude-haiku-4-5';
 
 // One extraction generates and stores EXTRACTION_CEILING questions per article
