@@ -1,4 +1,97 @@
-// /api/billing — the caller's premium membership surface (Clerk Billing).
+// /api/account — the signed-in user's account surface. ONE Serverless Function
+// fronting two user-scoped sub-resources, selected by the `scope` query param
+// (merged verbatim from api/settings.ts + api/billing.ts to fit the Hobby
+// 12-function cap). Each sub-resource keeps its former method + auth +
+// validation + response/error shapes exactly:
+//   scope=settings -> GET/PUT  (former /api/settings)
+//   scope=billing  -> GET/POST (former /api/billing)
+// A missing or unknown scope is a 400 before any sub-handler (and thus any
+// auth) runs.
+
+import { eq } from 'drizzle-orm';
+import { authenticate, clerk, requireUser } from './_lib/auth.js';
+import { db } from './_lib/db.js';
+import { resolveEntitlements } from './_lib/entitlements.js';
+import { isKnownFocus } from './_lib/focus.js';
+import { HttpError, handle, json, readJson, requireMethod } from './_lib/http.js';
+import { type UserPreferences, userSettings } from './_lib/schema.js';
+
+export default handle(async (request) => {
+  const scope = new URL(request.url).searchParams.get('scope');
+  if (scope === 'settings') return handleSettings(request);
+  if (scope === 'billing') return handleBilling(request);
+  throw new HttpError(400, 'bad_request');
+});
+
+// ── settings ───────────────────────────────────────────────────────────────
+// (former /api/settings) — the signed-in user's product preferences.
+//   GET  -> { preferences }
+//   PUT  { preferences } -> validates a whitelist, upserts, returns { preferences }
+// Auth required. No withUserLock: settings are last-write-wins per user, with
+// no cross-request cap to race (unlike bank adds).
+
+interface SettingsBody {
+  preferences?: unknown;
+}
+
+async function handleSettings(request: Request): Promise<Response> {
+  const userId = await requireUser(request);
+  if (request.method === 'GET') return get(userId);
+  requireMethod(request, 'PUT');
+
+  const body = await readJson<SettingsBody>(request);
+  const preferences = validatePreferences(body.preferences);
+
+  const now = new Date();
+  const [row] = await db
+    .insert(userSettings)
+    .values({ clerkUserId: userId, preferences, updatedAt: now })
+    .onConflictDoUpdate({
+      target: userSettings.clerkUserId,
+      set: { preferences, updatedAt: now },
+    })
+    .returning({ preferences: userSettings.preferences });
+  return json({ preferences: row.preferences });
+}
+
+async function get(userId: string): Promise<Response> {
+  const [row] = await db
+    .select({ preferences: userSettings.preferences })
+    .from(userSettings)
+    .where(eq(userSettings.clerkUserId, userId));
+  return json({ preferences: row?.preferences ?? {} });
+}
+
+// Reject anything not described by UserPreferences: unknown top-level keys, a
+// non-object envelope, or a quizFocuses that isn't an array of known focus
+// keys. A malformed PUT changes nothing (400) rather than persisting junk.
+const ALLOWED_KEYS = new Set(['quizFocuses']);
+
+function validatePreferences(value: unknown): UserPreferences {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    throw new HttpError(400, 'bad_request', 'preferences must be an object');
+  }
+  const input = value as Record<string, unknown>;
+  for (const key of Object.keys(input)) {
+    if (!ALLOWED_KEYS.has(key)) {
+      throw new HttpError(400, 'bad_request', `unknown preference key: ${key}`);
+    }
+  }
+
+  const out: UserPreferences = {};
+  if ('quizFocuses' in input) {
+    const focuses = input.quizFocuses;
+    if (!Array.isArray(focuses) || !focuses.every(isKnownFocus)) {
+      throw new HttpError(400, 'bad_request', 'quizFocuses must be an array of known focus keys');
+    }
+    // Dedupe so a client can't grow the array unboundedly with repeats.
+    out.quizFocuses = [...new Set(focuses)];
+  }
+  return out;
+}
+
+// ── billing ──────────────────────────────────────────────────────────────────
+// (former /api/billing) — the caller's premium membership surface (Clerk Billing).
 //   GET  -> { tier, status, renewsAt, endsAt, planSlug } for the Membership
 //           section. Tier is derived through resolveEntitlements so an owner
 //           reads "owner" (not "free") and a fresh token that carries the plan
@@ -14,10 +107,6 @@
 // Reuses the shared Clerk backend client (CLERK_SECRET_KEY) — no new secrets.
 // WH_PREMIUM_PLAN is the plan SLUG (the same identifier resolveEntitlements
 // feeds to has({ plan })); the subscription item is matched to it by plan.slug.
-
-import { authenticate, clerk } from './_lib/auth.js';
-import { resolveEntitlements } from './_lib/entitlements.js';
-import { HttpError, handle, json } from './_lib/http.js';
 
 type BillingItemStatus =
   | 'abandoned'
@@ -82,12 +171,12 @@ interface BillingStatusBody {
   planSlug: string | null;
 }
 
-export default handle(async (request) => {
+async function handleBilling(request: Request): Promise<Response> {
   const { userId, has } = await authenticate(request);
   if (request.method === 'GET') return status(userId, has);
   if (request.method === 'POST') return cancel(userId, has);
   throw new HttpError(405, 'method_not_allowed');
-});
+}
 
 function iso(ms: number | null | undefined): string | null {
   return typeof ms === 'number' ? new Date(ms).toISOString() : null;

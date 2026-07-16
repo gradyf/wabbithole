@@ -346,7 +346,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
       billingCache = null;
       billingLoad = null;
     }
-    billingLoad ??= apiFetch<BillingStatus>('/api/billing')
+    billingLoad ??= apiFetch<BillingStatus>('/api/account?scope=billing')
       .then((r) => {
         billingCache = r;
         return r;
@@ -367,7 +367,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
   }
 
   function ensureSettings(): Promise<UserPreferences> {
-    settingsLoad ??= apiFetch<{ preferences: UserPreferences }>('/api/settings')
+    settingsLoad ??= apiFetch<{ preferences: UserPreferences }>('/api/account?scope=settings')
       .then((r) => {
         settingsCache = r.preferences ?? {};
         return settingsCache;
@@ -406,7 +406,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     settingsCache = { ...(settingsCache ?? {}), quizFocuses: next };
     void (async () => {
       try {
-        const r = await apiFetch<{ preferences: UserPreferences }>('/api/settings', {
+        const r = await apiFetch<{ preferences: UserPreferences }>('/api/account?scope=settings', {
           method: 'PUT',
           body: JSON.stringify({ preferences: { quizFocuses: next } }),
         });
@@ -605,7 +605,7 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
   async function doCancel(btn: HTMLButtonElement): Promise<void> {
     btn.disabled = true;
     try {
-      const next = await apiFetch<BillingStatus>('/api/billing', { method: 'POST' });
+      const next = await apiFetch<BillingStatus>('/api/account?scope=billing', { method: 'POST' });
       billingCache = next;
       renderMembership();
       opts.onToast('Premium canceled. You keep it until the period ends.');
