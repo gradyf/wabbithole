@@ -111,24 +111,29 @@ export function validLang(lang: unknown): lang is string {
 }
 
 // A client-detected flag image, validated server-side before it can seed the
-// communal pool. imageUrl is the NORMALIZED url.href — never the raw client
-// string, whose query/fragment could smuggle newlines that new URL() strips
-// before the gates run but that would survive verbatim into the extraction
-// prompt and the stored row. url.href is guaranteed single-line (newlines/tabs
-// gone, specials percent-encoded); it is the one value echoed to the model,
-// matched post-parse, and stored. sourceUrl is the file-description page for
-// attribution, DERIVED here (never trusted from the client).
+// communal pool. imageUrl is SERVER-DERIVED from the validated File name via the
+// action API (prop=imageinfo), NOT the client's URL: the path segments between
+// host and filename (thumb hash/size dirs) are attacker-controlled and were
+// never validated, so trusting them would let a first-extractor poison the
+// single communal flag row with a bogus path that 404s for everyone [F4]. The
+// derived URL is host-locked to upload.wikimedia.org and is the one value echoed
+// to the model, matched post-parse, and stored. sourceUrl is the file-
+// description page for attribution, also DERIVED here (never trusted from the
+// client).
 export interface ValidatedFlag {
   imageUrl: string;
   sourceUrl: string;
 }
 
-// Validate a client flag hint on cache-miss. All three gates must pass or the
-// hint is ignored (returns null; extraction proceeds flagless, no error):
+// Validate a client flag hint on cache-miss. The hint's URL only IDENTIFIES a
+// File; every gate below must pass or the hint is ignored (returns null;
+// extraction proceeds flagless, no error):
 //   1. https host is exactly upload.wikimedia.org (no arbitrary image host),
 //   2. the base filename matches /Flag[_ ]of/i,
 //   3. a prop=images membership check confirms the file is actually on the page
-//      (a real-looking URL that belongs to another page is rejected).
+//      (a real-looking URL that belongs to another page is rejected),
+//   4. the SERVED url is re-derived from the validated File name via
+//      prop=imageinfo — the client's (unvalidated) path is never stored [F4].
 // Any thrown error (malformed URL, network failure) resolves to null silently —
 // a forged or broken hint never blocks or errors the extraction.
 export async function validateFlagHint(
@@ -145,9 +150,37 @@ export async function validateFlagHint(
     const fileName = baseFileName(url);
     if (!/Flag[_ ]of/i.test(fileName)) return null;
     if (!(await pageHasImage(lang, canonicalTitle, fileName))) return null;
-    // url.href, NOT the raw client string: the parser stripped newlines/tabs
-    // before the gates ran, so only the parsed form is what was validated.
-    return { imageUrl: url.href, sourceUrl: filePageForName(fileName) };
+    // F4: gates 1-3 validated the file's IDENTITY (host + base name + page
+    // membership) but NOT the client's path segments. Re-derive the served URL
+    // from the validated File name so no attacker-controlled path is ever stored
+    // in the communal row. A missing/blank imageinfo url → null → flagless.
+    const derived = await fileImageUrl(lang, fileName);
+    if (!derived) return null;
+    return { imageUrl: derived, sourceUrl: filePageForName(fileName) };
+  } catch {
+    return null;
+  }
+}
+
+// Resolve a validated File's canonical served URL via the action-API imageinfo
+// module (prop=imageinfo&iiprop=url on File:<name>). We query the article's lang
+// wiki so foreign-repo (Commons) files resolve transparently to their
+// upload.wikimedia.org URL. Single-endpoint discipline (wikiFetch). The returned
+// URL is re-host-locked so the value we store communally is provably an
+// upload.wikimedia.org file URL; anything else → null (caller goes flagless).
+async function fileImageUrl(lang: string, fileName: string): Promise<string | null> {
+  const res = await wikiFetch(
+    `https://${lang}.wikipedia.org/w/api.php?action=query&prop=imageinfo&iiprop=url&redirects=1&format=json&formatversion=2&titles=${encodeURIComponent(`File:${fileName}`)}`,
+  );
+  const data = (await res.json()) as {
+    query?: { pages?: Array<{ imageinfo?: Array<{ url?: string }> }> };
+  };
+  const derived = data.query?.pages?.[0]?.imageinfo?.[0]?.url;
+  if (typeof derived !== 'string' || !derived) return null;
+  try {
+    const u = new URL(derived);
+    if (u.protocol !== 'https:' || u.host !== 'upload.wikimedia.org') return null;
+    return u.href;
   } catch {
     return null;
   }

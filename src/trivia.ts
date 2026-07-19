@@ -2108,6 +2108,13 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
     img.alt = 'flag';
     img.loading = 'lazy';
     img.decoding = 'async';
+    // A broken src (deleted file, stale/poisoned path) collapses the whole
+    // figure instead of leaving a broken-image frame plus an orphaned "Image
+    // source" link — same graceful-degrade mechanism as content.ts's img error
+    // handler. A flag question with an unloadable image just shows no image.
+    img.onerror = () => {
+      fig.style.display = 'none';
+    };
     fig.appendChild(img);
     if (sourceUrl) {
       const a = document.createElement('a');
