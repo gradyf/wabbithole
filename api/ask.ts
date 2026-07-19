@@ -15,7 +15,7 @@ import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import { and, eq, gte, sql } from 'drizzle-orm';
 import { authenticate } from './_lib/auth.js';
 import { enforceGenerationBudget, logGeneration } from './_lib/budget.js';
-import { type DbTx, db, withKeyLock } from './_lib/db.js';
+import { type DbTx, db, withKeyLock, withUserLock } from './_lib/db.js';
 import { resolveEntitlements } from './_lib/entitlements.js';
 import { HttpError, handle, json, readJson, requireMethod } from './_lib/http.js';
 import {
@@ -91,59 +91,113 @@ export default handle(async (request) => {
   const cachedRow = await loadAdhoc(articleRow.id, hash);
   if (cachedRow) return json(respond(cachedRow, true));
 
-  // Wallet guard (miss only): kill switch -> global ceiling -> per-user 12/day,
-  // in the SAME order as extract.ts. Owners bypass the per-user cap.
+  // Wallet guard + ad-hoc cap are AUTHORITATIVE under a per-user advisory lock
+  // [F2]: it SERIALIZES this user's concurrent requests, so N distinct valid
+  // highlights fired at once can no longer each read count=0 and all spend — the
+  // second waits for the first to release the lock, by which point the first's
+  // autocommit log has committed and is visible. No fast pre-check: the only work
+  // gated after this point is the (cheap) lock itself — all the expensive I/O
+  // (article fetch, full-text fetch, containment, cache read) has already run, so
+  // an early non-authoritative reject would save nothing and duplicate the cap
+  // logic. The 402 premium gate stays at the top of the handler, before any I/O.
   const isOwner = entitlements.tier === 'owner';
-  await enforceGenerationBudget(userId, isOwner);
+  const result = await withUserLock(userId, async () => {
+    // Kill switch -> global ceiling -> per-user 12/day, same order as extract.ts.
+    // Owners bypass the per-user cap. Counts read on the default db are correct
+    // here: the user-lock serializes same-user requests, so a fresh HTTP
+    // connection sees every prior committed log for this user.
+    await enforceGenerationBudget(userId, isOwner);
 
-  // Ad-hoc daily cap: premium 10/day, owner unbounded. Counted from
-  // generation_log kind='adhoc' (paid calls only — cache hits above never reach
-  // here, so they don't consume the cap). Checked after the shared guard so a
-  // paused site still tells everyone the same warm thing.
-  if (entitlements.adhocDailyCap !== null) {
-    const used = await adhocGenerationsToday(userId);
-    if (used >= entitlements.adhocDailyCap) {
-      throw new HttpError(429, 'adhoc_cap', "That's plenty of questions for today. More tomorrow.");
+    // Ad-hoc daily cap: premium 10/day, owner unbounded. Counted from
+    // generation_log kind='adhoc' (paid calls only — cache hits above never
+    // reach here, so they don't consume the cap). Inside the user-lock so the
+    // count is atomic with the log write below.
+    if (entitlements.adhocDailyCap !== null) {
+      const used = await adhocGenerationsToday(userId);
+      if (used >= entitlements.adhocDailyCap) {
+        throw new HttpError(429, 'adhoc_cap', "That's plenty of questions for today. More tomorrow.");
+      }
     }
-  }
 
-  // Serialize identical concurrent highlights into ONE paid call [C13]: the lock
-  // body re-checks the cache, and only the first misser logs + generates. The
-  // key namespaces on article+hash with a salt distinct from withUserLock's.
-  const result = await withKeyLock(`adhoc:${articleRow.id}:${hash}`, async (tx) => {
-    // Someone identical may have generated between our cache read and the lock.
-    const winner = await loadAdhoc(articleRow.id, hash, tx);
-    if (winner) return { row: winner, cached: true };
+    // INNER lock: serialize identical concurrent highlights (cross-user) into ONE
+    // paid call [C13]. Nested user->key (never key->user) so there is no deadlock
+    // cycle. The body re-checks the cache and only the first misser logs +
+    // generates. Key namespaces on article+hash with a salt distinct from the
+    // user-lock's.
+    return await withKeyLock(`adhoc:${articleRow.id}:${hash}`, async (tx) => {
+      // Someone identical may have generated between our cache read and the lock.
+      const winner = await loadAdhoc(articleRow.id, hash, tx);
+      if (winner) return { row: winner, cached: true };
 
-    // Count-before-spend [C4]: log on the autocommit `db` (NOT `tx`) so the row
-    // survives even if generation throws and this transaction rolls back — a
-    // failed/refused attempt still consumes the budget slot (no free retry).
-    await logGeneration(userId, 'adhoc', articleRow.id);
-    const question = await generateAdhoc(source, selection);
+      // Moderation spend-guard [F3]: an UNFILTERED probe under the key-lock. The
+      // hidden-filtered `winner` above missed, but a moderation-hidden row may
+      // still occupy aq_adhoc_selection_idx for this (article, hash) — in which
+      // case the insert below would only conflict-and-410 anyway. Detect it HERE,
+      // before logGeneration + the paid call, so re-highlighting a moderated
+      // passage burns no cap slot and no money. Sound under the lock: report.ts
+      // only flips `hidden` on an existing row (it never inserts), and the
+      // key-lock blocks any concurrent same-selection insert, so this set is
+      // stable while we hold it.
+      const [moderated] = await tx
+        .select({ id: articleQuestions.id })
+        .from(articleQuestions)
+        .where(
+          and(
+            eq(articleQuestions.articleId, articleRow.id),
+            eq(articleQuestions.selectionHash, hash),
+            eq(articleQuestions.origin, 'adhoc'),
+          ),
+        )
+        .limit(1);
+      if (moderated)
+        throw new HttpError(
+          410,
+          'question_removed',
+          "It was removed and can't be asked again. Try a different highlight.",
+        );
 
-    const [row] = await tx
-      .insert(articleQuestions)
-      .values({
-        articleId: articleRow.id,
-        type: 'mc',
-        prompt: question.prompt,
-        choices: question.choices,
-        answerIndex: question.answerIndex,
-        explanation: question.explanation,
-        origin: 'adhoc',
-        selectionHash: hash,
-        createdBy: userId,
-        rank: null,
-        promptVersion: PROMPT_VERSION,
-        model: ADHOC_MODEL,
-      })
-      .onConflictDoNothing()
-      .returning();
-    // A concurrent identical insert won the unique index — re-select the winner.
-    if (row) return { row, cached: false };
-    const other = await loadAdhoc(articleRow.id, hash, tx);
-    if (!other) throw new HttpError(500, 'adhoc_failed');
-    return { row: other, cached: false };
+      // Count-before-spend [C4]: log on the autocommit `db` (NOT `tx`) so the row
+      // survives even if generation throws and this transaction rolls back — a
+      // failed/refused attempt still consumes the budget slot (no free retry).
+      // Atomicity of cap+log comes from the OUTER user-lock serializing same-user
+      // requests, not from a shared transaction — so the log stays on autocommit.
+      await logGeneration(userId, 'adhoc', articleRow.id);
+      const question = await generateAdhoc(source, selection);
+
+      const [row] = await tx
+        .insert(articleQuestions)
+        .values({
+          articleId: articleRow.id,
+          type: 'mc',
+          prompt: question.prompt,
+          choices: question.choices,
+          answerIndex: question.answerIndex,
+          explanation: question.explanation,
+          origin: 'adhoc',
+          selectionHash: hash,
+          createdBy: userId,
+          rank: null,
+          promptVersion: PROMPT_VERSION,
+          model: ADHOC_MODEL,
+        })
+        .onConflictDoNothing()
+        .returning();
+      // A concurrent identical insert won the unique index — re-select the winner.
+      if (row) return { row, cached: false };
+      const other = await loadAdhoc(articleRow.id, hash, tx);
+      // Defensive fallback [F3]: the pre-spend probe above already 410s the
+      // moderation-hidden case before generating, and the key-lock blocks any
+      // concurrent same-selection insert — so an insert conflict with a null
+      // filtered re-select should be unreachable here. Kept as a clean 410 (not a
+      // 500) in case a hidden row races in between the probe and the insert.
+      if (!other)
+        throw new HttpError(
+          410,
+          'question_removed',
+          "It was removed and can't be asked again. Try a different highlight.",
+        );
+      return { row: other, cached: false };
+    });
   });
 
   return json(respond(result.row, result.cached));
@@ -232,6 +286,10 @@ async function loadAdhoc(
         eq(articleQuestions.articleId, articleId),
         eq(articleQuestions.selectionHash, hash),
         eq(articleQuestions.origin, 'adhoc'),
+        // Moderation floor [F3]: a 3-report auto-hidden ad-hoc row must NOT serve
+        // from cache. Both the pre-lock cache read and the in-lock re-check miss
+        // it; the resulting insert collision is answered as 410 question_removed.
+        eq(articleQuestions.hidden, false),
       ),
     )
     .limit(1);

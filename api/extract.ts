@@ -7,8 +7,13 @@ import Anthropic from '@anthropic-ai/sdk';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import { and, eq, lt, sql } from 'drizzle-orm';
 import { authenticate } from './_lib/auth.js';
-import { enforceGenerationBudget, logGeneration } from './_lib/budget.js';
-import { db } from './_lib/db.js';
+import {
+  enforceGenerationBudget,
+  globalGenerationsToday,
+  logGeneration,
+  userGenerationsToday,
+} from './_lib/budget.js';
+import { db, withUserLock } from './_lib/db.js';
 import { type Entitlements, resolveEntitlements } from './_lib/entitlements.js';
 import { focusByKey } from './_lib/focus.js';
 import { HttpError, handle, json, readJson, requireMethod } from './_lib/http.js';
@@ -95,10 +100,31 @@ export default handle(async (request) => {
   // communal, so the toggle of the sender never gates what gets generated.
   const validatedFlag = await validateFlagHint(lang, source.canonicalTitle, body.flag);
 
+  // Authoritative spend gate [F1]: the per-user cap re-check and the generation-
+  // log write are atomic under a per-user advisory lock, so N concurrent same-
+  // user extracts for DISTINCT articles serialize here and the 12/day cap holds
+  // (each sees the prior request's committed log). The lock's transaction COMMITS
+  // when the callback returns, so the log is durably written BEFORE the paid call
+  // below — count-before-spend is preserved. Owner still bypasses the per-user
+  // cap; kill switch + global ceiling apply to everyone (unchanged).
   try {
-    // Count before we spend: a timeout or crash during generateQuestions still
-    // leaves this row, so the attempt counts against both caps (no free retry).
-    await logGeneration(userId, 'extract', articleRow.id);
+    await withUserLock(userId, async (tx) => {
+      await enforceGenerationBudget(userId, isOwner, {
+        global: () => globalGenerationsToday(tx),
+        user: (u) => userGenerationsToday(u, tx),
+      });
+      await logGeneration(userId, 'extract', articleRow.id, tx);
+    });
+  } catch (err) {
+    // Rejected by the in-lock cap (429/503): this request never generated, so
+    // release the article lock (delete the pending row) rather than strand it —
+    // mirrors the cache-re-check cleanup above. A generate/insert failure below
+    // instead marks the row 'failed'.
+    await db.delete(extractions).where(eq(extractions.id, lockId));
+    throw err;
+  }
+
+  try {
     const { mc, flag: flagQuestion } = await generateQuestions(source, validatedFlag);
     const rows = await db
       .insert(articleQuestions)

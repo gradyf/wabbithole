@@ -981,6 +981,8 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
         return 'Not in this article';
       case 'no_question':
         return 'No question this time';
+      case 'question_removed':
+        return 'That question is gone';
       case 'bad_selection':
         return 'Highlight a little more';
       default:
@@ -990,7 +992,12 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
 
   function errorIconName(code: string): string {
     if (code === 'extraction_in_progress') return 'sparkles';
-    if (code === 'generation_paused' || code === 'not_in_article' || code === 'no_question')
+    if (
+      code === 'generation_paused' ||
+      code === 'not_in_article' ||
+      code === 'no_question' ||
+      code === 'question_removed'
+    )
       return 'info';
     return 'rotate-ccw';
   }
@@ -1137,9 +1144,11 @@ export function initTrivia(opts: TriviaOpts): TriviaUI {
       extractFoot.hidden = true;
       return;
     }
-    // not_in_article / no_question / adhoc_cap are terminal for this highlight;
-    // bad_selection won't help on retry. Everything else can retry the same ask.
-    const noRetry = new Set(['not_in_article', 'no_question', 'adhoc_cap', 'bad_selection', 'daily_cap', 'generation_paused']);
+    // not_in_article / no_question / adhoc_cap / question_removed are terminal for
+    // this highlight; bad_selection won't help on retry. Everything else can retry
+    // the same ask. (question_removed [F3]: the passage's question was moderated
+    // out and can't be regenerated, so re-asking it would only 410 again.)
+    const noRetry = new Set(['not_in_article', 'no_question', 'adhoc_cap', 'bad_selection', 'daily_cap', 'generation_paused', 'question_removed']);
     const retry = noRetry.has(e.code) ? null : () => openAsk(req);
     extractBody.replaceChildren(errorNoteEl(e.code, e.message, retry));
     extractFoot.hidden = true;
